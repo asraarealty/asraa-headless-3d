@@ -1,0 +1,61 @@
+"use client";
+
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+
+const units = [
+  {
+    level: 0,
+    type: "1BHK",
+    area: "323 sq.ft",
+    price: "₹45L - ₹55L",
+    msg: "Hi, I want 1BHK (323 sq.ft) in Naigaon project",
+  },
+  {
+    level: 1,
+    type: "2BHK",
+    area: "500+ sq.ft",
+    price: "₹65L - ₹85L",
+    msg: "Hi, I want 2BHK in Naigaon project",
+  },
+];
+
+function Floor({
+  position,
+  data,
+}: {
+  position: [number, number, number];
+  data: (typeof units)[0];
+}) {
+ 
+ return (
+    <mesh
+      position={position}
+      onClick={() => {
+        window.open(
+          `https://wa.me/919619973211?text=${encodeURIComponent(data.msg)}`,
+          "_blank"
+        );
+      }}
+    >
+      <boxGeometry args={[2, 0.4, 2]} />
+      <meshStandardMaterial color="#f97316" />
+    </mesh>
+  );
+}
+
+export default function ThreeScene() {
+  return (
+    <div className="absolute inset-0">
+      <Canvas>
+        <ambientLight intensity={0.7} />
+
+        {units.map((unit, i) => (
+          <Floor key={i} position={[0, i * 1.3, 0]} data={unit} />
+        ))}
+
+        <OrbitControls />
+      </Canvas>
+    </div>
+  );
+}

@@ -1,0 +1,58 @@
+"use client";
+
+import dynamic from "next/dynamic";
+
+const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
+  ssr: false,
+});
+
+export default function Home() {
+  return (
+    <main className="relative h-screen bg-black text-white">
+
+      <ThreeScene />
+
+      {/* Overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
+
+        <h1 className="text-4xl font-bold mb-3">
+          Growth Housing – Naigaon
+        </h1>
+
+        <p className="text-gray-300 mb-2">
+          2 mins from station • 30 mins from Andheri
+        </p>
+
+        <p className="text-green-400 mb-6 font-semibold">
+          80+ Amenities | Smart Investment Zone
+        </p>
+
+        {/* Unit Cards */}
+        <div className="flex gap-4 flex-wrap justify-center mb-6">
+
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <h2 className="font-bold">1 BHK</h2>
+            <p className="text-sm">323 sq.ft</p>
+            <p className="text-green-400">₹45L+</p>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
+            <h2 className="font-bold">2 BHK</h2>
+            <p className="text-sm">500+ sq.ft</p>
+            <p className="text-green-400">₹65L+</p>
+          </div>
+
+        </div>
+
+        {/* CTA */}
+        <a
+          href="https://wa.me/919619973211?text=Hi I want full brochure of Naigaon project"
+          className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg"
+        >
+          Get Full Details on WhatsApp
+        </a>
+
+      </div>
+    </main>
+  );
+}
