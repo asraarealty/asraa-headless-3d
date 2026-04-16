@@ -8,13 +8,14 @@ const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
 
 export default function Home() {
   return (
-    <>
+    <main className="relative h-screen bg-black text-white">
+
       {/* 3D Background */}
       <ThreeScene />
 
-      {/* Overlay Content */}
-      <div className="fixed inset-0 flex flex-col items-center justify-center text-center px-6 z-10 text-white">
-        
+      {/* Overlay */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
+
         <h1 className="text-4xl font-bold mb-4">
           Asraa Realty
         </h1>
@@ -31,6 +32,6 @@ export default function Home() {
         </a>
 
       </div>
-    </>
+    </main>
   );
 }
