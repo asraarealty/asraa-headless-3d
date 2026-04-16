@@ -1,3 +1,5 @@
+"use client";
+
 import dynamic from "next/dynamic";
 
 const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
@@ -23,7 +25,7 @@ export default function Home() {
         </p>
 
         <a
-          href="https://wa.me/919619973211?text=Hi%20I%20want%20best%20property%20deals"
+          href="https://wa.me/91XXXXXXXXXX?text=Hi%20I%20want%20best%20property%20deals"
           className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg"
         >
           Get Deals on WhatsApp
