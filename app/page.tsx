@@ -8,13 +8,12 @@ const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
 
 export default function Home() {
   return (
-    <main className="relative h-screen bg-black text-white">
-
+    <>
       {/* 3D Background */}
       <ThreeScene />
 
       {/* Overlay Content */}
-      <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-6">
+      <div className="fixed inset-0 flex flex-col items-center justify-center text-center px-6 z-10 text-white">
         
         <h1 className="text-4xl font-bold mb-4">
           Asraa Realty
@@ -25,14 +24,13 @@ export default function Home() {
         </p>
 
         <a
-          href="https://wa.me/91XXXXXXXXXX?text=Hi%20I%20want%20best%20property%20deals"
+          href="https://wa.me/919619973211?text=Hi%20I%20want%20best%20property%20deals"
           className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg"
         >
           Get Deals on WhatsApp
         </a>
 
       </div>
-
-    </main>
+    </>
   );
 }

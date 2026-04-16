@@ -3,17 +3,31 @@
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 
+function Floor({ position }) {
+  return (
+    <mesh position={position}>
+      <boxGeometry args={[2, 0.3, 2]} />
+      <meshStandardMaterial color="#f97316" />
+    </mesh>
+  );
+}
+
 export default function ThreeScene() {
   return (
-    <Canvas className="absolute top-0 left-0 w-full h-full">
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[2, 2, 2]} />
+    <Canvas
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 0,
+      }}
+      camera={{ position: [3, 5, 8], fov: 60 }}
+    >
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[5, 5, 5]} intensity={1} />
 
-      {/* Building */}
-      <mesh position={[0, 1.5, 0]}>
-        <boxGeometry args={[1, 3, 1]} />
-        <meshStandardMaterial color="orange" />
-      </mesh>
+      {[...Array(8)].map((_, i) => (
+        <Floor key={i} position={[0, i * 0.35, 0]} />
+      ))}
 
       <OrbitControls autoRotate />
     </Canvas>

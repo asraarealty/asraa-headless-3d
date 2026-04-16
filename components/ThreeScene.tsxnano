@@ -1,0 +1,21 @@
+"use client";
+
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls } from "@react-three/drei";
+
+export default function ThreeScene() {
+  return (
+    <div className="absolute inset-0 z-0">
+      <Canvas camera={{ position: [0, 2, 5] }}>
+        
+        {/* NO LIGHT DEPENDENCY */}
+        <mesh>
+          <boxGeometry args={[2, 2, 2]} />
+          <meshBasicMaterial color="red" />
+        </mesh>
+
+        <OrbitControls autoRotate />
+      </Canvas>
+    </div>
+  );
+}
