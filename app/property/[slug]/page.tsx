@@ -35,7 +35,7 @@ async function getProperty(slug: string) {
         }
       `,
       variables: {
-        slug: \`/property/${slug}/\`,
+        slug: \`/property/${slug}\`,
       },
     }),
     cache: "no-store",
