@@ -1,26 +1,50 @@
-"use client";
-
 import dynamic from "next/dynamic";
 
 const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
   ssr: false,
 });
 
-export default function Home() {
+async function getProperties() {
+  const res = await fetch("https://asraarealty.com/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+        {
+          properties {
+            nodes {
+              id
+              title
+              slug
+            }
+          }
+        }
+      `,
+    }),
+    cache: "no-store",
+  });
+
+  const json = await res.json();
+  return json.data.properties.nodes;
+}
+
+export default async function Home() {
+  const properties = await getProperties();
+
   return (
     <main className="bg-black text-white">
+      {/* HERO SECTION */}
       <section className="relative h-screen overflow-hidden">
-
-        {/* 3D Background */}
         <ThreeScene />
 
-        {/* Dark Gradient Overlay */}
+        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black z-10" />
 
         {/* Navbar */}
         <header className="absolute top-0 left-0 w-full z-20 px-8 md:px-20 py-6">
           <div className="flex items-center justify-between">
-
             <div className="text-2xl font-bold text-amber-400">
               Asraa Realty
             </div>
@@ -39,13 +63,11 @@ export default function Home() {
             >
               Contact
             </a>
-
           </div>
         </header>
 
         {/* Hero Content */}
         <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-20 z-20 max-w-4xl">
-
           <span className="text-amber-400 uppercase tracking-[0.3em] text-sm mb-4">
             Premium Real Estate Advisory
           </span>
@@ -60,7 +82,6 @@ export default function Home() {
             matching built for smarter investments.
           </p>
 
-          {/* CTA Buttons */}
           <div className="flex gap-4 flex-wrap">
             <a
               href="https://wa.me/919619973211"
@@ -77,7 +98,6 @@ export default function Home() {
             </a>
           </div>
 
-          {/* Trust Strip */}
           <div className="mt-8 flex gap-6 text-sm text-zinc-400 flex-wrap">
             <span>✔ Verified Listings</span>
             <span>✔ Trusted Developers</span>
@@ -85,11 +105,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Floating Search Box */}
+        {/* Search Box */}
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[90%] max-w-6xl bg-zinc-900/90 backdrop-blur-lg border border-zinc-800 rounded-2xl p-4 z-20">
-
           <div className="grid md:grid-cols-4 gap-4">
-
             <input
               type="text"
               placeholder="Location"
@@ -113,10 +131,89 @@ export default function Home() {
             <button className="bg-amber-500 text-black rounded-xl font-semibold hover:bg-amber-600 transition">
               Search Properties
             </button>
-
           </div>
         </div>
+      </section>
 
+      {/* FEATURED PROPERTIES */}
+      <section className="py-28 px-8 md:px-20">
+        <div className="mb-12 text-center">
+          <span className="text-amber-400 uppercase tracking-[0.25em] text-sm">
+            Exclusive Listings
+          </span>
+
+          <h2 className="text-4xl font-bold mt-4">
+            Featured Properties
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8">
+          {properties.slice(0, 6).map((property: any) => (
+            <div
+              key={property.id}
+              className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-500 transition"
+            >
+              <div className="h-64 bg-zinc-800" />
+
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-3 group-hover:text-amber-400 transition">
+                  {property.title}
+                </h3>
+
+                <p className="text-zinc-400 mb-6">
+                  Premium property curated for serious investors.
+                </p>
+
+                <a
+                  href={`/property/${property.slug}`}
+                  className="inline-flex items-center gap-2 text-amber-400 font-medium"
+                >
+                  View Property →
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* TRUST SECTION */}
+      <section className="py-24 px-8 md:px-20 border-t border-zinc-900">
+        <div className="grid md:grid-cols-4 gap-6">
+          {[
+            "Verified Listings",
+            "AI Property Match",
+            "Market Intelligence",
+            "Trusted Developers",
+          ].map((item) => (
+            <div
+              key={item}
+              className="p-8 rounded-2xl border border-zinc-900 bg-zinc-950"
+            >
+              <h3 className="text-xl font-semibold mb-3">{item}</h3>
+              <p className="text-zinc-400">
+                Premium property advisory designed for serious buyers.
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-24 px-8 md:px-20 text-center">
+        <h2 className="text-4xl font-bold mb-4">
+          Know Your Property Value
+        </h2>
+
+        <p className="text-zinc-400 mb-8">
+          Get accurate property valuation using local market intelligence.
+        </p>
+
+        <a
+          href="/property-valuation"
+          className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold hover:bg-amber-600 transition"
+        >
+          Check Valuation
+        </a>
       </section>
     </main>
   );
