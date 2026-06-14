@@ -8,46 +8,62 @@ const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
 
 export default function Home() {
   return (
-    <main className="relative h-screen bg-black text-white">
-
+    <main className="relative min-h-screen bg-black text-white overflow-hidden">
       <ThreeScene />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 z-10">
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black/60 z-10" />
 
-        <h1 className="text-4xl font-bold mb-3">
-          Growth Housing – Naigaon
+      {/* Main Content */}
+      <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6">
+
+        {/* Badge */}
+        <span className="mb-4 px-4 py-2 text-xs tracking-[0.3em] uppercase border border-green-400 text-green-400 rounded-full">
+          Premium Launch
+        </span>
+
+        {/* Heading */}
+        <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-4">
+          Growth Housing <br /> Naigaon
         </h1>
 
-        <p className="text-gray-300 mb-2">
-          2 mins from station • 30 mins from Andheri
+        {/* Subtitle */}
+        <p className="text-zinc-300 text-lg md:text-xl mb-3 max-w-2xl">
+          Just 2 minutes from Naigaon Station • 30 minutes from Andheri
         </p>
 
-        <p className="text-green-400 mb-6 font-semibold">
-          80+ Amenities | Smart Investment Zone
+        <p className="text-green-400 font-semibold text-lg mb-10">
+          80+ Lifestyle Amenities • High Growth Investment Zone
         </p>
 
         {/* Unit Cards */}
-        <div className="flex gap-4 flex-wrap justify-center mb-6">
+        <div className="grid md:grid-cols-2 gap-6 mb-10 w-full max-w-2xl">
 
-          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-            <h2 className="font-bold">1 BHK</h2>
-            <p className="text-sm">323 sq.ft</p>
-            <p className="text-green-400">₹45L+</p>
+          <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-2xl">
+            <h2 className="text-2xl font-bold mb-2">1 BHK</h2>
+            <p className="text-zinc-400 mb-2">323 sq.ft Carpet</p>
+            <p className="text-green-400 text-xl font-bold">Starting ₹45L+</p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur p-4 rounded-lg">
-            <h2 className="font-bold">2 BHK</h2>
-            <p className="text-sm">500+ sq.ft</p>
-            <p className="text-green-400">₹65L+</p>
+          <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-2xl">
+            <h2 className="text-2xl font-bold mb-2">2 BHK</h2>
+            <p className="text-zinc-400 mb-2">500+ sq.ft Carpet</p>
+            <p className="text-green-400 text-xl font-bold">Starting ₹65L+</p>
           </div>
 
+        </div>
+
+        {/* Trust Strip */}
+        <div className="flex gap-6 flex-wrap justify-center text-sm text-zinc-400 mb-8">
+          <span>✔ RERA Approved</span>
+          <span>✔ Bank Loan Available</span>
+          <span>✔ Site Visit Available</span>
         </div>
 
         {/* CTA */}
         <a
           href="https://wa.me/919619973211?text=Hi I want full brochure of Naigaon project"
-          className="bg-green-500 hover:bg-green-600 px-6 py-3 rounded-lg"
+          className="bg-green-500 hover:bg-green-600 text-black font-semibold px-8 py-4 rounded-xl transition"
         >
           Get Full Details on WhatsApp
         </a>
