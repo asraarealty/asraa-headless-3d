@@ -1,11 +1,5 @@
 import FloorViewer from "@/components/FloorViewer";
 
-interface PropertyPageProps {
-  params: {
-    slug: string;
-  };
-}
-
 async function getProperty(slug: string) {
   const res = await fetch("https://asraarealty.com/graphql", {
     method: "POST",
@@ -17,9 +11,9 @@ async function getProperty(slug: string) {
         query GetProperty($uri: ID!) {
           property(id: $uri, idType: URI) {
             title
-            content
             slug
             uri
+            content
             featuredImage {
               node {
                 sourceUrl
@@ -36,18 +30,27 @@ async function getProperty(slug: string) {
         }
       `,
       variables: {
-        uri: "/property/" + slug + "/"
+        uri: "/property/" + slug + "/",
       },
     }),
     cache: "no-store",
   });
 
   const json = await res.json();
+
+  console.log("GRAPHQL DATA:", json);
+
   return json?.data?.property;
 }
 
-export default async function PropertyPage({ params }: PropertyPageProps) {
-  const property = await getProperty(params.slug);
+export default async function PropertyPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+
+  const property = await getProperty(slug);
 
   if (!property) {
     return (
@@ -58,7 +61,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   }
 
   const floorModel =
-    property?.property3dData?.floorPlanModel?.node?.mediaItemUrl;
+    property.property3dData?.floorPlanModel?.node?.mediaItemUrl;
 
   return (
     <main className="bg-black text-white min-h-screen">
