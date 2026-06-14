@@ -1,3 +1,5 @@
+import ThreeScene from "../components/ThreeScene";
+
 async function getProperties() {
   const res = await fetch("https://asraarealty.com/graphql", {
     method: "POST",
@@ -32,13 +34,16 @@ export default async function Home() {
       {/* HERO SECTION */}
       <section className="relative h-screen overflow-hidden">
 
-        {/* Real Hero Background */}
-        <div className="absolute inset-0">
-          <img
-            src="/hero-building.jpg"
-            alt="Luxury Building"
-            className="w-full h-full object-cover"
-          />
+        {/* Static Building Image */}
+        <img
+          src="https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
+          alt="Luxury Building"
+          className="absolute inset-0 w-full h-full object-cover opacity-40"
+        />
+
+        {/* Optional 3D Layer */}
+        <div className="absolute inset-0 opacity-20">
+          <ThreeScene />
         </div>
 
         {/* Overlay */}
@@ -175,84 +180,6 @@ export default async function Home() {
               </div>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* TRUST BLOCK */}
-      <section className="py-24 px-8 md:px-20 border-t border-zinc-900">
-        <div className="grid md:grid-cols-4 gap-6">
-          {[
-            "Verified Listings",
-            "AI Property Match",
-            "Market Intelligence",
-            "Trusted Developers",
-          ].map((item) => (
-            <div
-              key={item}
-              className="p-8 rounded-2xl border border-zinc-900 bg-zinc-950"
-            >
-              <h3 className="text-xl font-semibold mb-3">{item}</h3>
-
-              <p className="text-zinc-400">
-                Premium property advisory built for serious investors.
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* VALUATION CTA */}
-      <section className="py-24 px-8 md:px-20 text-center">
-        <h2 className="text-4xl font-bold mb-4">
-          Know Your Property Value
-        </h2>
-
-        <p className="text-zinc-400 mb-8">
-          Get accurate property valuation using local market intelligence.
-        </p>
-
-        <a
-          href="/property-valuation"
-          className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold hover:bg-amber-600 transition"
-        >
-          Check Valuation
-        </a>
-      </section>
-
-      {/* CONTACT FORM */}
-      <section className="py-24 px-8 md:px-20 bg-zinc-950">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-bold mb-4">
-            Get Free Property Consultation
-          </h2>
-
-          <p className="text-zinc-400 mb-10">
-            Connect with our advisors for premium investment opportunities.
-          </p>
-
-          <div className="space-y-4">
-            <input
-              type="text"
-              placeholder="Your Name"
-              className="w-full bg-zinc-900 p-4 rounded-xl"
-            />
-
-            <input
-              type="text"
-              placeholder="Phone Number"
-              className="w-full bg-zinc-900 p-4 rounded-xl"
-            />
-
-            <input
-              type="text"
-              placeholder="Preferred Location"
-              className="w-full bg-zinc-900 p-4 rounded-xl"
-            />
-
-            <button className="w-full bg-green-500 text-black py-4 rounded-xl font-semibold hover:bg-green-600 transition">
-              Get Callback
-            </button>
-          </div>
         </div>
       </section>
     </main>
