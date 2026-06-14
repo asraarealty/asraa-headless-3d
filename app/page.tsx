@@ -1,5 +1,3 @@
-import ThreeScene from "../components/ThreeScene";
-
 async function getProperties() {
   const res = await fetch("https://asraarealty.com/graphql", {
     method: "POST",
@@ -33,11 +31,18 @@ export default async function Home() {
     <main className="bg-black text-white">
       {/* HERO SECTION */}
       <section className="relative h-screen overflow-hidden">
-        {/* 3D Background */}
-        <ThreeScene />
+
+        {/* Real Hero Background */}
+        <div className="absolute inset-0">
+          <img
+            src="/hero-building.jpg"
+            alt="Luxury Building"
+            className="w-full h-full object-cover"
+          />
+        </div>
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black z-10" />
 
         {/* Navbar */}
         <header className="absolute top-0 left-0 w-full z-20 px-8 md:px-20 py-6">
