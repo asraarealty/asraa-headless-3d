@@ -46,7 +46,6 @@ export default async function PropertyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
   const property = await getProperty(slug);
 
   if (!property) {
@@ -62,9 +61,9 @@ export default async function PropertyPage({
 
   return (
     <main className="bg-black text-white min-h-screen">
-      
-      {/* HERO SECTION */}
-      <div className="relative h-[70vh] overflow-hidden">
+
+      {/* HERO */}
+      <section className="relative h-[80vh] overflow-hidden">
         <img
           src={
             property.featuredImage?.node?.sourceUrl ||
@@ -74,24 +73,57 @@ export default async function PropertyPage({
           className="w-full h-full object-cover"
         />
 
-        {/* Dark Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-        {/* Title Overlay */}
-        <div className="absolute bottom-12 left-8 md:left-20 z-10 max-w-4xl">
-          <span className="text-amber-400 uppercase tracking-[0.25em] text-sm">
-            Premium Real Estate
+        <div className="absolute bottom-16 left-8 md:left-20 max-w-4xl z-10">
+          <span className="text-amber-400 uppercase tracking-[0.3em] text-sm">
+            Premium Project
           </span>
 
           <h1 className="text-5xl md:text-7xl font-bold mt-4 leading-tight">
             {property.title}
           </h1>
-        </div>
-      </div>
 
-      {/* CONTENT SECTION */}
-      <section className="px-8 md:px-20 py-16">
-        <div className="max-w-5xl mx-auto space-y-10">
+          <div className="flex gap-4 mt-6 flex-wrap">
+            <span className="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm">
+              Luxury Living
+            </span>
+
+            <span className="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm">
+              Verified Listing
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* HIGHLIGHTS */}
+      <section className="px-8 md:px-20 py-16 border-b border-zinc-800">
+        <div className="grid md:grid-cols-4 gap-6">
+
+          {[
+            "Premium Location",
+            "High ROI Potential",
+            "Smart Floor Planning",
+            "Verified by Asraa"
+          ].map((item) => (
+            <div
+              key={item}
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
+            >
+              <h3 className="text-lg font-semibold">{item}</h3>
+            </div>
+          ))}
+
+        </div>
+      </section>
+
+      {/* OVERVIEW */}
+      <section className="px-8 md:px-20 py-20">
+        <div className="max-w-5xl mx-auto">
+
+          <h2 className="text-4xl font-bold mb-10">
+            Project Overview
+          </h2>
 
           <div
             className="
@@ -116,18 +148,59 @@ export default async function PropertyPage({
             }}
           />
 
-          {/* 3D FLOOR VIEWER */}
-          {floorModel && (
-            <div className="mt-20 border-t border-zinc-800 pt-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-8">
-                Interactive 3D Floor Plan
-              </h2>
-
-              <FloorViewer modelUrl={floorModel} />
-            </div>
-          )}
         </div>
       </section>
+
+      {/* 3D FLOOR PLAN */}
+      {floorModel && (
+        <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+          <div className="max-w-6xl mx-auto">
+
+            <h2 className="text-4xl font-bold mb-8">
+              Interactive 3D Floor Plan
+            </h2>
+
+            <p className="text-zinc-400 mb-10">
+              Explore the project layout in a 3D interactive environment.
+            </p>
+
+            <FloorViewer modelUrl={floorModel} />
+
+          </div>
+        </section>
+      )}
+
+      {/* CTA */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+        <div className="max-w-5xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-10 text-center">
+
+          <h2 className="text-4xl font-bold mb-4">
+            Interested in this project?
+          </h2>
+
+          <p className="text-zinc-400 mb-8">
+            Get pricing, brochure, floor plans and expert consultation.
+          </p>
+
+          <div className="flex gap-4 justify-center flex-wrap">
+            <a
+              href="https://wa.me/919619973211"
+              className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
+            >
+              WhatsApp Now
+            </a>
+
+            <a
+              href="/contact"
+              className="border border-white px-8 py-4 rounded-xl"
+            >
+              Schedule Visit
+            </a>
+          </div>
+
+        </div>
+      </section>
+
     </main>
   );
 }
