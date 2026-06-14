@@ -14,11 +14,12 @@ async function getProperty(slug: string) {
     },
     body: JSON.stringify({
       query: `
-        query GetProperty($slug: ID!) {
-          property(id: $slug, idType: URI) {
+        query GetProperty($uri: ID!) {
+          property(id: $uri, idType: URI) {
             title
             content
             slug
+            uri
             featuredImage {
               node {
                 sourceUrl
@@ -35,7 +36,7 @@ async function getProperty(slug: string) {
         }
       `,
       variables: {
-        slug: `/property/${slug}/`,
+        uri: "/property/" + slug + "/"
       },
     }),
     cache: "no-store",
@@ -45,9 +46,7 @@ async function getProperty(slug: string) {
   return json?.data?.property;
 }
 
-export default async function PropertyPage({
-  params,
-}: PropertyPageProps) {
+export default async function PropertyPage({ params }: PropertyPageProps) {
   const property = await getProperty(params.slug);
 
   if (!property) {
