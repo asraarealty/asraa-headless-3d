@@ -80,126 +80,209 @@ export default async function PropertyPage({
             Premium Project
           </span>
 
-          <h1 className="text-5xl md:text-7xl font-bold mt-4 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-bold mt-4">
             {property.title}
           </h1>
-
-          <div className="flex gap-4 mt-6 flex-wrap">
-            <span className="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm">
-              Luxury Living
-            </span>
-
-            <span className="bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm">
-              Verified Listing
-            </span>
-          </div>
         </div>
       </section>
 
-      {/* HIGHLIGHTS */}
-      <section className="px-8 md:px-20 py-16 border-b border-zinc-800">
-        <div className="grid md:grid-cols-4 gap-6">
+      {/* GALLERY */}
+      <section className="px-8 md:px-20 py-16">
+        <h2 className="text-3xl font-bold mb-8">Project Gallery</h2>
 
+        <div className="grid md:grid-cols-3 gap-6">
+          {[1, 2, 3].map((item) => (
+            <img
+              key={item}
+              src={
+                property.featuredImage?.node?.sourceUrl ||
+                "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
+              }
+              className="rounded-2xl h-64 object-cover w-full"
+              alt=""
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* MAIN CONTENT */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+        <div className="grid md:grid-cols-3 gap-14">
+
+          {/* SIDEBAR */}
+          <div>
+            <div className="sticky top-10 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+
+              <h3 className="text-xl font-bold mb-6">
+                Quick Details
+              </h3>
+
+              <div className="space-y-4 text-zinc-400">
+                <div className="flex justify-between border-b border-zinc-800 pb-3">
+                  <span>Status</span>
+                  <span className="text-white">Available</span>
+                </div>
+
+                <div className="flex justify-between border-b border-zinc-800 pb-3">
+                  <span>Type</span>
+                  <span className="text-white">Luxury</span>
+                </div>
+
+                <div className="flex justify-between border-b border-zinc-800 pb-3">
+                  <span>RERA</span>
+                  <span className="text-white">Verified</span>
+                </div>
+
+                <a
+                  href="#"
+                  className="block mt-6 bg-amber-500 text-black text-center py-3 rounded-xl font-semibold"
+                >
+                  Download Brochure
+                </a>
+
+              </div>
+            </div>
+          </div>
+
+          {/* CONTENT */}
+          <div className="md:col-span-2">
+
+            <h2 className="text-4xl font-bold mb-10">
+              Project Overview
+            </h2>
+
+            <div
+              className="
+                text-zinc-300 leading-8 text-lg
+                [&_.ez-toc-container]:hidden
+                [&_h2]:text-3xl
+                [&_h2]:font-bold
+                [&_h2]:mt-14
+                [&_h2]:mb-6
+                [&_p]:mb-6
+              "
+              dangerouslySetInnerHTML={{
+                __html: property.content,
+              }}
+            />
+          </div>
+
+        </div>
+      </section>
+
+      {/* AMENITIES */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+        <h2 className="text-4xl font-bold mb-10">Amenities</h2>
+
+        <div className="grid md:grid-cols-4 gap-6">
           {[
-            "Premium Location",
-            "High ROI Potential",
-            "Smart Floor Planning",
-            "Verified by Asraa"
+            "Swimming Pool",
+            "Gymnasium",
+            "Children Play Area",
+            "Clubhouse",
+            "Jogging Track",
+            "Garden",
+            "Parking",
+            "Security",
           ].map((item) => (
             <div
               key={item}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center"
             >
-              <h3 className="text-lg font-semibold">{item}</h3>
+              <p>{item}</p>
             </div>
           ))}
-
         </div>
       </section>
 
-      {/* OVERVIEW */}
-      <section className="px-8 md:px-20 py-20">
-        <div className="max-w-5xl mx-auto">
+      {/* PRICE TABLE */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+        <h2 className="text-4xl font-bold mb-10">Price Plans</h2>
 
-          <h2 className="text-4xl font-bold mb-10">
-            Project Overview
-          </h2>
+        <div className="overflow-x-auto">
+          <table className="w-full border border-zinc-800">
+            <thead>
+              <tr className="bg-zinc-900">
+                <th className="p-4 border border-zinc-800">Configuration</th>
+                <th className="p-4 border border-zinc-800">Size</th>
+                <th className="p-4 border border-zinc-800">Price</th>
+              </tr>
+            </thead>
 
-          <div
-            className="
-              text-zinc-300 leading-8 text-lg
-              [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:mt-14 [&_h2]:mb-6
-              [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:mt-10 [&_h3]:mb-4
-              [&_p]:mb-6
-              [&_ul]:space-y-3
-              [&_li]:text-zinc-400
-              [&_table]:w-full
-              [&_table]:border-collapse
-              [&_td]:border
-              [&_td]:border-zinc-800
-              [&_td]:p-4
-              [&_th]:border
-              [&_th]:border-zinc-800
-              [&_th]:p-4
-              [&_th]:bg-zinc-900
-            "
-            dangerouslySetInnerHTML={{
-              __html: property.content,
-            }}
-          />
+            <tbody>
+              <tr>
+                <td className="p-4 border border-zinc-800">2 BHK</td>
+                <td className="p-4 border border-zinc-800">750 Sq.ft</td>
+                <td className="p-4 border border-zinc-800">₹1.25 Cr+</td>
+              </tr>
 
+              <tr>
+                <td className="p-4 border border-zinc-800">3 BHK</td>
+                <td className="p-4 border border-zinc-800">1100 Sq.ft</td>
+                <td className="p-4 border border-zinc-800">₹2.10 Cr+</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
-      {/* 3D FLOOR PLAN */}
+      {/* FLOORPLAN */}
       {floorModel && (
         <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
-          <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold mb-10">
+            Interactive Floor Plan
+          </h2>
 
-            <h2 className="text-4xl font-bold mb-8">
-              Interactive 3D Floor Plan
-            </h2>
+          <div className="flex gap-4 mb-8">
+            <button className="px-5 py-3 bg-amber-500 text-black rounded-xl">
+              2 BHK
+            </button>
 
-            <p className="text-zinc-400 mb-10">
-              Explore the project layout in a 3D interactive environment.
-            </p>
-
-            <FloorViewer modelUrl={floorModel} />
-
+            <button className="px-5 py-3 border border-zinc-700 rounded-xl">
+              3 BHK
+            </button>
           </div>
+
+          <FloorViewer modelUrl={floorModel} />
         </section>
       )}
 
       {/* CTA */}
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
-        <div className="max-w-5xl mx-auto bg-zinc-900 border border-zinc-800 rounded-3xl p-10 text-center">
-
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-10 text-center">
           <h2 className="text-4xl font-bold mb-4">
             Interested in this project?
           </h2>
 
           <p className="text-zinc-400 mb-8">
-            Get pricing, brochure, floor plans and expert consultation.
+            Get brochure, pricing and consultation.
           </p>
 
-          <div className="flex gap-4 justify-center flex-wrap">
-            <a
-              href="https://wa.me/919619973211"
-              className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
-            >
-              WhatsApp Now
-            </a>
-
-            <a
-              href="/contact"
-              className="border border-white px-8 py-4 rounded-xl"
-            >
-              Schedule Visit
-            </a>
-          </div>
-
+          <a
+            href="https://wa.me/919619973211"
+            className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
+          >
+            WhatsApp Now
+          </a>
         </div>
       </section>
+
+      {/* STICKY ENQUIRY BAR */}
+      <div className="fixed bottom-0 left-0 w-full bg-zinc-950 border-t border-zinc-800 p-4 z-50">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div>
+            <h4 className="font-semibold">{property.title}</h4>
+            <p className="text-zinc-400 text-sm">Get latest pricing & brochure</p>
+          </div>
+
+          <a
+            href="https://wa.me/919619973211"
+            className="bg-amber-500 text-black px-6 py-3 rounded-xl font-semibold"
+          >
+            Enquire Now
+          </a>
+        </div>
+      </div>
 
     </main>
   );
