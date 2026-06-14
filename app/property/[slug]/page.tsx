@@ -15,7 +15,7 @@ async function getProperty(slug: string) {
     body: JSON.stringify({
       query: `
         query GetProperty($slug: ID!) {
-          property(id: $slug, idType: SLUG) {
+          property(id: $slug, idType: URI) {
             title
             content
             slug
@@ -34,7 +34,9 @@ async function getProperty(slug: string) {
           }
         }
       `,
-      variables: { slug },
+      variables: {
+        slug: \`/property/${slug}/\`,
+      },
     }),
     cache: "no-store",
   });
@@ -43,7 +45,9 @@ async function getProperty(slug: string) {
   return json?.data?.property;
 }
 
-export default async function PropertyPage({ params }: PropertyPageProps) {
+export default async function PropertyPage({
+  params,
+}: PropertyPageProps) {
   const property = await getProperty(params.slug);
 
   if (!property) {
@@ -59,6 +63,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
 
   return (
     <main className="bg-black text-white min-h-screen">
+      {/* Hero Image */}
       <div className="relative h-[500px]">
         <img
           src={
@@ -70,6 +75,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
         />
       </div>
 
+      {/* Content */}
       <section className="px-8 md:px-20 py-14">
         <h1 className="text-4xl md:text-5xl font-bold mb-8">
           {property.title}
@@ -82,6 +88,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
           }}
         />
 
+        {/* Floor Viewer */}
         {floorModel && (
           <div className="mt-16">
             <h2 className="text-3xl font-bold mb-6">
