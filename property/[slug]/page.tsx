@@ -4,6 +4,8 @@ interface PropertyPageProps {
   };
 }
 
+import FloorViewer from "@/components/FloorViewer";
+
 async function getProperty(slug: string) {
   const res = await fetch("https://asraarealty.com/graphql", {
     method: "POST",
@@ -17,6 +19,13 @@ async function getProperty(slug: string) {
             title
             content
             slug
+            property3dData {
+              floorPlanModel {
+                node {
+                  mediaItemUrl
+                }
+              }
+            }
           }
         }
       `,
@@ -40,10 +49,25 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     );
   }
 
+  const modelUrl =
+    property.property3dData?.floorPlanModel?.node?.mediaItemUrl;
+
   return (
     <main className="bg-black text-white min-h-screen p-10">
       <h1 className="text-4xl font-bold mb-6">{property.title}</h1>
 
+      {/* 3D Floor Viewer */}
+      {modelUrl && (
+        <div className="mb-10">
+          <h2 className="text-2xl font-semibold mb-4 text-amber-400">
+            Interactive 3D Floor Plan
+          </h2>
+
+          <FloorViewer modelUrl={modelUrl} />
+        </div>
+      )}
+
+      {/* Property Description */}
       <div
         className="prose prose-invert max-w-4xl"
         dangerouslySetInnerHTML={{
