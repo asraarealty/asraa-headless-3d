@@ -35,7 +35,7 @@ async function getProperty(slug: string) {
         }
       `,
       variables: {
-        slug: \`/property/${slug}\`,
+        slug: `/property/${slug}/`,
       },
     }),
     cache: "no-store",
@@ -63,7 +63,6 @@ export default async function PropertyPage({
 
   return (
     <main className="bg-black text-white min-h-screen">
-      {/* Hero Image */}
       <div className="relative h-[500px]">
         <img
           src={
@@ -75,7 +74,6 @@ export default async function PropertyPage({
         />
       </div>
 
-      {/* Content */}
       <section className="px-8 md:px-20 py-14">
         <h1 className="text-4xl md:text-5xl font-bold mb-8">
           {property.title}
@@ -88,7 +86,6 @@ export default async function PropertyPage({
           }}
         />
 
-        {/* Floor Viewer */}
         {floorModel && (
           <div className="mt-16">
             <h2 className="text-3xl font-bold mb-6">
