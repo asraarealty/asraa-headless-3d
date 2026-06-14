@@ -1,8 +1,4 @@
-import dynamic from "next/dynamic";
-
-const ThreeScene = dynamic(() => import("../components/ThreeScene"), {
-  ssr: false,
-});
+import ThreeScene from "../components/ThreeScene";
 
 async function getProperties() {
   const res = await fetch("https://asraarealty.com/graphql", {
@@ -27,7 +23,7 @@ async function getProperties() {
   });
 
   const json = await res.json();
-  return json.data.properties.nodes;
+  return json?.data?.properties?.nodes || [];
 }
 
 export default async function Home() {
@@ -37,6 +33,7 @@ export default async function Home() {
     <main className="bg-black text-white">
       {/* HERO SECTION */}
       <section className="relative h-screen overflow-hidden">
+        {/* 3D Background */}
         <ThreeScene />
 
         {/* Overlay */}
@@ -137,9 +134,9 @@ export default async function Home() {
 
       {/* FEATURED PROPERTIES */}
       <section className="py-28 px-8 md:px-20">
-        <div className="mb-12 text-center">
+        <div className="text-center mb-14">
           <span className="text-amber-400 uppercase tracking-[0.25em] text-sm">
-            Exclusive Listings
+            Exclusive Collection
           </span>
 
           <h2 className="text-4xl font-bold mt-4">
@@ -151,22 +148,22 @@ export default async function Home() {
           {properties.slice(0, 6).map((property: any) => (
             <div
               key={property.id}
-              className="group bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-500 transition"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden hover:border-amber-400 transition"
             >
               <div className="h-64 bg-zinc-800" />
 
               <div className="p-6">
-                <h3 className="text-xl font-semibold mb-3 group-hover:text-amber-400 transition">
+                <h3 className="text-xl font-semibold mb-3">
                   {property.title}
                 </h3>
 
                 <p className="text-zinc-400 mb-6">
-                  Premium property curated for serious investors.
+                  Premium property listing directly from Asraa database.
                 </p>
 
                 <a
                   href={`/property/${property.slug}`}
-                  className="inline-flex items-center gap-2 text-amber-400 font-medium"
+                  className="text-amber-400 font-medium"
                 >
                   View Property →
                 </a>
@@ -176,7 +173,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* TRUST SECTION */}
+      {/* TRUST BLOCK */}
       <section className="py-24 px-8 md:px-20 border-t border-zinc-900">
         <div className="grid md:grid-cols-4 gap-6">
           {[
@@ -190,15 +187,16 @@ export default async function Home() {
               className="p-8 rounded-2xl border border-zinc-900 bg-zinc-950"
             >
               <h3 className="text-xl font-semibold mb-3">{item}</h3>
+
               <p className="text-zinc-400">
-                Premium property advisory designed for serious buyers.
+                Premium property advisory built for serious investors.
               </p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* CTA */}
+      {/* VALUATION CTA */}
       <section className="py-24 px-8 md:px-20 text-center">
         <h2 className="text-4xl font-bold mb-4">
           Know Your Property Value
@@ -214,6 +212,43 @@ export default async function Home() {
         >
           Check Valuation
         </a>
+      </section>
+
+      {/* CONTACT FORM */}
+      <section className="py-24 px-8 md:px-20 bg-zinc-950">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-4xl font-bold mb-4">
+            Get Free Property Consultation
+          </h2>
+
+          <p className="text-zinc-400 mb-10">
+            Connect with our advisors for premium investment opportunities.
+          </p>
+
+          <div className="space-y-4">
+            <input
+              type="text"
+              placeholder="Your Name"
+              className="w-full bg-zinc-900 p-4 rounded-xl"
+            />
+
+            <input
+              type="text"
+              placeholder="Phone Number"
+              className="w-full bg-zinc-900 p-4 rounded-xl"
+            />
+
+            <input
+              type="text"
+              placeholder="Preferred Location"
+              className="w-full bg-zinc-900 p-4 rounded-xl"
+            />
+
+            <button className="w-full bg-green-500 text-black py-4 rounded-xl font-semibold hover:bg-green-600 transition">
+              Get Callback
+            </button>
+          </div>
+        </div>
       </section>
     </main>
   );
