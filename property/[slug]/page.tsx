@@ -19,6 +19,11 @@ async function getProperty(slug: string) {
             title
             content
             slug
+            featuredImage {
+              node {
+                sourceUrl
+              }
+            }
             property3dData {
               floorPlanModel {
                 node {
@@ -53,27 +58,46 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     property.property3dData?.floorPlanModel?.node?.mediaItemUrl;
 
   return (
-    <main className="bg-black text-white min-h-screen p-10">
-      <h1 className="text-4xl font-bold mb-6">{property.title}</h1>
+    <main className="bg-black text-white min-h-screen">
+      {/* Hero Image */}
+      <div className="relative h-[500px]">
+        <img
+          src={
+            property.featuredImage?.node?.sourceUrl ||
+            "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
+          }
+          alt={property.title}
+          className="w-full h-full object-cover"
+        />
 
-      {/* 3D Floor Viewer */}
-      {modelUrl && (
-        <div className="mb-10">
-          <h2 className="text-2xl font-semibold mb-4 text-amber-400">
-            Interactive 3D Floor Plan
-          </h2>
-
-          <FloorViewer modelUrl={modelUrl} />
+        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+          <h1 className="text-5xl font-bold text-center px-6">
+            {property.title}
+          </h1>
         </div>
-      )}
+      </div>
 
-      {/* Property Description */}
-      <div
-        className="prose prose-invert max-w-4xl"
-        dangerouslySetInnerHTML={{
-          __html: property.content,
-        }}
-      />
+      {/* Main Content */}
+      <section className="max-w-6xl mx-auto px-8 py-16">
+        {/* 3D Floor Viewer */}
+        {modelUrl && (
+          <div className="mb-16">
+            <h2 className="text-2xl font-semibold mb-6 text-amber-400">
+              Interactive 3D Floor Plan
+            </h2>
+
+            <FloorViewer modelUrl={modelUrl} />
+          </div>
+        )}
+
+        {/* Property Description */}
+        <div
+          className="prose prose-invert max-w-4xl"
+          dangerouslySetInnerHTML={{
+            __html: property.content,
+          }}
+        />
+      </section>
     </main>
   );
 }
