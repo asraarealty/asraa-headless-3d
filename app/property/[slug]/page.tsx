@@ -87,23 +87,24 @@ export default async function PropertyPage({
       </section>
 
       {/* GALLERY */}
-      <section className="px-8 md:px-20 py-16">
-        <h2 className="text-3xl font-bold mb-8">Project Gallery</h2>
+<section className="px-8 md:px-20 py-16">
+  <h2 className="text-3xl font-bold mb-8">Project Gallery</h2>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {[1, 2, 3].map((item) => (
-            <img
-              key={item}
-              src={
-                property.featuredImage?.node?.sourceUrl ||
-                "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-              }
-              className="rounded-2xl h-64 object-cover w-full"
-              alt=""
-            />
-          ))}
-        </div>
-      </section>
+  <div className="grid md:grid-cols-3 gap-6">
+    {property.galleryImages?.nodes?.map((image: any, index: number) => (
+      <div
+        key={index}
+        className="group overflow-hidden rounded-2xl"
+      >
+        <img
+          src={image.sourceUrl}
+          alt={`Gallery ${index}`}
+          className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
+        />
+      </div>
+    ))}
+  </div>
+</section>
 
       {/* MAIN CONTENT */}
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
