@@ -1,4 +1,5 @@
 import ThreeScene from "../components/ThreeScene";
+import PropertyGlobe from "../components/PropertyGlobe";
 
 async function getProperties() {
   const res = await fetch("https://asraarealty.com/graphql", {
@@ -44,10 +45,12 @@ export default async function Home() {
           className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
 
+        {/* 3D Background */}
         <div className="absolute inset-0 opacity-20">
           <ThreeScene />
         </div>
 
+        {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black z-10" />
 
         {/* NAVBAR */}
@@ -93,75 +96,64 @@ export default async function Home() {
           <div className="flex gap-4 flex-wrap">
             <a
               href="/properties"
-              className="bg-amber-500 text-black px-7 py-3 rounded-lg font-semibold"
+              className="bg-amber-500 text-black px-7 py-3 rounded-lg font-semibold hover:bg-amber-600 transition"
             >
               Browse Projects
             </a>
 
             <a
               href="https://wa.me/919619973211"
-              className="border border-white px-7 py-3 rounded-lg"
+              className="border border-white px-7 py-3 rounded-lg hover:bg-white hover:text-black transition"
             >
               WhatsApp Now
             </a>
           </div>
+
+          <div className="mt-8 flex gap-6 text-sm text-zinc-400 flex-wrap">
+            <span>✔ Verified Listings</span>
+            <span>✔ Trusted Developers</span>
+            <span>✔ Expert Advisory</span>
+          </div>
         </div>
       </section>
 
-      {/* FEATURED PROPERTIES */}
-      <section className="py-24 px-6 md:px-20 bg-black">
-        <div className="text-center mb-14">
+      {/* FEATURED PROPERTIES GLOBE */}
+      <section className="py-28 px-6 md:px-20 bg-black relative">
+        <div className="text-center mb-20">
           <span className="text-amber-400 uppercase tracking-[0.25em] text-sm">
             Exclusive Collection
           </span>
 
-          <h2 className="text-4xl md:text-5xl font-bold mt-4">
+          <h2 className="text-4xl md:text-6xl font-bold mt-4">
             Featured Properties
           </h2>
+
+          <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">
+            Explore premium investment opportunities rotating in a luxury orbit.
+          </p>
         </div>
 
-        {/* CAROUSEL */}
-        <div className="flex gap-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
-          {properties.map((property: any) => (
-            <a
-              key={property.id}
-              href={`/property/${property.slug}`}
-              className="min-w-[320px] md:min-w-[420px] snap-start group relative rounded-3xl overflow-hidden border border-zinc-800"
-            >
-              {/* IMAGE */}
-              <div className="relative h-[500px] overflow-hidden">
-                <img
-                  src={
-                    property.featuredImage?.node?.sourceUrl ||
-                    "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-                  }
-                  alt={property.title}
-                  className="w-full h-full object-cover transition duration-700 group-hover:scale-110"
-                />
+        <PropertyGlobe properties={properties} />
+      </section>
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-              </div>
+      {/* CTA */}
+      <section className="py-24 px-8 md:px-20 border-t border-zinc-800">
+        <div className="bg-zinc-900 rounded-3xl p-10 text-center border border-zinc-800">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            Ready to Invest?
+          </h2>
 
-              {/* CONTENT */}
-              <div className="absolute bottom-0 left-0 p-8 z-10">
-                <span className="inline-block bg-amber-500 text-black text-xs px-3 py-1 rounded-full mb-4 font-semibold">
-                  New Launch
-                </span>
+          <p className="text-zinc-400 mb-8 max-w-2xl mx-auto">
+            Get direct access to exclusive projects, floor plans, and pricing
+            before public launch.
+          </p>
 
-                <h3 className="text-2xl font-bold mb-3 leading-snug">
-                  {property.title}
-                </h3>
-
-                <p className="text-zinc-300 text-sm mb-5 max-w-sm">
-                  Premium curated investment opportunities directly from Asraa Realty.
-                </p>
-
-                <div className="inline-flex items-center gap-2 text-amber-400 font-semibold">
-                  View Property →
-                </div>
-              </div>
-            </a>
-          ))}
+          <a
+            href="https://wa.me/919619973211"
+            className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold hover:bg-amber-600 transition"
+          >
+            Connect with Asraa Realty
+          </a>
         </div>
       </section>
     </main>
