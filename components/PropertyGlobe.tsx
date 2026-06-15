@@ -22,8 +22,8 @@ export default function PropertyGlobe({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation((prev) => prev + 0.02);
-    }, 40);
+  setRotation((prev) => prev + 0.0025);
+}, 100);
 
     return () => clearInterval(interval);
   }, []);
