@@ -24,11 +24,9 @@ async function getProperty(slug: string) {
 
               asraaGallery
 
-              property3dData {
-                floorPlanModel {
-                  node {
-                    mediaItemUrl
-                  }
+              floorPlanModel {
+                node {
+                  mediaItemUrl
                 }
               }
             }
@@ -42,6 +40,11 @@ async function getProperty(slug: string) {
     const json = await res.json();
 
     console.log("GRAPHQL RESPONSE:", json);
+
+    if (json.errors) {
+      console.error("GRAPHQL ERRORS:", json.errors);
+      return null;
+    }
 
     return json?.data?.property || null;
   } catch (error) {
@@ -71,8 +74,7 @@ export default async function PropertyPage({
     );
   }
 
-  const floorModel =
-    property.property3dData?.floorPlanModel?.node?.mediaItemUrl;
+  const floorModel = property.floorPlanModel?.node?.mediaItemUrl;
 
   return (
     <main className="bg-black text-white min-h-screen pb-28">
