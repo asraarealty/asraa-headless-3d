@@ -16,8 +16,14 @@ async function getProperty(slug: string) {
               uri
               content
               asraaGallery
-              asraaBrochure
-              asraaModel3d
+
+              asraaBrochure {
+                mediaItemUrl
+              }
+
+              asraaModel3d {
+                mediaItemUrl
+              }
 
               featuredImage {
                 node {
@@ -27,9 +33,7 @@ async function getProperty(slug: string) {
             }
           }
         `,
-        variables: {
-          slug,
-        },
+        variables: { slug },
       }),
       cache: "no-store",
     });
@@ -53,9 +57,9 @@ async function getProperty(slug: string) {
 export default async function PropertyPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
 
   const property = await getProperty(slug);
 
@@ -70,7 +74,8 @@ export default async function PropertyPage({
     );
   }
 
-  const floorModel = property.asraaModel3d;
+  const floorModel = property.asraaModel3d?.mediaItemUrl;
+  const brochure = property.asraaBrochure?.mediaItemUrl;
 
   return (
     <main className="bg-black text-white min-h-screen pb-28">
@@ -169,9 +174,9 @@ export default async function PropertyPage({
                 ))}
               </div>
 
-              {property.asraaBrochure && (
+              {brochure && (
                 <a
-                  href={property.asraaBrochure}
+                  href={brochure}
                   target="_blank"
                   className="block mt-6 bg-amber-500 text-black text-center py-3 rounded-xl font-semibold"
                 >
@@ -212,26 +217,6 @@ export default async function PropertyPage({
           <FloorViewer modelUrl={floorModel} />
         </section>
       )}
-
-      {/* CTA */}
-      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
-        <div className="bg-gradient-to-r from-amber-500 to-yellow-500 rounded-3xl p-10 text-center text-black">
-          <h2 className="text-4xl font-bold mb-4">
-            Interested in this Project?
-          </h2>
-
-          <p className="mb-8">
-            Get brochure, pricing and site visit consultation instantly.
-          </p>
-
-          <a
-            href="https://wa.me/919619973211"
-            className="bg-black text-white px-8 py-4 rounded-xl font-semibold"
-          >
-            WhatsApp Now
-          </a>
-        </div>
-      </section>
     </main>
   );
 }
