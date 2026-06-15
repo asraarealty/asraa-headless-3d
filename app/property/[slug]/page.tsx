@@ -55,8 +55,12 @@ async function getProperty(slug: string) {
   }
 }
 
-export default async function PropertyPage(props: any) {
-  const slug = props.params.slug;
+export default async function PropertyPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
 
   console.log("CURRENT SLUG:", slug);
 
