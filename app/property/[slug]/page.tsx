@@ -32,14 +32,16 @@ async function getProperty(slug: string) {
             }
           }
         `,
-        variables: { slug },
+        variables: {
+          slug: slug,
+        },
       }),
       cache: "no-store",
     });
 
     const json = await res.json();
 
-    console.log("GRAPHQL RESPONSE:", json);
+    console.log("FULL GRAPHQL RESPONSE:", JSON.stringify(json, null, 2));
 
     if (json.errors) {
       console.error("GRAPHQL ERRORS:", json.errors);
@@ -53,23 +55,22 @@ async function getProperty(slug: string) {
   }
 }
 
-export default async function PropertyPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const { slug } = params;
+export default async function PropertyPage(props: any) {
+  const slug = props.params.slug;
 
-  console.log("PROPERTY SLUG:", slug);
+  console.log("CURRENT SLUG:", slug);
 
   const property = await getProperty(slug);
 
-  console.log("PROPERTY DATA:", property);
+  console.log("FINAL PROPERTY:", property);
 
   if (!property) {
     return (
       <main className="bg-black text-white min-h-screen flex items-center justify-center">
-        <h1 className="text-2xl font-bold">Property not found</h1>
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Property not found</h1>
+          <p className="text-zinc-400">Slug: {slug}</p>
+        </div>
       </main>
     );
   }
@@ -172,29 +173,11 @@ export default async function PropertyPage({
                   </div>
                 ))}
               </div>
-
-              <a
-                href="#"
-                className="block mt-6 bg-amber-500 text-black text-center py-3 rounded-xl font-semibold"
-              >
-                Download Brochure
-              </a>
             </div>
           </div>
 
           {/* CONTENT */}
           <div className="md:col-span-2">
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 mb-10">
-              <h2 className="text-3xl font-bold mb-4 text-amber-400">
-                Project Overview
-              </h2>
-
-              <p className="text-zinc-300 leading-8">
-                Study all project insights, floor plans, pricing, amenities and
-                location advantages before making your investment decision.
-              </p>
-            </div>
-
             <div
               className="
                 text-zinc-300 leading-8 text-lg
@@ -205,12 +188,6 @@ export default async function PropertyPage({
                 [&_h2]:mt-14
                 [&_h2]:mb-6
                 [&_p]:mb-6
-                [&_ul]:bg-zinc-900
-                [&_ul]:p-6
-                [&_ul]:rounded-2xl
-                [&_ul]:border
-                [&_ul]:border-zinc-800
-                [&_li]:mb-2
               "
               dangerouslySetInnerHTML={{
                 __html: property.content,
@@ -220,34 +197,7 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* AMENITIES */}
-      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
-        <h2 className="text-4xl font-bold mb-10 text-amber-400">
-          Amenities
-        </h2>
-
-        <div className="grid md:grid-cols-4 gap-6">
-          {[
-            "Swimming Pool",
-            "Gymnasium",
-            "Clubhouse",
-            "Garden",
-            "Parking",
-            "Security",
-            "Kids Area",
-            "Jogging Track",
-          ].map((item) => (
-            <div
-              key={item}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center hover:border-amber-400 transition"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* FLOOR PLAN */}
+      {/* FLOORPLAN */}
       {floorModel && (
         <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold mb-10 text-amber-400">
