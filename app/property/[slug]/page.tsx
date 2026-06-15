@@ -8,8 +8,8 @@ async function getProperty(slug: string) {
     },
     body: JSON.stringify({
       query: `
-        query GetProperty($uri: ID!) {
-          property(id: $uri, idType: URI) {
+        query GetProperty($slug: ID!) {
+          property(id: $slug, idType: SLUG) {
             title
             slug
             uri
@@ -34,7 +34,7 @@ async function getProperty(slug: string) {
         }
       `,
       variables: {
-        uri: "/property/" + slug + "/",
+        slug: slug,
       },
     }),
     cache: "no-store",
