@@ -14,11 +14,15 @@ async function getProperty(slug: string) {
             slug
             uri
             content
+
             featuredImage {
               node {
                 sourceUrl
               }
             }
+
+            asraaGallery
+
             property3dData {
               floorPlanModel {
                 node {
@@ -87,24 +91,29 @@ export default async function PropertyPage({
       </section>
 
       {/* GALLERY */}
-<section className="px-8 md:px-20 py-16">
-  <h2 className="text-3xl font-bold mb-8">Project Gallery</h2>
+      {property.asraaGallery?.length > 0 && (
+        <section className="px-8 md:px-20 py-16">
+          <h2 className="text-3xl font-bold mb-8">Project Gallery</h2>
 
-  <div className="grid md:grid-cols-3 gap-6">
-    {property.galleryImages?.nodes?.map((image: any, index: number) => (
-      <div
-        key={index}
-        className="group overflow-hidden rounded-2xl"
-      >
-        <img
-          src={image.sourceUrl}
-          alt={`Gallery ${index}`}
-          className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
-        />
-      </div>
-    ))}
-  </div>
-</section>
+          <div className="grid md:grid-cols-3 gap-6">
+            {property.asraaGallery.map(
+              (image: string, index: number) => (
+                <div
+                  key={index}
+                  className="group overflow-hidden rounded-2xl"
+                >
+                  <img
+                    src={image}
+                    alt={`${property.title} Gallery ${index + 1}`}
+                    loading="lazy"
+                    className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
+                  />
+                </div>
+              )
+            )}
+          </div>
+        </section>
+      )}
 
       {/* MAIN CONTENT */}
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
@@ -113,7 +122,6 @@ export default async function PropertyPage({
           {/* SIDEBAR */}
           <div>
             <div className="sticky top-10 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-
               <h3 className="text-xl font-bold mb-6">
                 Quick Details
               </h3>
@@ -140,14 +148,12 @@ export default async function PropertyPage({
                 >
                   Download Brochure
                 </a>
-
               </div>
             </div>
           </div>
 
           {/* CONTENT */}
           <div className="md:col-span-2">
-
             <h2 className="text-4xl font-bold mb-10">
               Project Overview
             </h2>
@@ -273,7 +279,9 @@ export default async function PropertyPage({
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div>
             <h4 className="font-semibold">{property.title}</h4>
-            <p className="text-zinc-400 text-sm">Get latest pricing & brochure</p>
+            <p className="text-zinc-400 text-sm">
+              Get latest pricing & brochure
+            </p>
           </div>
 
           <a
