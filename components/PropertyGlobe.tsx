@@ -22,37 +22,38 @@ export default function PropertyGlobe({
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setRotation((prev) => prev + 0.01);
-    }, 30);
+      setRotation((prev) => prev + 0.02);
+    }, 40);
 
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="relative w-full h-[700px] flex items-center justify-center overflow-hidden bg-black perspective-[1200px]">
+    <div className="relative w-full h-[750px] flex items-center justify-center overflow-hidden bg-black perspective-[1400px]">
       
-      {/* Earth Core */}
-      <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-blue-400 to-blue-700 shadow-[0_0_120px_rgba(0,150,255,0.6)] animate-pulse" />
+      {/* Center Earth */}
+      <div className="absolute w-44 h-44 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-800 shadow-[0_0_120px_rgba(0,150,255,0.6)] animate-pulse" />
 
-      {/* Orbit Cards */}
       {properties.map((property, index) => {
+        const activeIndex = Math.floor(
+          (rotation * 10) % properties.length
+        );
+
         const angle =
-          (index / properties.length) * Math.PI * 2 + rotation;
+          ((index - activeIndex) / properties.length) *
+          Math.PI *
+          2;
 
-        const radius = 260;
+        const radius = 280;
 
-        // Sphere positioning
         const x = Math.sin(angle) * radius;
-        const z = Math.cos(angle) * radius;
+        const z = Math.cos(angle) * radius + radius;
 
-        // Depth simulation
-        const scale =
-          0.55 + ((z + radius) / (radius * 2)) * 0.9;
+        const y = Math.sin(angle * 2) * 40;
 
-        const opacity =
-          0.3 + ((z + radius) / (radius * 2)) * 0.7;
+        const scale = 0.45 + (z / (radius * 2)) * 1.2;
 
-        const y = Math.sin(angle * 2) * 50;
+        const opacity = 0.25 + (z / (radius * 2)) * 0.75;
 
         const zIndex = Math.floor(scale * 100);
 
@@ -60,18 +61,19 @@ export default function PropertyGlobe({
           <a
             key={property.id}
             href={`/property/${property.slug}`}
-            className="absolute w-[180px] h-[240px] rounded-2xl overflow-hidden border border-zinc-800 shadow-xl transition-all duration-500"
+            className="absolute w-[190px] h-[260px] rounded-2xl overflow-hidden border border-zinc-800 shadow-xl transition-all duration-500"
             style={{
-              left: `calc(50% + ${x}px - 90px)`,
-              top: `calc(50% + ${y}px - 120px)`,
+              left: `calc(50% + ${x}px - 95px)`,
+              top: `calc(50% + ${y}px - 130px)`,
               zIndex,
               transform: `
                 scale(${scale})
-                rotateY(${angle * 40}deg)
+                rotateY(${angle * 25}deg)
               `,
               opacity,
             }}
           >
+            {/* Property Image */}
             <img
               src={
                 property.featuredImage?.node?.sourceUrl ||
@@ -81,8 +83,10 @@ export default function PropertyGlobe({
               className="w-full h-full object-cover"
             />
 
+            {/* Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
+            {/* Content */}
             <div className="absolute bottom-4 left-4 right-4">
               <span className="bg-amber-500 text-black text-[10px] px-2 py-1 rounded-full font-semibold">
                 Premium
