@@ -1,96 +1,78 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
 
 export default function PropertyGlobe({
   properties,
 }: {
   properties: any[];
 }) {
-  const [active, setActive] = useState(0);
-
-  const next = () => {
-    setActive((prev) => (prev + 1) % properties.length);
-  };
-
-  const prev = () => {
-    setActive((prev) =>
-      prev === 0 ? properties.length - 1 : prev - 1
-    );
-  };
-
   return (
-    <div className="relative w-full h-[650px] flex items-center justify-center overflow-hidden">
-      {properties.slice(0, 5).map((property, index) => {
-        const position = index - active;
+    <div className="relative w-full h-[800px] flex items-center justify-center overflow-hidden [perspective:1400px]">
+      
+      {/* EARTH CORE */}
+      <div className="absolute z-20 w-52 h-52 rounded-full bg-gradient-to-br from-blue-500 via-cyan-400 to-blue-700 shadow-[0_0_100px_rgba(0,217,255,0.7)] animate-pulse" />
 
-        let translateX = position * 280;
-        let scale = 1;
-        let opacity = 1;
-        let zIndex = 10 - Math.abs(position);
+      {/* ORBIT RING */}
+      <div className="absolute w-[650px] h-[650px] border border-white/10 rounded-full [transform:rotateX(75deg)]" />
 
-        if (position === 0) {
-          scale = 1.15;
-        } else {
-          scale = 0.8;
-          opacity = 0.5;
-        }
-
-        return (
-          <motion.a
-            key={property.id}
-            href={`/property/${property.slug}`}
-            animate={{
-              x: translateX,
-              scale,
-              opacity,
-            }}
-            transition={{
-              duration: 0.8,
-            }}
-            className="absolute w-[320px] h-[460px] rounded-3xl overflow-hidden border border-zinc-800"
-            style={{ zIndex }}
-          >
-            <img
-              src={
-                property.featuredImage?.node?.sourceUrl ||
-                "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-              }
-              className="w-full h-full object-cover"
-              alt={property.title}
-            />
-
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-
-            <div className="absolute bottom-8 left-6 right-6">
-              <span className="bg-amber-500 text-black px-3 py-1 rounded-full text-xs font-semibold">
-                Premium
-              </span>
-
-              <h3 className="text-2xl font-bold mt-4">
-                {property.title}
-              </h3>
-            </div>
-          </motion.a>
-        );
-      })}
-
-      {/* Left */}
-      <button
-        onClick={prev}
-        className="absolute left-8 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center"
+      {/* ROTATING PROPERTY ORBIT */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{
+          duration: 35,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+        className="relative w-[650px] h-[650px]"
       >
-        ←
-      </button>
+        {properties.slice(0, 8).map((property, i) => {
+          const angle = (i / 8) * Math.PI * 2;
 
-      {/* Right */}
-      <button
-        onClick={next}
-        className="absolute right-8 z-50 w-12 h-12 rounded-full bg-white/10 backdrop-blur flex items-center justify-center"
-      >
-        →
-      </button>
+          const x = Math.cos(angle) * 280;
+          const y = Math.sin(angle) * 180;
+
+          return (
+            <motion.a
+              key={property.id}
+              href={`/property/${property.slug}`}
+              className="absolute w-48 h-64 rounded-2xl overflow-hidden border border-zinc-800 bg-zinc-900 shadow-2xl"
+              style={{
+                left: `calc(50% + ${x}px - 96px)`,
+                top: `calc(50% + ${y}px - 128px)`,
+              }}
+              whileHover={{
+                scale: 1.2,
+                zIndex: 50,
+              }}
+            >
+              {/* PROPERTY IMAGE */}
+              <img
+                src={
+                  property.featuredImage?.node?.sourceUrl ||
+                  "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
+                }
+                alt={property.title}
+                className="w-full h-full object-cover"
+              />
+
+              {/* DARK OVERLAY */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+
+              {/* TEXT */}
+              <div className="absolute bottom-4 left-4 right-4">
+                <span className="inline-block bg-amber-500 text-black text-[10px] px-2 py-1 rounded-full font-semibold mb-2">
+                  Premium
+                </span>
+
+                <h3 className="text-white text-sm font-bold leading-tight line-clamp-2">
+                  {property.title}
+                </h3>
+              </div>
+            </motion.a>
+          );
+        })}
+      </motion.div>
     </div>
   );
 }
