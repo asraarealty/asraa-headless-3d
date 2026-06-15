@@ -15,25 +15,20 @@ async function getProperty(slug: string) {
               slug
               uri
               content
+              asraaGallery
+              asraaBrochure
+              asraaModel3d
 
               featuredImage {
                 node {
                   sourceUrl
                 }
               }
-
-              asraaGallery
-
-              floorPlanModel {
-                node {
-                  mediaItemUrl
-                }
-              }
             }
           }
         `,
         variables: {
-          slug: slug,
+          slug,
         },
       }),
       cache: "no-store",
@@ -41,16 +36,16 @@ async function getProperty(slug: string) {
 
     const json = await res.json();
 
-    console.log("FULL GRAPHQL RESPONSE:", JSON.stringify(json, null, 2));
+    console.log("GRAPHQL:", json);
 
     if (json.errors) {
-      console.error("GRAPHQL ERRORS:", json.errors);
+      console.error(json.errors);
       return null;
     }
 
-    return json?.data?.property || null;
+    return json?.data?.property ?? null;
   } catch (error) {
-    console.error("FETCH PROPERTY ERROR:", error);
+    console.error("FETCH ERROR:", error);
     return null;
   }
 }
@@ -62,11 +57,7 @@ export default async function PropertyPage({
 }) {
   const { slug } = await params;
 
-  console.log("CURRENT SLUG:", slug);
-
   const property = await getProperty(slug);
-
-  console.log("FINAL PROPERTY:", property);
 
   if (!property) {
     return (
@@ -79,7 +70,7 @@ export default async function PropertyPage({
     );
   }
 
-  const floorModel = property.floorPlanModel?.node?.mediaItemUrl;
+  const floorModel = property.asraaModel3d;
 
   return (
     <main className="bg-black text-white min-h-screen pb-28">
@@ -151,7 +142,7 @@ export default async function PropertyPage({
         </section>
       )}
 
-      {/* MAIN CONTENT */}
+      {/* CONTENT */}
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
         <div className="grid md:grid-cols-3 gap-14">
           {/* SIDEBAR */}
@@ -177,10 +168,20 @@ export default async function PropertyPage({
                   </div>
                 ))}
               </div>
+
+              {property.asraaBrochure && (
+                <a
+                  href={property.asraaBrochure}
+                  target="_blank"
+                  className="block mt-6 bg-amber-500 text-black text-center py-3 rounded-xl font-semibold"
+                >
+                  Download Brochure
+                </a>
+              )}
             </div>
           </div>
 
-          {/* CONTENT */}
+          {/* MAIN CONTENT */}
           <div className="md:col-span-2">
             <div
               className="
@@ -201,11 +202,11 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* FLOORPLAN */}
+      {/* FLOOR PLAN */}
       {floorModel && (
         <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold mb-10 text-amber-400">
-            Interactive Floor Plan
+            Interactive 3D Model
           </h2>
 
           <FloorViewer modelUrl={floorModel} />
