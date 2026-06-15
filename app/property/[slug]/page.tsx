@@ -1,42 +1,53 @@
 import FloorViewer from "@/components/FloorViewer";
 
 async function getProperty(slug: string) {
-  const res = await fetch("https://asraarealty.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-        query GetProperty($slug: ID!) {
-          property(id: $slug, idType: SLUG) {
-            title
-            slug
-            uri
-            content
-            featuredImage {
-              node {
-                sourceUrl
-              }
-            }
-            asraaGallery
-            property3dData {
-              floorPlanModel {
+  try {
+    const res = await fetch("https://asraarealty.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+          query GetProperty($slug: ID!) {
+            property(id: $slug, idType: SLUG) {
+              title
+              slug
+              uri
+              content
+
+              featuredImage {
                 node {
-                  mediaItemUrl
+                  sourceUrl
+                }
+              }
+
+              asraaGallery
+
+              property3dData {
+                floorPlanModel {
+                  node {
+                    mediaItemUrl
+                  }
                 }
               }
             }
           }
-        }
-      `,
-      variables: { slug },
-    }),
-    cache: "no-store",
-  });
+        `,
+        variables: { slug },
+      }),
+      cache: "no-store",
+    });
 
-  const json = await res.json();
-  return json?.data?.property;
+    const json = await res.json();
+
+    console.log("GRAPHQL RESPONSE:", json);
+
+    return json?.data?.property || null;
+  } catch (error) {
+    console.error("FETCH PROPERTY ERROR:", error);
+    return null;
+  }
 }
 
 export default async function PropertyPage({
@@ -44,12 +55,18 @@ export default async function PropertyPage({
 }: {
   params: { slug: string };
 }) {
-  const property = await getProperty(params.slug);
+  const { slug } = params;
+
+  console.log("PROPERTY SLUG:", slug);
+
+  const property = await getProperty(slug);
+
+  console.log("PROPERTY DATA:", property);
 
   if (!property) {
     return (
       <main className="bg-black text-white min-h-screen flex items-center justify-center">
-        Property not found
+        <h1 className="text-2xl font-bold">Property not found</h1>
       </main>
     );
   }
@@ -59,7 +76,6 @@ export default async function PropertyPage({
 
   return (
     <main className="bg-black text-white min-h-screen pb-28">
-
       {/* HERO */}
       <section className="relative h-[80vh] overflow-hidden">
         <img
@@ -89,8 +105,8 @@ export default async function PropertyPage({
         <div className="grid md:grid-cols-4 gap-6">
           {[
             "RERA Verified",
-            "Luxury Project",
             "Prime Location",
+            "Luxury Living",
             "Best Investment",
           ].map((item) => (
             <div
@@ -119,6 +135,7 @@ export default async function PropertyPage({
                 <img
                   src={image}
                   alt={`${property.title} ${index + 1}`}
+                  loading="lazy"
                   className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
                 />
               </div>
@@ -130,7 +147,6 @@ export default async function PropertyPage({
       {/* MAIN CONTENT */}
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
         <div className="grid md:grid-cols-3 gap-14">
-
           {/* SIDEBAR */}
           <div>
             <div className="sticky top-10 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
@@ -143,7 +159,7 @@ export default async function PropertyPage({
                   ["Status", "Available"],
                   ["Type", "Luxury"],
                   ["RERA", "Verified"],
-                  ["Possession", "2026"],
+                  ["Possession", "Ready Soon"],
                 ].map(([label, value]) => (
                   <div
                     key={label}
@@ -166,15 +182,14 @@ export default async function PropertyPage({
 
           {/* CONTENT */}
           <div className="md:col-span-2">
-
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 mb-10">
               <h2 className="text-3xl font-bold mb-4 text-amber-400">
                 Project Overview
               </h2>
 
               <p className="text-zinc-300 leading-8">
-                Study all project insights, location benefits, floor plans,
-                pricing and amenities before making your decision.
+                Study all project insights, floor plans, pricing, amenities and
+                location advantages before making your investment decision.
               </p>
             </div>
 
@@ -193,13 +208,13 @@ export default async function PropertyPage({
                 [&_ul]:rounded-2xl
                 [&_ul]:border
                 [&_ul]:border-zinc-800
+                [&_li]:mb-2
               "
               dangerouslySetInnerHTML={{
                 __html: property.content,
               }}
             />
           </div>
-
         </div>
       </section>
 
@@ -230,7 +245,7 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* FLOORPLAN */}
+      {/* FLOOR PLAN */}
       {floorModel && (
         <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold mb-10 text-amber-400">
@@ -245,11 +260,11 @@ export default async function PropertyPage({
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
         <div className="bg-gradient-to-r from-amber-500 to-yellow-500 rounded-3xl p-10 text-center text-black">
           <h2 className="text-4xl font-bold mb-4">
-            Interested in this project?
+            Interested in this Project?
           </h2>
 
           <p className="mb-8">
-            Get brochure, pricing and consultation instantly.
+            Get brochure, pricing and site visit consultation instantly.
           </p>
 
           <a
@@ -260,7 +275,6 @@ export default async function PropertyPage({
           </a>
         </div>
       </section>
-
     </main>
   );
 }
