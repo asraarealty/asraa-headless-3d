@@ -1,3 +1,21 @@
+import FloorViewer from "@/components/FloorViewer";
+
+function cleanContent(html: string) {
+  if (!html) return "";
+
+  return html
+    .replace(/<div class="ez-toc-container[\s\S]*?<\/div>/gi, "")
+    .replace(/<nav class="ez-toc[\s\S]*?<\/nav>/gi, "")
+    .replace(/Table of Contents/gi, "")
+    .replace(/≡/g, "")
+    .replace(/♦/g, "")
+    .replace(/➤/g, "")
+    .replace(/📞/g, "")
+    .replace(/<p>\s*<\/p>/gi, "")
+    .replace(/<h1/gi, "<h2")
+    .replace(/<\/h1>/gi, "</h2>");
+}
+
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -11,7 +29,8 @@ async function getProperty(slug: string) {
             property(id: $slug, idType: SLUG) {
               title
               slug
-              content
+              excerpt
+              content(format: RENDERED)
               price
               beds
               baths
@@ -21,22 +40,33 @@ async function getProperty(slug: string) {
               latitude
               longitude
               gallery
+              asraaModel3d
             }
           }
         `,
-        variables: { slug },
+        variables: {
+          slug,
+        },
       }),
       cache: "no-store",
     });
 
     const json = await res.json();
 
+    console.log("GraphQL Response:", json);
+
     if (json.errors) {
       console.error("GraphQL Errors:", json.errors);
       return null;
     }
 
-    return json?.data?.property || null;
+    const property = json?.data?.property;
+
+    if (!property) return null;
+
+    property.content = cleanContent(property.content);
+
+    return property;
   } catch (error) {
     console.error("Fetch Error:", error);
     return null;
@@ -65,25 +95,37 @@ export default async function PropertyPage({
       {/* HERO */}
       <section className="relative h-[85vh]">
         <img
-          src={property.gallery?.[0] || "/fallback.jpg"}
+          src={property.gallery?.[0]}
           alt={property.title}
-          className="w-full h-full object-cover opacity-50"
+          className="w-full h-full object-cover opacity-60"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-        <div className="absolute bottom-20 left-8 md:left-16 z-10 max-w-5xl">
-          <p className="text-amber-400 uppercase tracking-[5px] text-sm mb-4 font-semibold">
+        <div className="absolute bottom-16 left-8 md:left-16 z-10 max-w-4xl">
+          <p className="text-amber-400 uppercase tracking-[4px] text-sm mb-4">
             Premium Project
           </p>
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-5">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4">
             {property.title}
           </h1>
 
-          <p className="text-zinc-300 text-lg max-w-3xl leading-8">
+          <p className="text-zinc-300 text-lg max-w-3xl mb-6">
             {property.address}
           </p>
+
+          <div className="flex flex-wrap gap-3">
+            <span className="px-4 py-2 bg-zinc-900 rounded-full border border-zinc-700">
+              RERA Approved
+            </span>
+            <span className="px-4 py-2 bg-zinc-900 rounded-full border border-zinc-700">
+              Prime Location
+            </span>
+            <span className="px-4 py-2 bg-zinc-900 rounded-full border border-zinc-700">
+              Limited Inventory
+            </span>
+          </div>
         </div>
       </section>
 
@@ -97,7 +139,7 @@ export default async function PropertyPage({
         ].map(([label, value]) => (
           <div
             key={label}
-            className="bg-zinc-900 rounded-2xl p-6 text-center border border-zinc-800 hover:border-amber-400 transition"
+            className="bg-zinc-900 rounded-2xl p-6 text-center border border-zinc-800"
           >
             <p className="text-zinc-400 mb-2">{label}</p>
             <p className="text-amber-400 text-3xl font-bold">{value}</p>
@@ -114,25 +156,16 @@ export default async function PropertyPage({
           </h2>
 
           <div className="space-y-5 text-zinc-300">
-            <div className="border-b border-zinc-800 pb-3">
-              RERA: {property.reraNumber}
-            </div>
-            <div className="border-b border-zinc-800 pb-3">
-              Beds: {property.beds}
-            </div>
-            <div className="border-b border-zinc-800 pb-3">
-              Baths: {property.baths}
-            </div>
-            <div className="border-b border-zinc-800 pb-3">
-              Area: {property.homeArea} sqft
-            </div>
+            <div>RERA: {property.reraNumber}</div>
+            <div>Beds: {property.beds}</div>
+            <div>Baths: {property.baths}</div>
+            <div>Area: {property.homeArea} sqft</div>
           </div>
         </div>
 
-        {/* CONTENT AREA */}
+        {/* CONTENT */}
         <div className="md:col-span-2 space-y-10">
-          {/* OVERVIEW BOX */}
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 md:p-10 shadow-xl">
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-1 h-10 bg-amber-400 rounded-full" />
               <h2 className="text-3xl font-bold text-amber-400">
@@ -169,35 +202,24 @@ export default async function PropertyPage({
             />
           </div>
 
-          {/* FEATURE STRIP */}
+          {/* FEATURE BOXES */}
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              {
-                title: "Luxury Lifestyle",
-                desc: "Premium amenities crafted for elevated living.",
-              },
-              {
-                title: "Prime Connectivity",
-                desc: "Excellent road, metro and highway access.",
-              },
-              {
-                title: "Investment Potential",
-                desc: "High appreciation and strong future demand.",
-              },
-            ].map((item) => (
+              ["Luxury Lifestyle", "Premium amenities crafted for elevated living."],
+              ["Prime Connectivity", "Excellent road, metro and highway access."],
+              ["Investment Potential", "High appreciation and strong future demand."],
+            ].map(([title, desc]) => (
               <div
-                key={item.title}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-amber-400 transition"
+                key={title}
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
               >
-                <h3 className="text-xl font-bold text-white mb-3">
-                  {item.title}
-                </h3>
-                <p className="text-zinc-400 leading-7">{item.desc}</p>
+                <h3 className="text-xl font-bold mb-4">{title}</h3>
+                <p className="text-zinc-400">{desc}</p>
               </div>
             ))}
           </div>
 
-          {/* TIMELINE */}
+          {/* PROJECT HIGHLIGHTS */}
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <h2 className="text-3xl font-bold text-amber-400 mb-8">
               Project Highlights
@@ -209,21 +231,29 @@ export default async function PropertyPage({
                 "Spacious Floor Plans",
                 "Smart Investment Opportunity",
                 "Trusted Developer Legacy",
-              ].map((point, index) => (
-                <div key={index} className="flex gap-4 items-start">
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4">
                   <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold">
-                    {index + 1}
+                    {i + 1}
                   </div>
-
-                  <div>
-                    <p className="text-white text-lg font-semibold">{point}</p>
-                  </div>
+                  <p className="text-lg font-medium">{item}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </section>
+
+      {/* 3D FLOOR VIEW */}
+      {property.asraaModel3d && (
+        <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
+          <h2 className="text-4xl font-bold text-amber-400 mb-10">
+            3D Floor Plan
+          </h2>
+
+          <FloorViewer modelUrl={property.asraaModel3d} />
+        </section>
+      )}
 
       {/* GALLERY */}
       {Array.isArray(property.gallery) && property.gallery.length > 0 && (
@@ -232,13 +262,13 @@ export default async function PropertyPage({
             Project Gallery
           </h2>
 
-          <div className="flex gap-6 overflow-x-auto pb-4 snap-x scrollbar-hide">
+          <div className="grid md:grid-cols-4 gap-6">
             {property.gallery.map((img: string, index: number) => (
               <img
                 key={index}
                 src={img}
                 alt={`${property.title}-${index}`}
-                className="rounded-2xl h-80 min-w-[380px] object-cover snap-center border border-zinc-800"
+                className="rounded-2xl h-80 w-full object-cover hover:scale-105 transition duration-500"
               />
             ))}
           </div>
@@ -247,16 +277,14 @@ export default async function PropertyPage({
 
       {/* CTA */}
       <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-        <div className="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-10 text-black text-center">
+        <div className="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-10 text-center text-black">
           <h2 className="text-4xl font-bold mb-4">
-            Book Your Site Visit Today
+            Get Best Price + Floor Plan + Cost Sheet
           </h2>
-
           <p className="text-lg mb-6">
-            Get exclusive offers, floor plans and developer pricing.
+            Connect now for exclusive deals and offers.
           </p>
-
-          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition">
+          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold">
             Enquire Now
           </button>
         </div>
@@ -272,12 +300,19 @@ export default async function PropertyPage({
           <iframe
             width="100%"
             height="500"
-            className="rounded-2xl border border-zinc-800"
+            className="rounded-2xl"
             loading="lazy"
             src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
           />
         </section>
       )}
+
+      {/* MOBILE CTA */}
+      <div className="fixed bottom-5 left-5 right-5 md:hidden z-50">
+        <button className="w-full bg-amber-400 text-black py-4 rounded-xl font-bold shadow-xl">
+          Get Price Details
+        </button>
+      </div>
     </main>
   );
 }
