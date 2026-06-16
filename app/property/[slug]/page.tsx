@@ -141,27 +141,52 @@ export default async function PropertyPage({
 
             <div
               className="
-                prose prose-invert max-w-none
-                [&_.ez-toc-container]:hidden
-                prose-h2:text-amber-400
-                prose-h2:text-3xl
-                prose-h2:font-bold
-                prose-h2:mt-12
-                prose-h2:mb-6
-                prose-h2:border-b
-                prose-h2:border-zinc-800
-                prose-h2:pb-4
-                prose-h3:text-yellow-300
-                prose-h3:text-xl
-                prose-h3:font-semibold
-                prose-p:text-zinc-300
-                prose-p:text-lg
-                prose-p:leading-9
-                prose-p:mb-6
-                prose-strong:text-white
-                prose-ul:space-y-3
-                prose-li:text-zinc-300
-              "
+prose prose-invert max-w-none
+[&_.ez-toc-container]:hidden
+
+prose-h2:text-amber-400
+prose-h2:text-3xl
+prose-h2:font-bold
+prose-h2:mt-16
+prose-h2:mb-8
+prose-h2:border-b
+prose-h2:border-zinc-800
+prose-h2:pb-4
+
+prose-h3:text-yellow-300
+prose-h3:text-2xl
+prose-h3:font-semibold
+prose-h3:mt-10
+prose-h3:mb-4
+
+prose-p:text-zinc-300
+prose-p:text-lg
+prose-p:leading-8
+prose-p:bg-zinc-900
+prose-p:border
+prose-p:border-zinc-800
+prose-p:p-6
+prose-p:rounded-2xl
+prose-p:mb-6
+prose-p:hover:border-amber-400
+prose-p:transition
+
+prose-ul:grid
+prose-ul:grid-cols-2
+prose-ul:gap-4
+prose-ul:my-8
+
+prose-li:bg-zinc-900
+prose-li:border
+prose-li:border-zinc-800
+prose-li:p-4
+prose-li:rounded-xl
+prose-li:list-none
+prose-li:hover:border-yellow-400
+prose-li:transition
+
+prose-strong:text-white
+"
               dangerouslySetInnerHTML={{
                 __html: property.content || "<p>No content available.</p>",
               }}
