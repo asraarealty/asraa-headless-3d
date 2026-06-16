@@ -23,6 +23,12 @@ async function getProperty(slug: string) {
               latitude
               longitude
               gallery
+
+              developerName
+              monthlyScheme
+              discountOffer
+              inventoryStatus
+              offerPopupText
             }
           }
         `,
@@ -89,7 +95,21 @@ export default async function PropertyPage({
             {property.title}
           </h1>
 
-          <p className="text-zinc-300 text-lg">{property.address}</p>
+          <p className="text-zinc-300 text-lg mb-6">{property.address}</p>
+
+          <div className="flex flex-wrap gap-4">
+            <button className="bg-amber-400 text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
+              Unlock Offers
+            </button>
+
+            <a
+              href={`https://wa.me/919619973211?text=Hi I want details for ${property.title}`}
+              target="_blank"
+              className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-black transition"
+            >
+              WhatsApp
+            </a>
+          </div>
         </div>
       </section>
 
@@ -115,6 +135,7 @@ export default async function PropertyPage({
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
         {/* LEFT SIDEBAR */}
         <div className="space-y-6 sticky top-10 h-fit">
+          {/* Quick Details */}
           <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
             <h2 className="text-2xl font-bold text-amber-400 mb-6">
               Quick Details
@@ -134,6 +155,7 @@ export default async function PropertyPage({
             </div>
           </div>
 
+          {/* Why Invest */}
           <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
             <h2 className="text-2xl font-bold text-amber-400 mb-6">
               Why Invest?
@@ -145,6 +167,35 @@ export default async function PropertyPage({
               <li>High ROI potential</li>
               <li>Trusted developer</li>
             </ul>
+          </div>
+
+          {/* Developer Offer */}
+          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+            <h2 className="text-2xl font-bold text-amber-400 mb-6">
+              Developer Offer
+            </h2>
+
+            <div className="space-y-4 text-zinc-300">
+              <p>
+                <strong>Developer:</strong> {property.developerName || "-"}
+              </p>
+
+              <p>
+                <strong>Scheme:</strong> {property.monthlyScheme || "-"}
+              </p>
+
+              <p>
+                <strong>Offer:</strong> {property.discountOffer || "-"}
+              </p>
+
+              <p>
+                <strong>Inventory:</strong> {property.inventoryStatus || "-"}
+              </p>
+            </div>
+
+            <button className="mt-6 w-full bg-amber-400 text-black py-3 rounded-xl font-bold">
+              Claim Offer
+            </button>
           </div>
         </div>
 
@@ -190,32 +241,6 @@ export default async function PropertyPage({
               }}
             />
           </div>
-
-          {/* FEATURE CARDS */}
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Luxury Lifestyle",
-                desc: "Premium amenities crafted for elevated living.",
-              },
-              {
-                title: "Prime Connectivity",
-                desc: "Excellent metro and highway access.",
-              },
-              {
-                title: "Investment Potential",
-                desc: "Strong future appreciation opportunity.",
-              },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
-              >
-                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
-                <p className="text-zinc-400">{item.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -243,7 +268,7 @@ export default async function PropertyPage({
       <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
         <div className="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-12 text-center text-black">
           <h2 className="text-4xl font-bold mb-4">
-            Book Your Site Visit Today
+            {property.offerPopupText || "Book Your Site Visit Today"}
           </h2>
 
           <p className="text-lg mb-6">
