@@ -39,7 +39,7 @@ async function getProperty(slug: string) {
 
     const json = await res.json();
 
-    console.log("GRAPHQL:", json);
+    console.log("GRAPHQL RESPONSE:", json);
 
     if (json.errors) {
       console.error(json.errors);
@@ -56,9 +56,11 @@ async function getProperty(slug: string) {
 export default async function PropertyPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
+
+  console.log("CURRENT SLUG:", slug);
 
   const property = await getProperty(slug);
 
@@ -213,7 +215,7 @@ export default async function PropertyPage({
         </section>
       )}
 
-      {/* FLOOR PLANS */}
+      {/* FLOOR VIEWER */}
       <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
         <h2 className="text-4xl font-bold mb-10 text-amber-400">
           Floor Plans
