@@ -1,5 +1,3 @@
-import FloorViewer from "@/components/FloorViewer";
-
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -59,8 +57,6 @@ export default async function PropertyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
-  console.log("CURRENT SLUG:", slug);
 
   const property = await getProperty(slug);
 
@@ -126,7 +122,7 @@ export default async function PropertyPage({
       </section>
 
       {/* GALLERY */}
-      {property.gallery?.length > 0 && (
+      {Array.isArray(property.gallery) && property.gallery.length > 0 && (
         <section className="px-8 md:px-20 py-16">
           <h2 className="text-3xl font-bold mb-8 text-amber-400">
             Project Gallery
@@ -194,7 +190,7 @@ export default async function PropertyPage({
                 [&_p]:mb-6
               "
               dangerouslySetInnerHTML={{
-                __html: property.content,
+                __html: property.content || "",
               }}
             />
           </div>
@@ -202,7 +198,7 @@ export default async function PropertyPage({
       </section>
 
       {/* MAP */}
-      {property.latitude && property.longitude && (
+      {property.latitude?.length > 0 && property.longitude?.length > 0 && (
         <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold mb-10 text-amber-400">
             Location Map
@@ -214,15 +210,6 @@ export default async function PropertyPage({
           />
         </section>
       )}
-
-      {/* FLOOR VIEWER */}
-      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
-        <h2 className="text-4xl font-bold mb-10 text-amber-400">
-          Floor Plans
-        </h2>
-
-        <FloorViewer slug={property.slug} />
-      </section>
     </main>
   );
 }
