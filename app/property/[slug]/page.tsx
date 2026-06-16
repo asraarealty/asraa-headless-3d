@@ -1,21 +1,5 @@
 import FloorViewer from "@/components/FloorViewer";
 
-function cleanContent(html: string) {
-  if (!html) return "";
-
-  return html
-    .replace(/<div class="ez-toc-container[\s\S]*?<\/div>/gi, "")
-    .replace(/<nav class="ez-toc[\s\S]*?<\/nav>/gi, "")
-    .replace(/Table of Contents/gi, "")
-    .replace(/≡/g, "")
-    .replace(/♦/g, "")
-    .replace(/➤/g, "")
-    .replace(/📞/g, "")
-    .replace(/<p>\s*<\/p>/gi, "")
-    .replace(/<h1/gi, "<h2")
-    .replace(/<\/h1>/gi, "</h2>");
-}
-
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -29,7 +13,6 @@ async function getProperty(slug: string) {
             property(id: $slug, idType: SLUG) {
               title
               slug
-              excerpt
               content(format: RENDERED)
               price
               beds
@@ -43,25 +26,23 @@ async function getProperty(slug: string) {
             }
           }
         `,
-        variables: { slug },
+        variables: {
+          slug,
+        },
       }),
       cache: "no-store",
     });
 
     const json = await res.json();
 
+    console.log("GraphQL Response:", json);
+
     if (json.errors) {
       console.error("GraphQL Errors:", json.errors);
       return null;
     }
 
-    const property = json?.data?.property;
-
-    if (!property) return null;
-
-    property.content = cleanContent(property.content);
-
-    return property;
+    return json?.data?.property || null;
   } catch (error) {
     console.error("Fetch Error:", error);
     return null;
@@ -74,31 +55,27 @@ export default async function PropertyPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
   const property = await getProperty(slug);
 
   if (!property) {
     return (
-      <main className="bg-black min-h-screen flex items-center justify-center text-white">
+      <main className="bg-black min-h-screen flex items-center justify-center text-white text-2xl">
         Property not found
       </main>
     );
   }
 
-  const modelUrl =
-    property?.asraaModel3d || property?.model3d || property?.floorModel || null;
-
   return (
     <main className="bg-black text-white min-h-screen">
       {/* HERO */}
-      <section className="relative h-[85vh]">
+      <section className="relative h-[80vh]">
         <img
           src={property.gallery?.[0]}
           alt={property.title}
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-50"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
 
         <div className="absolute bottom-16 left-8 md:left-16 z-10 max-w-4xl">
           <p className="text-amber-400 uppercase tracking-[4px] text-sm mb-4">
@@ -109,25 +86,11 @@ export default async function PropertyPage({
             {property.title}
           </h1>
 
-          <p className="text-zinc-300 text-lg max-w-3xl mb-6">
-            {property.address}
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <span className="px-4 py-2 bg-zinc-900 rounded-full border border-zinc-700">
-              RERA Approved
-            </span>
-            <span className="px-4 py-2 bg-zinc-900 rounded-full border border-zinc-700">
-              Prime Location
-            </span>
-            <span className="px-4 py-2 bg-zinc-900 rounded-full border border-zinc-700">
-              Limited Inventory
-            </span>
-          </div>
+          <p className="text-zinc-300 text-lg">{property.address}</p>
         </div>
       </section>
 
-      {/* HIGHLIGHTS */}
+      {/* STATS */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-6 px-8 md:px-16 py-12 border-b border-zinc-800">
         {[
           ["Price", property.price],
@@ -145,7 +108,7 @@ export default async function PropertyPage({
         ))}
       </section>
 
-      {/* MAIN CONTENT */}
+      {/* CONTENT SECTION */}
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
         {/* SIDEBAR */}
         <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 h-fit sticky top-10">
@@ -154,15 +117,22 @@ export default async function PropertyPage({
           </h2>
 
           <div className="space-y-5 text-zinc-300">
-            <div>RERA: {property.reraNumber}</div>
-            <div>Beds: {property.beds}</div>
-            <div>Baths: {property.baths}</div>
+            <div className="border-b border-zinc-800 pb-3">
+              RERA: {property.reraNumber}
+            </div>
+            <div className="border-b border-zinc-800 pb-3">
+              Beds: {property.beds}
+            </div>
+            <div className="border-b border-zinc-800 pb-3">
+              Baths: {property.baths}
+            </div>
             <div>Area: {property.homeArea} sqft</div>
           </div>
         </div>
 
-        {/* CONTENT */}
+        {/* MAIN CONTENT */}
         <div className="md:col-span-2 space-y-10">
+          {/* CONTENT BOX */}
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-1 h-10 bg-amber-400 rounded-full" />
@@ -200,33 +170,33 @@ export default async function PropertyPage({
             />
           </div>
 
-          {/* FEATURE BOXES */}
+          {/* FEATURE CARDS */}
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              [
-                "Luxury Lifestyle",
-                "Premium amenities crafted for elevated living.",
-              ],
-              [
-                "Prime Connectivity",
-                "Excellent road, metro and highway access.",
-              ],
-              [
-                "Investment Potential",
-                "High appreciation and strong future demand.",
-              ],
-            ].map(([title, desc]) => (
+              {
+                title: "Luxury Lifestyle",
+                desc: "Premium amenities crafted for elevated living.",
+              },
+              {
+                title: "Prime Connectivity",
+                desc: "Excellent road, metro and highway access.",
+              },
+              {
+                title: "Investment Potential",
+                desc: "High appreciation and strong future demand.",
+              },
+            ].map((item, i) => (
               <div
-                key={title}
+                key={i}
                 className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
               >
-                <h3 className="text-xl font-bold mb-4">{title}</h3>
-                <p className="text-zinc-400">{desc}</p>
+                <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                <p className="text-zinc-400">{item.desc}</p>
               </div>
             ))}
           </div>
 
-          {/* PROJECT HIGHLIGHTS */}
+          {/* HIGHLIGHTS */}
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <h2 className="text-3xl font-bold text-amber-400 mb-8">
               Project Highlights
@@ -238,10 +208,10 @@ export default async function PropertyPage({
                 "Spacious Floor Plans",
                 "Smart Investment Opportunity",
                 "Trusted Developer Legacy",
-              ].map((item, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold">
-                    {i + 1}
+              ].map((item, index) => (
+                <div key={index} className="flex items-center gap-4">
+                  <div className="w-8 h-8 rounded-full bg-amber-400 text-black font-bold flex items-center justify-center">
+                    {index + 1}
                   </div>
                   <p className="text-lg font-medium">{item}</p>
                 </div>
@@ -251,19 +221,17 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* OPTIONAL 3D VIEWER */}
-      {modelUrl && (
-        <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-          <h2 className="text-4xl font-bold text-amber-400 mb-10">
-            3D Floor Plan
-          </h2>
+      {/* FLOOR VIEWER */}
+      <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
+        <h2 className="text-4xl font-bold text-amber-400 mb-10">
+          Floor Plans
+        </h2>
 
-          <FloorViewer modelUrl={modelUrl} />
-        </section>
-      )}
+        <FloorViewer modelUrl="/models/floor.glb" />
+      </section>
 
       {/* GALLERY */}
-      {Array.isArray(property.gallery) && property.gallery.length > 0 && (
+      {property.gallery?.length > 0 && (
         <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold text-amber-400 mb-10">
             Project Gallery
@@ -284,13 +252,15 @@ export default async function PropertyPage({
 
       {/* CTA */}
       <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-        <div className="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-10 text-center text-black">
+        <div className="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-12 text-center text-black">
           <h2 className="text-4xl font-bold mb-4">
-            Get Best Price + Floor Plan + Cost Sheet
+            Book Your Site Visit Today
           </h2>
+
           <p className="text-lg mb-6">
-            Connect now for exclusive deals and offers.
+            Get exclusive offers, floor plans and developer pricing.
           </p>
+
           <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold">
             Enquire Now
           </button>
@@ -313,13 +283,6 @@ export default async function PropertyPage({
           />
         </section>
       )}
-
-      {/* MOBILE CTA */}
-      <div className="fixed bottom-5 left-5 right-5 md:hidden z-50">
-        <button className="w-full bg-amber-400 text-black py-4 rounded-xl font-bold shadow-xl">
-          Get Price Details
-        </button>
-      </div>
     </main>
   );
 }
