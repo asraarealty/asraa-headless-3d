@@ -1,4 +1,5 @@
 import React from "react";
+import OfferPopup from "@/components/OfferPopup";
 
 async function getProperty(slug: string) {
   try {
@@ -23,7 +24,6 @@ async function getProperty(slug: string) {
               latitude
               longitude
               gallery
-
               developerName
               monthlyScheme
               discountOffer
@@ -98,12 +98,16 @@ export default async function PropertyPage({
           <p className="text-zinc-300 text-lg mb-6">{property.address}</p>
 
           <div className="flex flex-wrap gap-4">
-            <button className="bg-amber-400 text-black px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
-              Unlock Offers
-            </button>
+            <OfferPopup
+              title={property.offerPopupText || "Unlock Developer Offers"}
+              scheme={property.monthlyScheme}
+              discount={property.discountOffer}
+              inventory={property.inventoryStatus}
+              propertyTitle={property.title}
+            />
 
             <a
-              href={`https://wa.me/919619973211?text=Hi I want details for ${property.title}`}
+              href={`https://wa.me/919619973211?text=Hi I want details for ${property.title} | Scheme: ${property.monthlyScheme || "N/A"} | Offer: ${property.discountOffer || "N/A"}`}
               target="_blank"
               className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-black transition"
             >
@@ -142,31 +146,11 @@ export default async function PropertyPage({
             </h2>
 
             <div className="space-y-5 text-zinc-300">
-              <div className="border-b border-zinc-800 pb-3">
-                RERA: {property.reraNumber || "-"}
-              </div>
-              <div className="border-b border-zinc-800 pb-3">
-                Beds: {property.beds || "-"}
-              </div>
-              <div className="border-b border-zinc-800 pb-3">
-                Baths: {property.baths || "-"}
-              </div>
+              <div>RERA: {property.reraNumber || "-"}</div>
+              <div>Beds: {property.beds || "-"}</div>
+              <div>Baths: {property.baths || "-"}</div>
               <div>Area: {property.homeArea || "-"} sqft</div>
             </div>
-          </div>
-
-          {/* Why Invest */}
-          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
-            <h2 className="text-2xl font-bold text-amber-400 mb-6">
-              Why Invest?
-            </h2>
-
-            <ul className="space-y-4 text-zinc-300">
-              <li>Premium location</li>
-              <li>Luxury amenities</li>
-              <li>High ROI potential</li>
-              <li>Trusted developer</li>
-            </ul>
           </div>
 
           {/* Developer Offer */}
@@ -176,26 +160,21 @@ export default async function PropertyPage({
             </h2>
 
             <div className="space-y-4 text-zinc-300">
-              <p>
-                <strong>Developer:</strong> {property.developerName || "-"}
-              </p>
-
-              <p>
-                <strong>Scheme:</strong> {property.monthlyScheme || "-"}
-              </p>
-
-              <p>
-                <strong>Offer:</strong> {property.discountOffer || "-"}
-              </p>
-
-              <p>
-                <strong>Inventory:</strong> {property.inventoryStatus || "-"}
-              </p>
+              <p><strong>Developer:</strong> {property.developerName || "-"}</p>
+              <p><strong>Scheme:</strong> {property.monthlyScheme || "-"}</p>
+              <p><strong>Offer:</strong> {property.discountOffer || "-"}</p>
+              <p><strong>Inventory:</strong> {property.inventoryStatus || "-"}</p>
             </div>
 
-            <button className="mt-6 w-full bg-amber-400 text-black py-3 rounded-xl font-bold">
-              Claim Offer
-            </button>
+            <div className="mt-6">
+              <OfferPopup
+                title="Claim Exclusive Offer"
+                scheme={property.monthlyScheme}
+                discount={property.discountOffer}
+                inventory={property.inventoryStatus}
+                propertyTitle={property.title}
+              />
+            </div>
           </div>
         </div>
 
@@ -218,23 +197,10 @@ export default async function PropertyPage({
                 [&_.content-block]:rounded-3xl
                 [&_.content-block]:p-8
                 [&_.content-block]:mb-8
-
                 prose-h2:text-amber-400
-                prose-h2:text-3xl
-                prose-h2:font-bold
-                prose-h2:mb-6
-
                 prose-h3:text-yellow-300
-                prose-h3:text-xl
-                prose-h3:font-semibold
-
                 prose-p:text-zinc-300
-                prose-p:text-lg
-                prose-p:leading-8
-
-                prose-ul:space-y-3
                 prose-li:text-zinc-300
-                prose-strong:text-white
               "
               dangerouslySetInnerHTML={{
                 __html: cleanedContent,
@@ -257,7 +223,7 @@ export default async function PropertyPage({
                 key={index}
                 src={img}
                 alt={`${property.title}-${index}`}
-                className="snap-center min-w-[320px] h-[420px] object-cover rounded-3xl hover:scale-105 transition duration-500"
+                className="snap-center min-w-[320px] h-[420px] object-cover rounded-3xl"
               />
             ))}
           </div>
@@ -272,12 +238,16 @@ export default async function PropertyPage({
           </h2>
 
           <p className="text-lg mb-6">
-            Get exclusive offers, floor plans and developer pricing.
+            Get latest schemes, discounts and inventory updates.
           </p>
 
-          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold">
-            Enquire Now
-          </button>
+          <OfferPopup
+            title={property.offerPopupText || "Enquire Now"}
+            scheme={property.monthlyScheme}
+            discount={property.discountOffer}
+            inventory={property.inventoryStatus}
+            propertyTitle={property.title}
+          />
         </div>
       </section>
 
