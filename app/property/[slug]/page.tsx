@@ -15,21 +15,20 @@ async function getProperty(slug: string) {
               slug
               uri
               content
-              asraaGallery
-
-              asraaBrochure {
-                mediaItemUrl
-              }
-
-              asraaModel3d {
-                mediaItemUrl
-              }
-
-              featuredImage {
-                node {
-                  sourceUrl
-                }
-              }
+              propertyId
+              price
+              rooms
+              beds
+              baths
+              garages
+              yearBuilt
+              homeArea
+              reraNumber
+              address
+              latitude
+              longitude
+              featuredImageUrl
+              gallery
             }
           }
         `,
@@ -74,16 +73,13 @@ export default async function PropertyPage({
     );
   }
 
-  const floorModel = property.asraaModel3d?.mediaItemUrl;
-  const brochure = property.asraaBrochure?.mediaItemUrl;
-
   return (
     <main className="bg-black text-white min-h-screen pb-28">
       {/* HERO */}
       <section className="relative h-[80vh] overflow-hidden">
         <img
           src={
-            property.featuredImage?.node?.sourceUrl ||
+            property.featuredImageUrl ||
             "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
           }
           alt={property.title}
@@ -100,6 +96,8 @@ export default async function PropertyPage({
           <h1 className="text-5xl md:text-7xl font-bold mt-4 leading-tight">
             {property.title}
           </h1>
+
+          <p className="text-zinc-300 mt-4 text-lg">{property.address}</p>
         </div>
       </section>
 
@@ -107,30 +105,33 @@ export default async function PropertyPage({
       <section className="px-8 md:px-20 py-10 bg-zinc-950 border-b border-zinc-800">
         <div className="grid md:grid-cols-4 gap-6">
           {[
-            "RERA Verified",
-            "Prime Location",
-            "Luxury Living",
-            "Best Investment",
-          ].map((item) => (
+            ["Price", property.price],
+            ["Beds", property.beds],
+            ["Baths", property.baths],
+            ["Area", `${property.homeArea} sqft`],
+          ].map(([label, value]) => (
             <div
-              key={item}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center text-amber-400 font-semibold"
+              key={label}
+              className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center"
             >
-              {item}
+              <div className="text-zinc-400 text-sm">{label}</div>
+              <div className="text-amber-400 font-bold text-xl mt-2">
+                {value}
+              </div>
             </div>
           ))}
         </div>
       </section>
 
       {/* GALLERY */}
-      {property.asraaGallery?.length > 0 && (
+      {property.gallery?.length > 0 && (
         <section className="px-8 md:px-20 py-16">
           <h2 className="text-3xl font-bold mb-8 text-amber-400">
             Project Gallery
           </h2>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {property.asraaGallery.map((image: string, index: number) => (
+            {property.gallery.map((image: string, index: number) => (
               <div
                 key={index}
                 className="group overflow-hidden rounded-2xl border border-zinc-800"
@@ -159,10 +160,11 @@ export default async function PropertyPage({
 
               <div className="space-y-4 text-zinc-300">
                 {[
-                  ["Status", "Available"],
-                  ["Type", "Luxury"],
-                  ["RERA", "Verified"],
-                  ["Possession", "Ready Soon"],
+                  ["Property ID", property.propertyId],
+                  ["RERA", property.reraNumber],
+                  ["Rooms", property.rooms],
+                  ["Garages", property.garages],
+                  ["Year Built", property.yearBuilt],
                 ].map(([label, value]) => (
                   <div
                     key={label}
@@ -173,16 +175,6 @@ export default async function PropertyPage({
                   </div>
                 ))}
               </div>
-
-              {brochure && (
-                <a
-                  href={brochure}
-                  target="_blank"
-                  className="block mt-6 bg-amber-500 text-black text-center py-3 rounded-xl font-semibold"
-                >
-                  Download Brochure
-                </a>
-              )}
             </div>
           </div>
 
@@ -207,16 +199,28 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* FLOOR PLAN */}
-      {floorModel && (
+      {/* MAP */}
+      {property.latitude && property.longitude && (
         <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold mb-10 text-amber-400">
-            Interactive 3D Model
+            Location Map
           </h2>
 
-          <FloorViewer modelUrl={floorModel} />
+          <iframe
+            src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
+            className="w-full h-[500px] rounded-2xl border border-zinc-800"
+          />
         </section>
       )}
+
+      {/* FLOOR PLANS */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+        <h2 className="text-4xl font-bold mb-10 text-amber-400">
+          Floor Plans
+        </h2>
+
+        <FloorViewer slug={property.slug} />
+      </section>
     </main>
   );
 }
