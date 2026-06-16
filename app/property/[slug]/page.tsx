@@ -61,6 +61,13 @@ export default async function PropertyPage({
     );
   }
 
+  const cleanedContent =
+    property.content
+      ?.replace(/<div class="ez-toc-container[\s\S]*?<\/div>/g, "")
+      .replace(/Table of Contents[\s\S]*?(?=<h2)/g, "")
+      .replace(/(<h2[^>]*>.*?<\/h2>)/g, `</div><div class="content-block">$1`)
+      .replace(/^<\/div>/, "") || "<p>No content available.</p>";
+
   return (
     <main className="bg-black text-white min-h-screen overflow-x-hidden">
       {/* HERO */}
@@ -104,31 +111,45 @@ export default async function PropertyPage({
         ))}
       </section>
 
-      {/* MAIN CONTENT */}
+      {/* MAIN */}
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
-        {/* SIDEBAR */}
-        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 h-fit sticky top-10">
-          <h2 className="text-2xl font-bold text-amber-400 mb-6">
-            Quick Details
-          </h2>
+        {/* LEFT SIDEBAR */}
+        <div className="space-y-6 sticky top-10 h-fit">
+          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+            <h2 className="text-2xl font-bold text-amber-400 mb-6">
+              Quick Details
+            </h2>
 
-          <div className="space-y-5 text-zinc-300">
-            <div className="border-b border-zinc-800 pb-3">
-              RERA: {property.reraNumber || "-"}
+            <div className="space-y-5 text-zinc-300">
+              <div className="border-b border-zinc-800 pb-3">
+                RERA: {property.reraNumber || "-"}
+              </div>
+              <div className="border-b border-zinc-800 pb-3">
+                Beds: {property.beds || "-"}
+              </div>
+              <div className="border-b border-zinc-800 pb-3">
+                Baths: {property.baths || "-"}
+              </div>
+              <div>Area: {property.homeArea || "-"} sqft</div>
             </div>
-            <div className="border-b border-zinc-800 pb-3">
-              Beds: {property.beds || "-"}
-            </div>
-            <div className="border-b border-zinc-800 pb-3">
-              Baths: {property.baths || "-"}
-            </div>
-            <div>Area: {property.homeArea || "-"} sqft</div>
+          </div>
+
+          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
+            <h2 className="text-2xl font-bold text-amber-400 mb-6">
+              Why Invest?
+            </h2>
+
+            <ul className="space-y-4 text-zinc-300">
+              <li>Premium location</li>
+              <li>Luxury amenities</li>
+              <li>High ROI potential</li>
+              <li>Trusted developer</li>
+            </ul>
           </div>
         </div>
 
         {/* CONTENT */}
         <div className="md:col-span-2 space-y-12">
-          {/* OVERVIEW */}
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-1 h-10 bg-amber-400 rounded-full" />
@@ -140,53 +161,32 @@ export default async function PropertyPage({
             <div
               className="
                 prose prose-invert max-w-none
-                [&_.ez-toc-container]:hidden
+                [&_.content-block]:bg-zinc-900
+                [&_.content-block]:border
+                [&_.content-block]:border-zinc-800
+                [&_.content-block]:rounded-3xl
+                [&_.content-block]:p-8
+                [&_.content-block]:mb-8
 
                 prose-h2:text-amber-400
                 prose-h2:text-3xl
                 prose-h2:font-bold
-                prose-h2:mt-14
                 prose-h2:mb-6
-                prose-h2:bg-zinc-950
-                prose-h2:border
-                prose-h2:border-zinc-800
-                prose-h2:p-6
-                prose-h2:rounded-2xl
 
                 prose-h3:text-yellow-300
                 prose-h3:text-xl
                 prose-h3:font-semibold
-                prose-h3:mt-8
-                prose-h3:mb-4
 
                 prose-p:text-zinc-300
                 prose-p:text-lg
                 prose-p:leading-8
-                prose-p:bg-zinc-900
-                prose-p:border
-                prose-p:border-zinc-800
-                prose-p:p-6
-                prose-p:rounded-2xl
-                prose-p:mb-6
-                prose-p:hover:border-amber-400
-                prose-p:transition
 
-                prose-ul:grid
-                prose-ul:grid-cols-2
-                prose-ul:gap-4
-                prose-ul:my-6
-
-                prose-li:bg-zinc-900
-                prose-li:border
-                prose-li:border-zinc-800
-                prose-li:p-4
-                prose-li:rounded-xl
-                prose-li:list-none
-
+                prose-ul:space-y-3
+                prose-li:text-zinc-300
                 prose-strong:text-white
               "
               dangerouslySetInnerHTML={{
-                __html: property.content || "<p>No content available.</p>",
+                __html: cleanedContent,
               }}
             />
           </div>
@@ -200,60 +200,33 @@ export default async function PropertyPage({
               },
               {
                 title: "Prime Connectivity",
-                desc: "Excellent metro, highway and road access.",
+                desc: "Excellent metro and highway access.",
               },
               {
                 title: "Investment Potential",
-                desc: "High appreciation and future growth opportunity.",
+                desc: "Strong future appreciation opportunity.",
               },
             ].map((item, i) => (
               <div
                 key={i}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-amber-400 transition"
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
               >
                 <h3 className="text-xl font-bold mb-3">{item.title}</h3>
                 <p className="text-zinc-400">{item.desc}</p>
               </div>
             ))}
           </div>
-
-          {/* HIGHLIGHTS */}
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
-            <h2 className="text-3xl font-bold text-amber-400 mb-8">
-              Project Highlights
-            </h2>
-
-            <div className="space-y-6">
-              {[
-                "Premium Construction Quality",
-                "Spacious Floor Plans",
-                "Smart Investment Opportunity",
-                "Trusted Developer Legacy",
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-4 rounded-xl"
-                >
-                  <div className="w-8 h-8 rounded-full bg-amber-400 text-black font-bold flex items-center justify-center">
-                    {index + 1}
-                  </div>
-
-                  <p className="text-lg">{item}</p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
       {/* GALLERY */}
-      {Array.isArray(property.gallery) && property.gallery.length > 0 && (
+      {property.gallery?.length > 0 && (
         <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold text-amber-400 mb-10">
             Project Gallery
           </h2>
 
-          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
+          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4">
             {property.gallery.map((img: string, index: number) => (
               <img
                 key={index}
@@ -277,7 +250,7 @@ export default async function PropertyPage({
             Get exclusive offers, floor plans and developer pricing.
           </p>
 
-          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition">
+          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold">
             Enquire Now
           </button>
         </div>
