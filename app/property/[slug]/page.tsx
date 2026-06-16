@@ -1,3 +1,5 @@
+import React from "react";
+
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -24,25 +26,21 @@ async function getProperty(slug: string) {
             }
           }
         `,
-        variables: {
-          slug,
-        },
+        variables: { slug },
       }),
       cache: "no-store",
     });
 
     const json = await res.json();
 
-    console.log("GraphQL Response:", json);
-
     if (json.errors) {
-      console.error("GraphQL Errors:", json.errors);
+      console.error(json.errors);
       return null;
     }
 
     return json?.data?.property || null;
   } catch (error) {
-    console.error("Fetch Error:", error);
+    console.error(error);
     return null;
   }
 }
@@ -64,23 +62,23 @@ export default async function PropertyPage({
   }
 
   return (
-    <main className="bg-black text-white min-h-screen">
+    <main className="bg-black text-white min-h-screen overflow-x-hidden">
       {/* HERO */}
-      <section className="relative h-[80vh]">
+      <section className="relative h-[85vh]">
         <img
           src={property.gallery?.[0] || "/placeholder.jpg"}
           alt={property.title}
-          className="w-full h-full object-cover opacity-50"
+          className="w-full h-full object-cover opacity-40"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
 
-        <div className="absolute bottom-16 left-8 md:left-16 z-10 max-w-4xl">
-          <p className="text-amber-400 uppercase tracking-[4px] text-sm mb-4">
-            Premium Project
+        <div className="absolute bottom-20 left-8 md:left-16 z-10 max-w-4xl">
+          <p className="text-amber-400 uppercase tracking-[5px] mb-4 text-sm">
+            Luxury Residence
           </p>
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-4">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 leading-tight">
             {property.title}
           </h1>
 
@@ -98,7 +96,7 @@ export default async function PropertyPage({
         ].map(([label, value]) => (
           <div
             key={label}
-            className="bg-zinc-900 rounded-2xl p-6 text-center border border-zinc-800"
+            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center hover:border-amber-400 transition"
           >
             <p className="text-zinc-400 mb-2">{label}</p>
             <p className="text-amber-400 text-3xl font-bold">{value}</p>
@@ -106,10 +104,10 @@ export default async function PropertyPage({
         ))}
       </section>
 
-      {/* CONTENT SECTION */}
+      {/* MAIN CONTENT */}
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
         {/* SIDEBAR */}
-        <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 h-fit sticky top-10">
+        <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800 h-fit sticky top-10">
           <h2 className="text-2xl font-bold text-amber-400 mb-6">
             Quick Details
           </h2>
@@ -128,9 +126,9 @@ export default async function PropertyPage({
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
-        <div className="md:col-span-2 space-y-10">
-          {/* CONTENT BOX */}
+        {/* CONTENT */}
+        <div className="md:col-span-2 space-y-12">
+          {/* OVERVIEW */}
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-1 h-10 bg-amber-400 rounded-full" />
@@ -141,52 +139,52 @@ export default async function PropertyPage({
 
             <div
               className="
-prose prose-invert max-w-none
-[&_.ez-toc-container]:hidden
+                prose prose-invert max-w-none
+                [&_.ez-toc-container]:hidden
 
-prose-h2:text-amber-400
-prose-h2:text-3xl
-prose-h2:font-bold
-prose-h2:mt-16
-prose-h2:mb-8
-prose-h2:border-b
-prose-h2:border-zinc-800
-prose-h2:pb-4
+                prose-h2:text-amber-400
+                prose-h2:text-3xl
+                prose-h2:font-bold
+                prose-h2:mt-14
+                prose-h2:mb-6
+                prose-h2:bg-zinc-950
+                prose-h2:border
+                prose-h2:border-zinc-800
+                prose-h2:p-6
+                prose-h2:rounded-2xl
 
-prose-h3:text-yellow-300
-prose-h3:text-2xl
-prose-h3:font-semibold
-prose-h3:mt-10
-prose-h3:mb-4
+                prose-h3:text-yellow-300
+                prose-h3:text-xl
+                prose-h3:font-semibold
+                prose-h3:mt-8
+                prose-h3:mb-4
 
-prose-p:text-zinc-300
-prose-p:text-lg
-prose-p:leading-8
-prose-p:bg-zinc-900
-prose-p:border
-prose-p:border-zinc-800
-prose-p:p-6
-prose-p:rounded-2xl
-prose-p:mb-6
-prose-p:hover:border-amber-400
-prose-p:transition
+                prose-p:text-zinc-300
+                prose-p:text-lg
+                prose-p:leading-8
+                prose-p:bg-zinc-900
+                prose-p:border
+                prose-p:border-zinc-800
+                prose-p:p-6
+                prose-p:rounded-2xl
+                prose-p:mb-6
+                prose-p:hover:border-amber-400
+                prose-p:transition
 
-prose-ul:grid
-prose-ul:grid-cols-2
-prose-ul:gap-4
-prose-ul:my-8
+                prose-ul:grid
+                prose-ul:grid-cols-2
+                prose-ul:gap-4
+                prose-ul:my-6
 
-prose-li:bg-zinc-900
-prose-li:border
-prose-li:border-zinc-800
-prose-li:p-4
-prose-li:rounded-xl
-prose-li:list-none
-prose-li:hover:border-yellow-400
-prose-li:transition
+                prose-li:bg-zinc-900
+                prose-li:border
+                prose-li:border-zinc-800
+                prose-li:p-4
+                prose-li:rounded-xl
+                prose-li:list-none
 
-prose-strong:text-white
-"
+                prose-strong:text-white
+              "
               dangerouslySetInnerHTML={{
                 __html: property.content || "<p>No content available.</p>",
               }}
@@ -202,16 +200,16 @@ prose-strong:text-white
               },
               {
                 title: "Prime Connectivity",
-                desc: "Excellent road, metro and highway access.",
+                desc: "Excellent metro, highway and road access.",
               },
               {
                 title: "Investment Potential",
-                desc: "High appreciation and strong future demand.",
+                desc: "High appreciation and future growth opportunity.",
               },
             ].map((item, i) => (
               <div
                 key={i}
-                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6"
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-amber-400 transition"
               >
                 <h3 className="text-xl font-bold mb-3">{item.title}</h3>
                 <p className="text-zinc-400">{item.desc}</p>
@@ -232,19 +230,21 @@ prose-strong:text-white
                 "Smart Investment Opportunity",
                 "Trusted Developer Legacy",
               ].map((item, index) => (
-                <div key={index} className="flex items-center gap-4">
+                <div
+                  key={index}
+                  className="flex items-center gap-4 bg-zinc-900 border border-zinc-800 p-4 rounded-xl"
+                >
                   <div className="w-8 h-8 rounded-full bg-amber-400 text-black font-bold flex items-center justify-center">
                     {index + 1}
                   </div>
-                  <p className="text-lg font-medium">{item}</p>
+
+                  <p className="text-lg">{item}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </section>
-
-      {/* FLOOR VIEWER DISABLED FOR NOW */}
 
       {/* GALLERY */}
       {Array.isArray(property.gallery) && property.gallery.length > 0 && (
@@ -253,13 +253,13 @@ prose-strong:text-white
             Project Gallery
           </h2>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4">
             {property.gallery.map((img: string, index: number) => (
               <img
                 key={index}
                 src={img}
                 alt={`${property.title}-${index}`}
-                className="rounded-2xl h-80 w-full object-cover hover:scale-105 transition duration-500"
+                className="snap-center min-w-[320px] h-[420px] object-cover rounded-3xl hover:scale-105 transition duration-500"
               />
             ))}
           </div>
@@ -277,7 +277,7 @@ prose-strong:text-white
             Get exclusive offers, floor plans and developer pricing.
           </p>
 
-          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold">
+          <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold hover:scale-105 transition">
             Enquire Now
           </button>
         </div>
@@ -293,7 +293,7 @@ prose-strong:text-white
           <iframe
             width="100%"
             height="500"
-            className="rounded-2xl"
+            className="rounded-3xl"
             loading="lazy"
             src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
           />
