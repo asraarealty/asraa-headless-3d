@@ -24,17 +24,12 @@ async function getProperty(slug: string) {
             }
           }
         `,
-        variables: {
-          slug,
-        },
+        variables: { slug },
       }),
       cache: "no-store",
     });
 
     const json = await res.json();
-
-    console.log("Slug Sent:", slug);
-    console.log("GraphQL Response:", json);
 
     if (json.errors) {
       console.error("GraphQL Errors:", json.errors);
@@ -110,7 +105,7 @@ export default async function PropertyPage({
         ))}
       </section>
 
-      {/* CONTENT */}
+      {/* MAIN CONTENT */}
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
         {/* SIDEBAR */}
         <div className="bg-zinc-900 rounded-2xl p-6 border border-zinc-800 h-fit sticky top-10">
@@ -134,34 +129,98 @@ export default async function PropertyPage({
           </div>
         </div>
 
-        {/* MAIN CONTENT */}
-        <div className="md:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 md:p-12 shadow-xl">
-            <h2 className="text-4xl font-bold text-amber-400 mb-8">
-              Project Overview
-            </h2>
+        {/* CONTENT AREA */}
+        <div className="md:col-span-2 space-y-10">
+          {/* OVERVIEW BOX */}
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 md:p-10 shadow-xl">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-1 h-10 bg-amber-400 rounded-full" />
+              <h2 className="text-3xl font-bold text-amber-400">
+                Project Overview
+              </h2>
+            </div>
 
             <div
               className="
                 prose prose-invert max-w-none
+                [&_.ez-toc-container]:hidden
                 prose-h2:text-amber-400
                 prose-h2:text-3xl
                 prose-h2:font-bold
                 prose-h2:mt-12
                 prose-h2:mb-6
+                prose-h2:border-b
+                prose-h2:border-zinc-800
+                prose-h2:pb-4
                 prose-h3:text-yellow-300
-                prose-h3:text-2xl
+                prose-h3:text-xl
+                prose-h3:font-semibold
                 prose-p:text-zinc-300
-                prose-p:leading-8
+                prose-p:text-lg
+                prose-p:leading-9
                 prose-p:mb-6
-                prose-li:text-zinc-300
                 prose-strong:text-white
-                prose-a:text-amber-400
+                prose-ul:space-y-3
+                prose-li:text-zinc-300
               "
               dangerouslySetInnerHTML={{
                 __html: property.content,
               }}
             />
+          </div>
+
+          {/* FEATURE STRIP */}
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Luxury Lifestyle",
+                desc: "Premium amenities crafted for elevated living.",
+              },
+              {
+                title: "Prime Connectivity",
+                desc: "Excellent road, metro and highway access.",
+              },
+              {
+                title: "Investment Potential",
+                desc: "High appreciation and strong future demand.",
+              },
+            ].map((item) => (
+              <div
+                key={item.title}
+                className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 hover:border-amber-400 transition"
+              >
+                <h3 className="text-xl font-bold text-white mb-3">
+                  {item.title}
+                </h3>
+                <p className="text-zinc-400 leading-7">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* TIMELINE */}
+          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
+            <h2 className="text-3xl font-bold text-amber-400 mb-8">
+              Project Highlights
+            </h2>
+
+            <div className="space-y-6">
+              {[
+                "Premium Construction Quality",
+                "Spacious Floor Plans",
+                "Smart Investment Opportunity",
+                "Trusted Developer Legacy",
+              ].map((point, index) => (
+                <div key={index} className="flex gap-4 items-start">
+                  <div className="w-8 h-8 rounded-full bg-amber-400 text-black flex items-center justify-center font-bold">
+                    {index + 1}
+                  </div>
+
+                  <div>
+                    <p className="text-white text-lg font-semibold">{point}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
