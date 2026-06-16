@@ -40,20 +40,15 @@ async function getProperty(slug: string) {
               latitude
               longitude
               gallery
-              asraaModel3d
             }
           }
         `,
-        variables: {
-          slug,
-        },
+        variables: { slug },
       }),
       cache: "no-store",
     });
 
     const json = await res.json();
-
-    console.log("GraphQL Response:", json);
 
     if (json.errors) {
       console.error("GraphQL Errors:", json.errors);
@@ -89,6 +84,9 @@ export default async function PropertyPage({
       </main>
     );
   }
+
+  const modelUrl =
+    property?.asraaModel3d || property?.model3d || property?.floorModel || null;
 
   return (
     <main className="bg-black text-white min-h-screen">
@@ -205,9 +203,18 @@ export default async function PropertyPage({
           {/* FEATURE BOXES */}
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              ["Luxury Lifestyle", "Premium amenities crafted for elevated living."],
-              ["Prime Connectivity", "Excellent road, metro and highway access."],
-              ["Investment Potential", "High appreciation and strong future demand."],
+              [
+                "Luxury Lifestyle",
+                "Premium amenities crafted for elevated living.",
+              ],
+              [
+                "Prime Connectivity",
+                "Excellent road, metro and highway access.",
+              ],
+              [
+                "Investment Potential",
+                "High appreciation and strong future demand.",
+              ],
             ].map(([title, desc]) => (
               <div
                 key={title}
@@ -244,14 +251,14 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* 3D FLOOR VIEW */}
-      {property.asraaModel3d && (
+      {/* OPTIONAL 3D VIEWER */}
+      {modelUrl && (
         <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold text-amber-400 mb-10">
             3D Floor Plan
           </h2>
 
-          <FloorViewer modelUrl={property.asraaModel3d} />
+          <FloorViewer modelUrl={modelUrl} />
         </section>
       )}
 
