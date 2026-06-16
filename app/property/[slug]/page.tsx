@@ -1,5 +1,3 @@
-import FloorViewer from "@/components/FloorViewer";
-
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -23,9 +21,6 @@ async function getProperty(slug: string) {
               latitude
               longitude
               gallery
-              asraaModel3d {
-                mediaItemUrl
-              }
             }
           }
         `,
@@ -70,14 +65,12 @@ export default async function PropertyPage({
     );
   }
 
-  const floorModel = property.asraaModel3d?.mediaItemUrl;
-
   return (
     <main className="bg-black text-white min-h-screen">
       {/* HERO */}
       <section className="relative h-[85vh]">
         <img
-          src={property.gallery?.[0]}
+          src={property.gallery?.[0] || "/fallback.jpg"}
           alt={property.title}
           className="w-full h-full object-cover opacity-50"
         />
@@ -141,7 +134,7 @@ export default async function PropertyPage({
           </div>
         </div>
 
-        {/* CONTENT BOX */}
+        {/* MAIN CONTENT */}
         <div className="md:col-span-2">
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8 md:p-12 shadow-xl">
             <h2 className="text-4xl font-bold text-amber-400 mb-8">
@@ -173,7 +166,7 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* GALLERY CAROUSEL */}
+      {/* GALLERY */}
       {Array.isArray(property.gallery) && property.gallery.length > 0 && (
         <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold text-amber-400 mb-10">
@@ -190,17 +183,6 @@ export default async function PropertyPage({
               />
             ))}
           </div>
-        </section>
-      )}
-
-      {/* 3D MODEL */}
-      {floorModel && (
-        <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-          <h2 className="text-4xl font-bold text-amber-400 mb-10">
-            Interactive 3D Floor Plan
-          </h2>
-
-          <FloorViewer modelUrl={floorModel} />
         </section>
       )}
 
