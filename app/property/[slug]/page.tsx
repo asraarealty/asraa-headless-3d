@@ -1,5 +1,3 @@
-import FloorViewer from "@/components/FloorViewer";
-
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -70,7 +68,7 @@ export default async function PropertyPage({
       {/* HERO */}
       <section className="relative h-[80vh]">
         <img
-          src={property.gallery?.[0]}
+          src={property.gallery?.[0] || "/placeholder.jpg"}
           alt={property.title}
           className="w-full h-full object-cover opacity-50"
         />
@@ -93,10 +91,10 @@ export default async function PropertyPage({
       {/* STATS */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-6 px-8 md:px-16 py-12 border-b border-zinc-800">
         {[
-          ["Price", property.price],
-          ["Beds", property.beds],
-          ["Baths", property.baths],
-          ["Area", `${property.homeArea} sqft`],
+          ["Price", property.price || "On Request"],
+          ["Beds", property.beds || "-"],
+          ["Baths", property.baths || "-"],
+          ["Area", `${property.homeArea || "-"} sqft`],
         ].map(([label, value]) => (
           <div
             key={label}
@@ -118,15 +116,15 @@ export default async function PropertyPage({
 
           <div className="space-y-5 text-zinc-300">
             <div className="border-b border-zinc-800 pb-3">
-              RERA: {property.reraNumber}
+              RERA: {property.reraNumber || "-"}
             </div>
             <div className="border-b border-zinc-800 pb-3">
-              Beds: {property.beds}
+              Beds: {property.beds || "-"}
             </div>
             <div className="border-b border-zinc-800 pb-3">
-              Baths: {property.baths}
+              Baths: {property.baths || "-"}
             </div>
-            <div>Area: {property.homeArea} sqft</div>
+            <div>Area: {property.homeArea || "-"} sqft</div>
           </div>
         </div>
 
@@ -165,7 +163,7 @@ export default async function PropertyPage({
                 prose-li:text-zinc-300
               "
               dangerouslySetInnerHTML={{
-                __html: property.content,
+                __html: property.content || "<p>No content available.</p>",
               }}
             />
           </div>
@@ -221,17 +219,10 @@ export default async function PropertyPage({
         </div>
       </section>
 
-      {/* FLOOR VIEWER */}
-      <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-        <h2 className="text-4xl font-bold text-amber-400 mb-10">
-          Floor Plans
-        </h2>
-
-        <FloorViewer modelUrl="/models/floor.glb" />
-      </section>
+      {/* FLOOR VIEWER DISABLED FOR NOW */}
 
       {/* GALLERY */}
-      {property.gallery?.length > 0 && (
+      {Array.isArray(property.gallery) && property.gallery.length > 0 && (
         <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
           <h2 className="text-4xl font-bold text-amber-400 mb-10">
             Project Gallery
