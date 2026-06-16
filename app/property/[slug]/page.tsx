@@ -1,3 +1,5 @@
+import FloorViewer from "@/components/FloorViewer";
+
 async function getProperty(slug: string) {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
@@ -25,8 +27,8 @@ async function getProperty(slug: string) {
               address
               latitude
               longitude
-              featuredImageUrl
               gallery
+              featuredImageUrl
             }
           }
         `,
@@ -37,8 +39,6 @@ async function getProperty(slug: string) {
 
     const json = await res.json();
 
-    console.log("GRAPHQL RESPONSE:", json);
-
     if (json.errors) {
       console.error(json.errors);
       return null;
@@ -46,7 +46,7 @@ async function getProperty(slug: string) {
 
     return json?.data?.property ?? null;
   } catch (error) {
-    console.error("FETCH ERROR:", error);
+    console.error(error);
     return null;
   }
 }
@@ -54,54 +54,49 @@ async function getProperty(slug: string) {
 export default async function PropertyPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
-
-  const property = await getProperty(slug);
+  const property = await getProperty(params.slug);
 
   if (!property) {
     return (
       <main className="bg-black text-white min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold mb-4">Property not found</h1>
-          <p className="text-zinc-400">Slug: {slug}</p>
-        </div>
+        Property not found
       </main>
     );
   }
 
   return (
-    <main className="bg-black text-white min-h-screen pb-28">
+    <main className="bg-black text-white min-h-screen">
+
       {/* HERO */}
-      <section className="relative h-[80vh] overflow-hidden">
+      <section className="relative h-screen overflow-hidden">
         <img
-          src={
-            property.featuredImageUrl ||
-            "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-          }
+          src={property.featuredImageUrl}
           alt={property.title}
           className="w-full h-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-black/60" />
 
-        <div className="absolute bottom-16 left-8 md:left-20 max-w-4xl z-10">
-          <span className="text-amber-400 uppercase tracking-[0.3em] text-sm font-semibold">
+        <div className="absolute bottom-20 left-8 md:left-20 z-10 max-w-4xl">
+          <p className="text-amber-400 uppercase tracking-[0.4em] text-sm mb-4">
             Premium Project
-          </span>
+          </p>
 
-          <h1 className="text-5xl md:text-7xl font-bold mt-4 leading-tight">
+          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
             {property.title}
           </h1>
 
-          <p className="text-zinc-300 mt-4 text-lg">{property.address}</p>
+          <p className="text-xl text-zinc-300 max-w-2xl">
+            {property.address}
+          </p>
         </div>
       </section>
 
-      {/* QUICK HIGHLIGHTS */}
-      <section className="px-8 md:px-20 py-10 bg-zinc-950 border-b border-zinc-800">
-        <div className="grid md:grid-cols-4 gap-6">
+      {/* PROPERTY STATS */}
+      <section className="px-8 md:px-20 py-12 border-b border-zinc-900">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {[
             ["Price", property.price],
             ["Beds", property.beds],
@@ -110,53 +105,46 @@ export default async function PropertyPage({
           ].map(([label, value]) => (
             <div
               key={label}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 text-center"
+              className="bg-zinc-900 rounded-2xl p-6 text-center border border-zinc-800"
             >
-              <div className="text-zinc-400 text-sm">{label}</div>
-              <div className="text-amber-400 font-bold text-xl mt-2">
-                {value}
-              </div>
+              <p className="text-zinc-400 text-sm">{label}</p>
+              <p className="text-amber-400 text-3xl font-bold mt-2">{value}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* GALLERY */}
-      {Array.isArray(property.gallery) && property.gallery.length > 0 && (
-        <section className="px-8 md:px-20 py-16">
-          <h2 className="text-3xl font-bold mb-8 text-amber-400">
-            Project Gallery
-          </h2>
+      {/* TRUST BAR */}
+      <section className="px-8 md:px-20 py-8 bg-zinc-950 border-b border-zinc-800">
+        <div className="flex flex-wrap gap-4">
+          {[
+            "RERA Verified",
+            "Prime Location",
+            "Luxury Living",
+            "Best Investment",
+          ].map((item) => (
+            <div
+              key={item}
+              className="px-5 py-3 rounded-full bg-zinc-900 border border-zinc-800 text-amber-400"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {property.gallery.map((image: string, index: number) => (
-              <div
-                key={index}
-                className="group overflow-hidden rounded-2xl border border-zinc-800"
-              >
-                <img
-                  src={image}
-                  alt={`${property.title} ${index + 1}`}
-                  loading="lazy"
-                  className="w-full h-72 object-cover transition duration-500 group-hover:scale-110"
-                />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* CONTENT */}
-      <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
+      {/* CONTENT + DETAILS */}
+      <section className="px-8 md:px-20 py-20">
         <div className="grid md:grid-cols-3 gap-14">
+
           {/* SIDEBAR */}
           <div>
-            <div className="sticky top-10 bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-              <h3 className="text-xl font-bold mb-6 text-amber-400">
+            <div className="sticky top-10 bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+              <h3 className="text-2xl font-bold text-amber-400 mb-6">
                 Quick Details
               </h3>
 
-              <div className="space-y-4 text-zinc-300">
+              <div className="space-y-5">
                 {[
                   ["Property ID", property.propertyId],
                   ["RERA", property.reraNumber],
@@ -168,8 +156,8 @@ export default async function PropertyPage({
                     key={label}
                     className="flex justify-between border-b border-zinc-800 pb-3"
                   >
-                    <span>{label}</span>
-                    <span className="text-white font-semibold">{value}</span>
+                    <span className="text-zinc-400">{label}</span>
+                    <span className="font-semibold">{value}</span>
                   </div>
                 ))}
               </div>
@@ -180,36 +168,93 @@ export default async function PropertyPage({
           <div className="md:col-span-2">
             <div
               className="
-                text-zinc-300 leading-8 text-lg
-                [&_.ez-toc-container]:hidden
-                [&_h2]:text-3xl
-                [&_h2]:font-bold
-                [&_h2]:text-amber-400
-                [&_h2]:mt-14
-                [&_h2]:mb-6
-                [&_p]:mb-6
+                prose prose-invert max-w-none
+                prose-h2:text-amber-400
+                prose-h2:text-3xl
+                prose-h2:mt-12
+                prose-p:text-zinc-300
+                prose-p:leading-8
               "
               dangerouslySetInnerHTML={{
-                __html: property.content || "",
+                __html: property.content,
               }}
             />
           </div>
         </div>
       </section>
 
-      {/* MAP */}
-      {property.latitude?.length > 0 && property.longitude?.length > 0 && (
-        <section className="px-8 md:px-20 py-20 border-t border-zinc-800">
-          <h2 className="text-4xl font-bold mb-10 text-amber-400">
-            Location Map
+      {/* FLOOR VIEWER */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-900">
+        <h2 className="text-4xl font-bold text-amber-400 mb-10">
+          Walk Through Your Future Home
+        </h2>
+
+        <FloorViewer modelUrl="/sample.glb" />
+      </section>
+
+      {/* GALLERY CAROUSEL */}
+      {property.gallery?.length > 0 && (
+        <section className="px-8 md:px-20 py-20 border-t border-zinc-900">
+          <h2 className="text-4xl font-bold text-amber-400 mb-10">
+            Project Gallery
           </h2>
 
-          <iframe
-            src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
-            className="w-full h-[500px] rounded-2xl border border-zinc-800"
-          />
+          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4">
+            {property.gallery.map((img: string, i: number) => (
+              <div
+                key={i}
+                className="min-w-[350px] snap-center rounded-2xl overflow-hidden border border-zinc-800"
+              >
+                <img
+                  src={img}
+                  alt={`${property.title}-${i}`}
+                  className="w-full h-[500px] object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </section>
       )}
+
+      {/* LOCATION MAP */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-900">
+        <h2 className="text-4xl font-bold text-amber-400 mb-10">
+          Location Map
+        </h2>
+
+        <div className="rounded-3xl overflow-hidden border border-zinc-800">
+          <iframe
+            src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
+            width="100%"
+            height="500"
+            loading="lazy"
+          />
+        </div>
+      </section>
+
+      {/* SMART CTA */}
+      <section className="px-8 md:px-20 py-20 border-t border-zinc-900">
+        <div className="rounded-3xl bg-gradient-to-r from-amber-500 to-yellow-500 p-10 text-black">
+          <h2 className="text-4xl font-bold mb-4">
+            Ready to explore {property.title}?
+          </h2>
+
+          <p className="text-lg mb-8">
+            Schedule your private site visit and unlock premium offers.
+          </p>
+
+          <div className="flex flex-wrap gap-4">
+            <button className="bg-black text-white px-8 py-4 rounded-xl font-semibold">
+              Book Site Visit
+            </button>
+
+            <button className="bg-white text-black px-8 py-4 rounded-xl font-semibold">
+              WhatsApp Expert
+            </button>
+          </div>
+        </div>
+      </section>
+
     </main>
   );
 }
