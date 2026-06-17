@@ -135,6 +135,46 @@ export default async function PropertyPage({
         ))}
       </section>
 
+      /*
+|--------------------------------------------------------------------------
+| Native WordPress Property Gallery
+|--------------------------------------------------------------------------
+*/
+
+register_graphql_field('Property', 'gallery', [
+    'type' => ['list_of' => 'String'],
+    'resolve' => function ($post) {
+
+        $gallery = get_post_meta(
+            $post->databaseId,
+            '_property_gallery',
+            true
+        );
+
+        if (empty($gallery)) {
+            return [];
+        }
+
+        $gallery = maybe_unserialize($gallery);
+
+        if (!is_array($gallery)) {
+            return [];
+        }
+
+        $images = [];
+
+        foreach ($gallery as $image_id) {
+            $url = wp_get_attachment_url($image_id);
+
+            if ($url) {
+                $images[] = $url;
+            }
+        }
+
+        return $images;
+    }
+]);
+
       {/* MAIN */}
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
         {/* LEFT SIDEBAR */}
