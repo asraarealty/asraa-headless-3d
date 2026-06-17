@@ -1,250 +1,260 @@
-import React from "react";
-import OfferPopup from "@/components/OfferPopup";
+<?php
 
-async function getProperty(slug: string) {
-  try {
-    const res = await fetch("https://asraarealty.com/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query GetProperty($slug: ID!) {
-            property(id: $slug, idType: SLUG) {
-              title
-              slug
-              content(format: RENDERED)
-              price
-              beds
-              baths
-              homeArea
-              reraNumber
-              address
-              latitude
-              longitude
-              featuredImageUrl
-              developerName
-              monthlyScheme
-              discountOffer
-              inventoryStatus
-              offerPopupText
-            }
-          }
-        `,
-        variables: { slug },
-      }),
-      cache: "no-store",
-    });
+if (!defined('ABSPATH')) {
+    exit;
+}
 
-    const json = await res.json();
+/*
+|--------------------------------------------------------------------------
+| Enable Property Post Type in GraphQL
+|--------------------------------------------------------------------------
+*/
 
-    console.log("GRAPHQL RESPONSE:", JSON.stringify(json, null, 2));
+add_filter('register_post_type_args', function ($args, $post_type) {
 
-    if (json.errors) {
-      console.error(json.errors);
-      return null;
+    if ($post_type === 'property') {
+        $args['show_in_graphql'] = true;
+        $args['graphql_single_name'] = 'property';
+        $args['graphql_plural_name'] = 'properties';
     }
 
-    return json?.data?.property || null;
-  } catch (error) {
-    console.error("FETCH ERROR:", error);
-    return null;
-  }
-}
+    return $args;
 
-export default async function PropertyPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const { slug } = params;
-  const property = await getProperty(slug);
+}, 10, 2);
 
-  if (!property) {
-    return (
-      <main className="bg-black min-h-screen flex items-center justify-center text-white text-2xl">
-        Property not found
-      </main>
-    );
-  }
+/*
+|--------------------------------------------------------------------------
+| Register Property GraphQL Fields
+|--------------------------------------------------------------------------
+*/
 
-  const cleanedContent =
-    property.content
-      ?.replace(/<div class="ez-toc-container[\s\S]*?<\/div>/g, "")
-      .replace(/Table of Contents[\s\S]*?(?=<h2)/g, "")
-      .replace(/(<h2[^>]*>.*?<\/h2>)/g, `</div><div class="content-block">$1`)
-      .replace(/^<\/div>/, "") || "<p>No content available.</p>";
+add_action('graphql_register_types', function () {
 
-  return (
-    <main className="bg-black text-white min-h-screen overflow-x-hidden">
-      {/* HERO */}
-      <section className="relative h-[85vh]">
-        <img
-          src={property.featuredImageUrl || "/placeholder.jpg"}
-          alt={property.title}
-          className="w-full h-full object-cover opacity-40"
-        />
+    /*
+    |--------------------------------------------------------------------------
+    | Basic Property Fields
+    |--------------------------------------------------------------------------
+    */
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+    register_graphql_field('Property', 'propertyId', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_property_id',
+            true
+        )
+    ]);
 
-        <div className="absolute bottom-20 left-8 md:left-16 z-10 max-w-4xl">
-          <p className="text-amber-400 uppercase tracking-[5px] mb-4 text-sm">
-            Luxury Residence
-          </p>
+    register_graphql_field('Property', 'price', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_price',
+            true
+        )
+    ]);
 
-          <h1 className="text-5xl md:text-7xl font-bold mb-4 leading-tight">
-            {property.title}
-          </h1>
+    register_graphql_field('Property', 'rooms', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_rooms',
+            true
+        )
+    ]);
 
-          <p className="text-zinc-300 text-lg mb-6">
-            {property.address}
-          </p>
+    register_graphql_field('Property', 'beds', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_beds',
+            true
+        )
+    ]);
 
-          <div className="flex flex-wrap gap-4">
-            <OfferPopup
-              title={property.offerPopupText || "Unlock Developer Offers"}
-              scheme={property.monthlyScheme}
-              discount={property.discountOffer}
-              inventory={property.inventoryStatus}
-              propertyTitle={property.title}
-            />
+    register_graphql_field('Property', 'baths', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_baths',
+            true
+        )
+    ]);
 
-            <a
-              href={`https://wa.me/919619973211?text=Hi I want details for ${property.title}`}
-              target="_blank"
-              className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-black transition"
-            >
-              WhatsApp
-            </a>
-          </div>
-        </div>
-      </section>
+    register_graphql_field('Property', 'garages', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_garages',
+            true
+        )
+    ]);
 
-      {/* STATS */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-6 px-8 md:px-16 py-12 border-b border-zinc-800">
-        {[
-          ["Price", property.price || "On Request"],
-          ["Beds", property.beds || "-"],
-          ["Baths", property.baths || "-"],
-          ["Area", `${property.homeArea || "-"} sqft`],
-        ].map(([label, value]) => (
-          <div
-            key={label}
-            className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center hover:border-amber-400 transition"
-          >
-            <p className="text-zinc-400 mb-2">{label}</p>
-            <p className="text-amber-400 text-3xl font-bold">{value}</p>
-          </div>
-        ))}
-      </section>
+    register_graphql_field('Property', 'yearBuilt', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_year_built',
+            true
+        )
+    ]);
 
-      {/* MAIN */}
-      <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
-        {/* SIDEBAR */}
-        <div className="space-y-6 sticky top-10 h-fit">
-          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
-            <h2 className="text-2xl font-bold text-amber-400 mb-6">
-              Quick Details
-            </h2>
+    register_graphql_field('Property', 'homeArea', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_home_area',
+            true
+        )
+    ]);
 
-            <div className="space-y-4 text-zinc-300">
-              <div>RERA: {property.reraNumber || "-"}</div>
-              <div>Beds: {property.beds || "-"}</div>
-              <div>Baths: {property.baths || "-"}</div>
-              <div>Area: {property.homeArea || "-"} sqft</div>
-            </div>
-          </div>
+    /*
+    |--------------------------------------------------------------------------
+    | RERA
+    |--------------------------------------------------------------------------
+    */
 
-          <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
-            <h2 className="text-2xl font-bold text-amber-400 mb-6">
-              Developer Offer
-            </h2>
+    register_graphql_field('Property', 'reraNumber', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            'custom-text-44',
+            true
+        )
+    ]);
 
-            <div className="space-y-4 text-zinc-300">
-              <p><strong>Developer:</strong> {property.developerName || "-"}</p>
-              <p><strong>Scheme:</strong> {property.monthlyScheme || "-"}</p>
-              <p><strong>Offer:</strong> {property.discountOffer || "-"}</p>
-              <p><strong>Inventory:</strong> {property.inventoryStatus || "-"}</p>
-            </div>
+    /*
+    |--------------------------------------------------------------------------
+    | Location Fields
+    |--------------------------------------------------------------------------
+    */
 
-            <div className="mt-6">
-              <OfferPopup
-                title="Claim Exclusive Offer"
-                scheme={property.monthlyScheme}
-                discount={property.discountOffer}
-                inventory={property.inventoryStatus}
-                propertyTitle={property.title}
-              />
-            </div>
-          </div>
-        </div>
+    register_graphql_field('Property', 'address', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_map_location_address',
+            true
+        )
+    ]);
 
-        {/* CONTENT */}
-        <div className="md:col-span-2">
-          <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-1 h-10 bg-amber-400 rounded-full" />
-              <h2 className="text-3xl font-bold text-amber-400">
-                Project Overview
-              </h2>
-            </div>
+    register_graphql_field('Property', 'latitude', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_map_location_latitude',
+            true
+        )
+    ]);
 
-            <div
-              className="
-                prose prose-invert max-w-none
-                [&_.content-block]:bg-zinc-900
-                [&_.content-block]:border
-                [&_.content-block]:border-zinc-800
-                [&_.content-block]:rounded-3xl
-                [&_.content-block]:p-8
-                [&_.content-block]:mb-8
-              "
-              dangerouslySetInnerHTML={{
-                __html: cleanedContent,
-              }}
-            />
-          </div>
-        </div>
-      </section>
+    register_graphql_field('Property', 'longitude', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_property_map_location_longitude',
+            true
+        )
+    ]);
 
-      {/* CTA */}
-      <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-        <div className="bg-gradient-to-r from-amber-500 to-yellow-400 rounded-3xl p-12 text-center text-black">
-          <h2 className="text-4xl font-bold mb-4">
-            {property.offerPopupText || "Book Your Site Visit Today"}
-          </h2>
+    /*
+    |--------------------------------------------------------------------------
+    | Featured Image
+    |--------------------------------------------------------------------------
+    */
 
-          <p className="text-lg mb-6">
-            Get latest schemes, discounts and inventory updates.
-          </p>
+    register_graphql_field('Property', 'featuredImageUrl', [
+        'type' => 'String',
+        'resolve' => function ($post) {
+            $id = get_post_thumbnail_id($post->databaseId);
+            return $id ? wp_get_attachment_url($id) : null;
+        }
+    ]);
 
-          <OfferPopup
-            title="Enquire Now"
-            scheme={property.monthlyScheme}
-            discount={property.discountOffer}
-            inventory={property.inventoryStatus}
-            propertyTitle={property.title}
-          />
-        </div>
-      </section>
+    /*
+    |--------------------------------------------------------------------------
+    | Native Gallery (WordPress Media IDs)
+    |--------------------------------------------------------------------------
+    */
 
-      {/* MAP */}
-      {property.latitude && property.longitude && (
-        <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-          <h2 className="text-4xl font-bold text-amber-400 mb-10">
-            Location Map
-          </h2>
+    register_graphql_field('Property', 'gallery', [
+        'type' => ['list_of' => 'String'],
+        'resolve' => function ($post) {
 
-          <iframe
-            width="100%"
-            height="500"
-            className="rounded-3xl"
-            loading="lazy"
-            src={`https://maps.google.com/maps?q=${property.latitude},${property.longitude}&z=15&output=embed`}
-          />
-        </section>
-      )}
-    </main>
-  );
-}
+            $gallery_ids = get_post_meta(
+                $post->databaseId,
+                'asraa_gallery',
+                true
+            );
+
+            if (empty($gallery_ids)) {
+                return [];
+            }
+
+            $ids = array_map('trim', explode(',', $gallery_ids));
+
+            $images = [];
+
+            foreach ($ids as $id) {
+                $url = wp_get_attachment_url($id);
+
+                if ($url) {
+                    $images[] = $url;
+                }
+            }
+
+            return $images;
+        }
+    ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Developer Offer Fields
+    |--------------------------------------------------------------------------
+    */
+
+    register_graphql_field('Property', 'developerName', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_developer_name',
+            true
+        )
+    ]);
+
+    register_graphql_field('Property', 'monthlyScheme', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_monthly_scheme',
+            true
+        )
+    ]);
+
+    register_graphql_field('Property', 'discountOffer', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_discount_offer',
+            true
+        )
+    ]);
+
+    register_graphql_field('Property', 'inventoryStatus', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_inventory_status',
+            true
+        )
+    ]);
+
+    register_graphql_field('Property', 'offerPopupText', [
+        'type' => 'String',
+        'resolve' => fn($post) => get_post_meta(
+            $post->databaseId,
+            '_offer_popup_text',
+            true
+        )
+    ]);
+
+});
