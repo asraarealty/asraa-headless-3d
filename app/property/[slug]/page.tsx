@@ -23,7 +23,6 @@ async function getProperty(slug: string) {
               address
               latitude
               longitude
-              gallery
               developerName
               monthlyScheme
               discountOffer
