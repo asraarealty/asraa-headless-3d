@@ -23,6 +23,7 @@ async function getProperty(slug: string) {
               address
               latitude
               longitude
+              featuredImageUrl
               developerName
               monthlyScheme
               discountOffer
@@ -80,7 +81,7 @@ export default async function PropertyPage({
       {/* HERO */}
       <section className="relative h-[85vh]">
         <img
-          src={property.gallery?.[0] || "/placeholder.jpg"}
+          src={property.featuredImageUrl || "/placeholder.jpg"}
           alt={property.title}
           className="w-full h-full object-cover opacity-40"
         />
@@ -96,7 +97,9 @@ export default async function PropertyPage({
             {property.title}
           </h1>
 
-          <p className="text-zinc-300 text-lg mb-6">{property.address}</p>
+          <p className="text-zinc-300 text-lg mb-6">
+            {property.address}
+          </p>
 
           <div className="flex flex-wrap gap-4">
             <OfferPopup
@@ -159,18 +162,10 @@ export default async function PropertyPage({
             </h2>
 
             <div className="space-y-4 text-zinc-300">
-              <p>
-                <strong>Developer:</strong> {property.developerName || "-"}
-              </p>
-              <p>
-                <strong>Scheme:</strong> {property.monthlyScheme || "-"}
-              </p>
-              <p>
-                <strong>Offer:</strong> {property.discountOffer || "-"}
-              </p>
-              <p>
-                <strong>Inventory:</strong> {property.inventoryStatus || "-"}
-              </p>
+              <p><strong>Developer:</strong> {property.developerName || "-"}</p>
+              <p><strong>Scheme:</strong> {property.monthlyScheme || "-"}</p>
+              <p><strong>Offer:</strong> {property.discountOffer || "-"}</p>
+              <p><strong>Inventory:</strong> {property.inventoryStatus || "-"}</p>
             </div>
 
             <div className="mt-6">
@@ -212,26 +207,6 @@ export default async function PropertyPage({
           </div>
         </div>
       </section>
-
-      {/* GALLERY */}
-      {property.gallery?.length > 0 && (
-        <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
-          <h2 className="text-4xl font-bold text-amber-400 mb-10">
-            Project Gallery
-          </h2>
-
-          <div className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-4">
-            {property.gallery.map((img: string, index: number) => (
-              <img
-                key={index}
-                src={img}
-                alt={`${property.title}-${index}`}
-                className="snap-center min-w-[320px] h-[420px] object-cover rounded-3xl"
-              />
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* CTA */}
       <section className="px-8 md:px-16 py-20 border-t border-zinc-800">
