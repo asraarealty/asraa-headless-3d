@@ -39,6 +39,8 @@ async function getProperty(slug: string) {
 
     const json = await res.json();
 
+    console.log("GRAPHQL RESPONSE:", JSON.stringify(json, null, 2));
+
     if (json.errors) {
       console.error(json.errors);
       return null;
@@ -46,7 +48,7 @@ async function getProperty(slug: string) {
 
     return json?.data?.property || null;
   } catch (error) {
-    console.error(error);
+    console.error("FETCH ERROR:", error);
     return null;
   }
 }
@@ -54,9 +56,9 @@ async function getProperty(slug: string) {
 export default async function PropertyPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
-  const { slug } = await params;
+  const { slug } = params;
   const property = await getProperty(slug);
 
   if (!property) {
@@ -107,7 +109,7 @@ export default async function PropertyPage({
             />
 
             <a
-              href={`https://wa.me/919619973211?text=Hi I want details for ${property.title} | Scheme: ${property.monthlyScheme || "N/A"} | Offer: ${property.discountOffer || "N/A"}`}
+              href={`https://wa.me/919619973211?text=Hi I want details for ${property.title}`}
               target="_blank"
               className="border border-white px-6 py-3 rounded-xl font-semibold hover:bg-white hover:text-black transition"
             >
@@ -137,15 +139,14 @@ export default async function PropertyPage({
 
       {/* MAIN */}
       <section className="grid md:grid-cols-3 gap-12 px-8 md:px-16 py-20">
-        {/* LEFT SIDEBAR */}
+        {/* SIDEBAR */}
         <div className="space-y-6 sticky top-10 h-fit">
-          {/* Quick Details */}
           <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
             <h2 className="text-2xl font-bold text-amber-400 mb-6">
               Quick Details
             </h2>
 
-            <div className="space-y-5 text-zinc-300">
+            <div className="space-y-4 text-zinc-300">
               <div>RERA: {property.reraNumber || "-"}</div>
               <div>Beds: {property.beds || "-"}</div>
               <div>Baths: {property.baths || "-"}</div>
@@ -153,17 +154,24 @@ export default async function PropertyPage({
             </div>
           </div>
 
-          {/* Developer Offer */}
           <div className="bg-zinc-900 rounded-3xl p-8 border border-zinc-800">
             <h2 className="text-2xl font-bold text-amber-400 mb-6">
               Developer Offer
             </h2>
 
             <div className="space-y-4 text-zinc-300">
-              <p><strong>Developer:</strong> {property.developerName || "-"}</p>
-              <p><strong>Scheme:</strong> {property.monthlyScheme || "-"}</p>
-              <p><strong>Offer:</strong> {property.discountOffer || "-"}</p>
-              <p><strong>Inventory:</strong> {property.inventoryStatus || "-"}</p>
+              <p>
+                <strong>Developer:</strong> {property.developerName || "-"}
+              </p>
+              <p>
+                <strong>Scheme:</strong> {property.monthlyScheme || "-"}
+              </p>
+              <p>
+                <strong>Offer:</strong> {property.discountOffer || "-"}
+              </p>
+              <p>
+                <strong>Inventory:</strong> {property.inventoryStatus || "-"}
+              </p>
             </div>
 
             <div className="mt-6">
@@ -179,7 +187,7 @@ export default async function PropertyPage({
         </div>
 
         {/* CONTENT */}
-        <div className="md:col-span-2 space-y-12">
+        <div className="md:col-span-2">
           <div className="bg-zinc-950 border border-zinc-800 rounded-3xl p-8">
             <div className="flex items-center gap-4 mb-8">
               <div className="w-1 h-10 bg-amber-400 rounded-full" />
@@ -197,10 +205,6 @@ export default async function PropertyPage({
                 [&_.content-block]:rounded-3xl
                 [&_.content-block]:p-8
                 [&_.content-block]:mb-8
-                prose-h2:text-amber-400
-                prose-h3:text-yellow-300
-                prose-p:text-zinc-300
-                prose-li:text-zinc-300
               "
               dangerouslySetInnerHTML={{
                 __html: cleanedContent,
@@ -242,7 +246,7 @@ export default async function PropertyPage({
           </p>
 
           <OfferPopup
-            title={property.offerPopupText || "Enquire Now"}
+            title="Enquire Now"
             scheme={property.monthlyScheme}
             discount={property.discountOffer}
             inventory={property.inventoryStatus}
