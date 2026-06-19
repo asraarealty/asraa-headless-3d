@@ -10,69 +10,90 @@ type MenuItem = {
 
 export default function Header() {
   const [menu, setMenu] = useState<MenuItem[]>([]);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     async function fetchMenu() {
-      const res = await fetch("https://asraarealty.com/graphql", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: `
-            {
-              menu(id: "Group Home 1", idType: NAME) {
-                menuItems {
-                  nodes {
-                    label
-                    uri
+      try {
+        const res = await fetch("https://asraarealty.com/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+              {
+                menu(id: "Group Home 1", idType: NAME) {
+                  menuItems {
+                    nodes {
+                      label
+                      uri
+                    }
                   }
                 }
               }
-            }
-          `,
-        }),
-      });
+            `,
+          }),
+        });
 
-      const json = await res.json();
-      setMenu(json?.data?.menu?.menuItems?.nodes || []);
+        const json = await res.json();
+        setMenu(json?.data?.menu?.menuItems?.nodes || []);
+      } catch (error) {
+        console.error("Menu fetch failed:", error);
+      }
     }
 
     fetchMenu();
+
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 30);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-zinc-800">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+    <header
+      className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-7xl rounded-full border transition-all duration-500 ${
+        scrolled
+          ? "bg-black/85 border-white/10 backdrop-blur-2xl shadow-2xl"
+          : "bg-white/5 border-white/5 backdrop-blur-xl"
+      }`}
+    >
+      <div className="flex items-center justify-between px-8 py-4">
 
         {/* Logo */}
-        <Link href="/">
+        <Link href="/" className="flex items-center">
           <img
             src="/logo.png"
             alt="Asraa Realty"
-            className="h-14 object-contain"
+            className="h-12 w-auto object-contain"
           />
         </Link>
 
-        {/* Menu */}
+        {/* Desktop Menu */}
         <nav className="hidden md:flex items-center gap-8">
           {menu.map((item, index) => (
             <Link
               key={index}
               href={item.uri}
-              className="text-white hover:text-amber-400 transition"
+              className="text-sm uppercase tracking-[0.15em] text-white/90 hover:text-white transition duration-300"
             >
               {item.label}
             </Link>
           ))}
         </nav>
 
-        {/* CTA */}
+        {/* CTA Button */}
         <Link
           href="/contact"
-          className="bg-amber-500 text-black px-5 py-2 rounded-xl font-semibold hover:scale-105 transition"
+          className="rounded-full bg-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-black transition duration-300 hover:scale-105 hover:bg-zinc-200"
         >
-          Contact
+          Contact Us
         </Link>
       </div>
     </header>
