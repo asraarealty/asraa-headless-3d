@@ -18,20 +18,31 @@ export default function PropertyGlobe({
 }: {
   properties: Property[];
 }) {
-  const [rotation, setRotation] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    let frame: number;
+    if (!properties?.length) return;
 
-    const animate = () => {
-      setRotation((prev) => prev + 0.004);
-      frame = requestAnimationFrame(animate);
-    };
+    const interval = setInterval(() => {
+      setActiveIndex((prev) =>
+        prev === properties.length - 1 ? 0 : prev + 1
+      );
+    }, 4000);
 
-    animate();
+    return () => clearInterval(interval);
+  }, [properties]);
 
-    return () => cancelAnimationFrame(frame);
-  }, []);
+  const nextSlide = () => {
+    setActiveIndex((prev) =>
+      prev === properties.length - 1 ? 0 : prev + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setActiveIndex((prev) =>
+      prev === 0 ? properties.length - 1 : prev - 1
+    );
+  };
 
   if (!properties?.length) {
     return (
@@ -42,70 +53,104 @@ export default function PropertyGlobe({
   }
 
   return (
-    <div className="relative w-full h-[750px] flex items-center justify-center overflow-hidden bg-black [perspective:1800px]">
+    <div className="relative w-full h-[850px] flex items-center justify-center overflow-hidden bg-black">
+      
+      {/* Background Glow */}
+      <div className="absolute w-[700px] h-[250px] rounded-full bg-blue-600/20 blur-3xl bottom-24" />
 
-      {/* Center Globe */}
-      <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-900 shadow-[0_0_100px_rgba(0,150,255,0.35)]" />
+      {/* Left Arrow */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-8 z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl hover:bg-amber-400 hover:text-black transition"
+      >
+        ←
+      </button>
 
-      {properties.map((property, index) => {
-        const angle =
-          (index / properties.length) * Math.PI * 2 + rotation;
+      {/* Right Arrow */}
+      <button
+        onClick={nextSlide}
+        className="absolute right-8 z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl hover:bg-amber-400 hover:text-black transition"
+      >
+        →
+      </button>
 
-        const radius = 320;
+      {/* Cards */}
+      <div className="relative w-full max-w-[1400px] h-[600px] flex items-center justify-center">
+        {properties.map((property, index) => {
+          const position = index - activeIndex;
 
-        const x = Math.sin(angle) * radius;
-        const z = Math.cos(angle) * radius;
-        const y = Math.sin(angle * 2) * 50;
+          let translateX = position * 180;
+          let scale = 0.75;
+          let opacity = 0.4;
+          let zIndex = 1;
 
-        const depth = (z + radius) / (radius * 2);
+          if (position === 0) {
+            translateX = 0;
+            scale = 1;
+            opacity = 1;
+            zIndex = 20;
+          }
 
-        const scale = 0.55 + depth * 0.7;
-        const opacity = 0.35 + depth * 0.65;
-        const zIndex = Math.floor(depth * 100);
+          if (Math.abs(position) === 1) {
+            scale = 0.85;
+            opacity = 0.75;
+            zIndex = 10;
+          }
 
-        return (
-          <a
-            key={property.id}
-            href={`/property/${property.slug}`}
-            className="absolute w-[200px] h-[280px] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-300 hover:scale-105"
-            style={{
-              left: `calc(50% + ${x}px - 100px)`,
-              top: `calc(50% + ${y}px - 140px)`,
-              zIndex,
-              opacity,
-              transform: `
-                translateZ(${z}px)
-                scale(${scale})
-                rotateY(${-angle * 25}deg)
-              `,
-            }}
-          >
-            {/* Property Image */}
-            <img
-              src={
-                property.featuredImage?.node?.sourceUrl ||
-                "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-              }
-              alt={property.title}
-              className="w-full h-full object-cover"
-            />
+          if (Math.abs(position) > 3) {
+            opacity = 0;
+          }
 
-            {/* Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+          return (
+            <a
+              key={property.id}
+              href={`/property/${property.slug}`}
+              className="absolute w-[300px] h-[430px] rounded-[30px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
+              style={{
+                transform: `translateX(${translateX}px) scale(${scale})`,
+                opacity,
+                zIndex,
+              }}
+            >
+              <img
+                src={
+                  property.featuredImage?.node?.sourceUrl ||
+                  "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
+                }
+                alt={property.title}
+                className="w-full h-full object-cover"
+              />
 
-            {/* Content */}
-            <div className="absolute bottom-4 left-4 right-4">
-              <span className="bg-amber-500 text-black text-[10px] px-2 py-1 rounded-full font-semibold">
-                Premium
-              </span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-              <h3 className="text-white text-sm font-bold mt-2 line-clamp-2">
-                {property.title}
-              </h3>
-            </div>
-          </a>
-        );
-      })}
+              <div className="absolute bottom-6 left-6 right-6">
+                <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full font-semibold">
+                  Premium
+                </span>
+
+                <h3 className="text-white text-xl font-bold mt-4 line-clamp-3">
+                  {property.title}
+                </h3>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+      {/* Pagination Dots */}
+      <div className="absolute bottom-14 flex gap-3">
+        {properties.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setActiveIndex(index)}
+            className={`w-3 h-3 rounded-full transition ${
+              activeIndex === index
+                ? "bg-amber-400 w-8"
+                : "bg-zinc-600"
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
