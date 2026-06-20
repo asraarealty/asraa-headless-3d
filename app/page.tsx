@@ -31,6 +31,8 @@ async function getProperties() {
       next: { revalidate: 60 },
     });
 
+    if (!res.ok) return [];
+
     const json = await res.json();
     return json?.data?.properties?.nodes || [];
   } catch {
@@ -47,6 +49,8 @@ async function getBrokerProperties() {
       }
     );
 
+    if (!res.ok) return [];
+
     return await res.json();
   } catch {
     return [];
@@ -59,12 +63,11 @@ export default async function Home() {
 
   return (
     <main className="bg-black text-white overflow-hidden">
-
       {/* HERO */}
       <section className="relative h-screen overflow-hidden">
         <img
           src="https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-          alt="Luxury"
+          alt="Luxury Property"
           className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
 
@@ -102,45 +105,57 @@ export default async function Home() {
       </section>
 
       {/* PROPERTY GLOBE */}
-      <section className="py-28 px-6 md:px-20">
-        <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-6xl font-bold">
-            Global Property Network
-          </h2>
-        </div>
-
+      <section className="px-6 md:px-20">
         <PropertyGlobe properties={properties} />
       </section>
 
       {/* BROKER FEED */}
-      <section className="py-24 px-6 md:px-20 bg-zinc-950">
-        <h2 className="text-4xl font-bold mb-10">Broker Feed Listings</h2>
+      {brokerProperties?.length > 0 && (
+        <section className="py-24 px-6 md:px-20 bg-zinc-950">
+          <h2 className="text-4xl font-bold mb-10">
+            Broker Feed Listings
+          </h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-          {brokerProperties.map((property: any) => (
-            <div
-              key={property.id}
-              className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
-            >
-              <h3 className="text-xl font-semibold mb-2">{property.title}</h3>
-              <p className="text-zinc-400">{property.location}</p>
-              <p className="text-amber-400 mt-2">₹{property.price}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+            {brokerProperties.map((property: any) => (
+              <div
+                key={property.id}
+                className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
+              >
+                <h3 className="text-xl font-semibold mb-2">
+                  {property.title}
+                </h3>
+
+                <p className="text-zinc-400">
+                  {property.location || "Mumbai"}
+                </p>
+
+                {property.price && (
+                  <p className="text-amber-400 mt-2">
+                    ₹{property.price}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* LOCATIONS */}
       <section className="py-24 px-6 md:px-20">
-        <h2 className="text-4xl font-bold mb-10">Explore By Location</h2>
+        <h2 className="text-4xl font-bold mb-10">
+          Explore By Location
+        </h2>
 
-        <div className="grid md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {["Mira Road", "Thane", "Kandivali", "Dubai"].map((location) => (
             <div
               key={location}
               className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition"
             >
-              <h3 className="text-2xl font-bold">{location}</h3>
+              <h3 className="text-xl md:text-2xl font-bold">
+                {location}
+              </h3>
             </div>
           ))}
         </div>
@@ -148,16 +163,20 @@ export default async function Home() {
 
       {/* DEVELOPERS */}
       <section className="py-24 px-6 md:px-20 bg-zinc-950">
-        <h2 className="text-4xl font-bold mb-10">Top Developers</h2>
+        <h2 className="text-4xl font-bold mb-10">
+          Top Developers
+        </h2>
 
-        <div className="flex gap-6 overflow-x-auto">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
                 key={developer}
                 className="min-w-[260px] bg-zinc-900 rounded-2xl p-8 border border-zinc-800"
               >
-                <h3 className="text-2xl font-semibold">{developer}</h3>
+                <h3 className="text-2xl font-semibold">
+                  {developer}
+                </h3>
               </div>
             )
           )}
