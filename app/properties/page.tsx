@@ -1,172 +1,204 @@
-import Image from "next/image";
+import PropertyGlobe from "../components/PropertyGlobe";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 60;
-
-interface Property {
-  id: string;
-  title: string;
-  slug: string;
-  image: string;
-  location: string;
-  price?: string;
-  source: "wordpress" | "broker";
-}
-
-const FALLBACK_IMAGE =
-  "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp";
-
-async function getWpProperties(): Promise<Property[]> {
-  try {
-    const res = await fetch("https://asraarealty.com/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          {
-            properties {
-              nodes {
-                id
-                title
-                slug
-                featuredImage {
-                  node {
-                    sourceUrl
-                  }
+async function getProperties() {
+  const res = await fetch("https://asraarealty.com/graphql", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+        {
+          properties {
+            nodes {
+              id
+              title
+              slug
+              featuredImage {
+                node {
+                  sourceUrl
                 }
               }
             }
           }
-        `,
-      }),
-      next: { revalidate: 60 },
-    });
+        }
+      `,
+    }),
+    cache: "no-store",
+  });
 
-    if (!res.ok) return [];
-
-    const json = await res.json();
-
-    return (json?.data?.properties?.nodes || []).map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      slug: item.slug,
-      image: item.featuredImage?.node?.sourceUrl || FALLBACK_IMAGE,
-      location: "Premium",
-      source: "wordpress",
-    }));
-  } catch {
-    return [];
-  }
+  const json = await res.json();
+  return json?.data?.properties?.nodes || [];
 }
 
-async function getBrokerProperties(): Promise<Property[]> {
-  try {
-    const res = await fetch(
-      "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
-      {
-        next: { revalidate: 60 },
-      }
-    );
+async function getBrokerProperties() {
+  const res = await fetch(
+    "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
+    {
+      cache: "no-store",
+    }
+  );
 
-    if (!res.ok) return [];
-
-    const json = await res.json();
-
-    return (json || []).map((item: any) => ({
-      id: String(item.id),
-      title: item.title || "Untitled Property",
-      slug: String(item.id),
-      image: item.image_url || FALLBACK_IMAGE,
-      location: item.location || item.city || "Mumbai",
-      price: item.price,
-      source: "broker",
-    }));
-  } catch {
-    return [];
-  }
+  return await res.json();
 }
 
-export default async function PropertiesPage() {
-  const wpProperties = await getWpProperties();
+export default async function Home() {
+  const properties = await getProperties();
   const brokerProperties = await getBrokerProperties();
 
-  const allProperties = [...wpProperties, ...brokerProperties];
-
   return (
-    <main className="min-h-screen bg-black text-white px-6 md:px-20 py-20">
-      {/* Header */}
-      <div className="mb-20 text-center">
-        <h1 className="text-5xl md:text-7xl font-bold mb-4">
-          All Properties
-        </h1>
+    <main className="bg-black text-white overflow-hidden">
+      {/* HERO */}
+      <section className="relative min-h-screen flex items-center justify-center px-8 md:px-20">
+        <div className="absolute inset-0">
+          <img
+            src="https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
+            alt="Luxury"
+            className="w-full h-full object-cover opacity-30"
+          />
+        </div>
 
-        <p className="text-zinc-400 text-lg md:text-xl">
-          Explore verified premium and broker-listed properties
-        </p>
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/60 to-black" />
 
-      {/* Properties Grid */}
-      {allProperties.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {allProperties.map((property) => (
-            <div
-              key={`${property.source}-${property.id}`}
-              className="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-amber-400 transition duration-500"
+        <div className="relative z-20 text-center max-w-4xl">
+          <span className="text-amber-400 uppercase tracking-[0.3em] text-sm">
+            Premium Real Estate Advisory
+          </span>
+
+          <h1 className="text-5xl md:text-7xl font-bold mt-6 leading-tight">
+            Find Luxury Homes <br /> With Precision
+          </h1>
+
+          <p className="text-zinc-300 text-lg md:text-xl mt-6">
+            Verified listings, premium property matching, and market intelligence.
+          </p>
+
+          <div className="flex gap-4 justify-center mt-8 flex-wrap">
+            <a
+              href="/properties"
+              className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
             >
-              {/* Image */}
-              <div className="relative w-full h-60">
-                <Image
-                  src={property.image}
-                  alt={property.title}
-                  fill
-                  unoptimized
-                  className="object-cover group-hover:scale-105 transition duration-700"
-                />
-              </div>
+              Browse Projects
+            </a>
 
-              {/* Content */}
-              <div className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-amber-400">
-                    {property.location}
-                  </span>
+            <a
+              href="https://wa.me/919619973211"
+              className="border border-white px-8 py-4 rounded-xl"
+            >
+              WhatsApp Now
+            </a>
+          </div>
+        </div>
+      </section>
 
-                  <span className="text-xs px-3 py-1 rounded-full bg-zinc-800">
-                    {property.source === "broker" ? "Broker" : "Premium"}
-                  </span>
-                </div>
+      {/* PROPERTY GLOBE */}
+      <section className="py-20 px-6 md:px-20">
+        <PropertyGlobe properties={properties} />
+      </section>
 
-                <h2 className="text-xl font-semibold mb-3 line-clamp-2">
-                  {property.title}
-                </h2>
+      {/* BROKER FEED */}
+      <section className="py-24 px-6 md:px-20 bg-zinc-950">
+        <h2 className="text-4xl font-bold mb-10">Broker Feed Listings</h2>
 
-                {property.price && !isNaN(Number(property.price)) && (
-                  <p className="text-zinc-300 mb-4 text-lg font-medium">
-                    ₹{Number(property.price).toLocaleString("en-IN")}
-                  </p>
-                )}
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+          {brokerProperties.map((property: any) => (
+            <div
+              key={property.id}
+              className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
+            >
+              <h3 className="text-xl font-semibold mb-2">
+                {property.title}
+              </h3>
 
-                <a
-                  href={
-                    property.source === "wordpress"
-                      ? `/property/${property.slug}`
-                      : `/property/broker/${property.slug}`
-                  }
-                  className="inline-block text-amber-400 font-medium hover:translate-x-1 transition"
-                >
-                  View Property →
-                </a>
-              </div>
+              <p className="text-zinc-400">{property.location}</p>
+
+              <p className="text-amber-400 mt-2">
+                ₹{property.price}
+              </p>
             </div>
           ))}
         </div>
-      ) : (
-        <div className="text-center mt-24 text-zinc-500 text-lg">
-          No properties found.
+      </section>
+
+      {/* LOCATIONS */}
+      <section className="py-24 px-6 md:px-20">
+        <h2 className="text-4xl font-bold mb-10">
+          Explore By Location
+        </h2>
+
+        <div className="grid md:grid-cols-4 gap-6">
+          {["Mira Road", "Thane", "Kandivali", "Dubai"].map(
+            (location) => (
+              <div
+                key={location}
+                className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition"
+              >
+                <h3 className="text-2xl font-bold">
+                  {location}
+                </h3>
+              </div>
+            )
+          )}
         </div>
-      )}
+      </section>
+
+      {/* DEVELOPERS */}
+      <section className="py-24 px-6 md:px-20 bg-zinc-950">
+        <h2 className="text-4xl font-bold mb-10">
+          Top Developers
+        </h2>
+
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+          {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
+            (developer) => (
+              <div
+                key={developer}
+                className="min-w-[260px] bg-zinc-900 rounded-2xl p-8 border border-zinc-800"
+              >
+                <h3 className="text-2xl font-semibold">
+                  {developer}
+                </h3>
+              </div>
+            )
+          )}
+        </div>
+      </section>
+
+      {/* COMMERCIAL CTA */}
+      <section className="py-24 px-8 md:px-20 border-t border-zinc-800">
+        <div className="bg-zinc-900 rounded-3xl p-10 text-center border border-zinc-800">
+          <h2 className="text-4xl font-bold mb-6">
+            Looking for Commercial Spaces?
+          </h2>
+
+          <p className="text-zinc-400 mb-8">
+            Offices, Retail, Warehouses, Shops — connect directly.
+          </p>
+
+          <a
+            href="/commercial"
+            className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
+          >
+            Explore Commercial
+          </a>
+        </div>
+      </section>
+
+      {/* PROPERTY VALUATION */}
+      <section className="py-20 px-8 md:px-20">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold mb-6">
+            Know Your Property Value
+          </h2>
+
+          <a
+            href="/valuation"
+            className="border border-amber-500 px-8 py-4 rounded-xl text-amber-400"
+          >
+            Get Instant Valuation
+          </a>
+        </div>
+      </section>
     </main>
   );
 }
