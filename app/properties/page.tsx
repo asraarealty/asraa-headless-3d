@@ -1,45 +1,78 @@
 import PropertyGlobe from "../components/PropertyGlobe";
 
-async function getProperties() {
-  const res = await fetch("https://asraarealty.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-        {
-          properties {
-            nodes {
-              id
-              title
-              slug
-              featuredImage {
-                node {
-                  sourceUrl
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
+interface Property {
+  id: string;
+  title: string;
+  slug: string;
+  featuredImage?: {
+    node?: {
+      sourceUrl?: string;
+    };
+  };
+}
+
+interface BrokerProperty {
+  id: string;
+  title: string;
+  location: string;
+  price: string;
+}
+
+async function getProperties(): Promise<Property[]> {
+  try {
+    const res = await fetch("https://asraarealty.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+          {
+            properties {
+              nodes {
+                id
+                title
+                slug
+                featuredImage {
+                  node {
+                    sourceUrl
+                  }
                 }
               }
             }
           }
-        }
-      `,
-    }),
-    cache: "no-store",
-  });
+        `,
+      }),
+      next: { revalidate: 60 },
+    });
 
-  const json = await res.json();
-  return json?.data?.properties?.nodes || [];
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    return json?.data?.properties?.nodes || [];
+  } catch {
+    return [];
+  }
 }
 
-async function getBrokerProperties() {
-  const res = await fetch(
-    "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
-    {
-      cache: "no-store",
-    }
-  );
+async function getBrokerProperties(): Promise<BrokerProperty[]> {
+  try {
+    const res = await fetch(
+      "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
+      {
+        next: { revalidate: 60 },
+      }
+    );
 
-  return await res.json();
+    if (!res.ok) return [];
+
+    return await res.json();
+  } catch {
+    return [];
+  }
 }
 
 export default async function Home() {
@@ -48,17 +81,18 @@ export default async function Home() {
 
   return (
     <main className="bg-black text-white overflow-hidden">
+
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center px-8 md:px-20">
         <div className="absolute inset-0">
           <img
             src="https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-            alt="Luxury"
+            alt="Luxury Homes"
             className="w-full h-full object-cover opacity-30"
           />
         </div>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/60 to-black" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black" />
 
         <div className="relative z-20 text-center max-w-4xl">
           <span className="text-amber-400 uppercase tracking-[0.3em] text-sm">
@@ -66,7 +100,8 @@ export default async function Home() {
           </span>
 
           <h1 className="text-5xl md:text-7xl font-bold mt-6 leading-tight">
-            Find Luxury Homes <br /> With Precision
+            Find Luxury Homes <br />
+            With Precision
           </h1>
 
           <p className="text-zinc-300 text-lg md:text-xl mt-6">
@@ -83,7 +118,7 @@ export default async function Home() {
 
             <a
               href="https://wa.me/919619973211"
-              className="border border-white px-8 py-4 rounded-xl"
+              className="border border-white px-8 py-4 rounded-xl hover:border-amber-500 transition"
             >
               WhatsApp Now
             </a>
@@ -92,33 +127,37 @@ export default async function Home() {
       </section>
 
       {/* PROPERTY GLOBE */}
-      <section className="py-20 px-6 md:px-20">
-        <PropertyGlobe properties={properties} />
-      </section>
+      <PropertyGlobe properties={properties} />
 
       {/* BROKER FEED */}
-      <section className="py-24 px-6 md:px-20 bg-zinc-950">
-        <h2 className="text-4xl font-bold mb-10">Broker Feed Listings</h2>
+      {brokerProperties.length > 0 && (
+        <section className="py-24 px-6 md:px-20 bg-zinc-950">
+          <h2 className="text-4xl font-bold mb-10">
+            Broker Feed Listings
+          </h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-          {brokerProperties.map((property: any) => (
-            <div
-              key={property.id}
-              className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
-            >
-              <h3 className="text-xl font-semibold mb-2">
-                {property.title}
-              </h3>
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+            {brokerProperties.map((property) => (
+              <div
+                key={property.id}
+                className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
+              >
+                <h3 className="text-xl font-semibold mb-2">
+                  {property.title}
+                </h3>
 
-              <p className="text-zinc-400">{property.location}</p>
+                <p className="text-zinc-400">
+                  {property.location}
+                </p>
 
-              <p className="text-amber-400 mt-2">
-                ₹{property.price}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+                <p className="text-amber-400 mt-2">
+                  ₹{property.price}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* LOCATIONS */}
       <section className="py-24 px-6 md:px-20">
@@ -127,18 +166,14 @@ export default async function Home() {
         </h2>
 
         <div className="grid md:grid-cols-4 gap-6">
-          {["Mira Road", "Thane", "Kandivali", "Dubai"].map(
-            (location) => (
-              <div
-                key={location}
-                className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition"
-              >
-                <h3 className="text-2xl font-bold">
-                  {location}
-                </h3>
-              </div>
-            )
-          )}
+          {["Mira Road", "Thane", "Kandivali", "Dubai"].map((location) => (
+            <div
+              key={location}
+              className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition"
+            >
+              <h3 className="text-2xl font-bold">{location}</h3>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -193,12 +228,13 @@ export default async function Home() {
 
           <a
             href="/valuation"
-            className="border border-amber-500 px-8 py-4 rounded-xl text-amber-400"
+            className="border border-amber-500 px-8 py-4 rounded-xl text-amber-400 hover:bg-amber-500 hover:text-black transition"
           >
             Get Instant Valuation
           </a>
         </div>
       </section>
+
     </main>
   );
 }
