@@ -26,16 +26,6 @@ export default function PropertyGlobe({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  useEffect(() => {
-    if (!properties?.length) return;
-
-    const interval = setInterval(() => {
-      nextSlide();
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [activeIndex, properties]);
-
   const nextSlide = () => {
     setActiveIndex((prev) =>
       prev === properties.length - 1 ? 0 : prev + 1
@@ -48,17 +38,27 @@ export default function PropertyGlobe({
     );
   };
 
-  if (!properties?.length) {
-    return null;
-  }
+  useEffect(() => {
+    if (!properties?.length) return;
+
+    const interval = setInterval(() => {
+      setActiveIndex((prev) =>
+        prev === properties.length - 1 ? 0 : prev + 1
+      );
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [properties.length]);
+
+  if (!properties?.length) return null;
 
   return (
     <section className="relative bg-black py-24 overflow-hidden">
       {/* Background Stars */}
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-      {/* Blue Globe Glow */}
-      <div className="absolute left-1/2 top-[42%] -translate-x-1/2 w-[900px] h-[300px] rounded-full bg-blue-500/20 blur-[120px]" />
+      {/* Blue Glow */}
+      <div className="absolute left-1/2 top-[42%] -translate-x-1/2 w-[900px] h-[320px] rounded-full bg-blue-500/20 blur-[140px]" />
 
       {/* Heading */}
       <div className="relative z-20 text-center mb-16">
@@ -80,7 +80,7 @@ export default function PropertyGlobe({
       {/* Left Arrow */}
       <button
         onClick={prevSlide}
-        className="absolute left-8 top-[48%] z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
+        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
       >
         ←
       </button>
@@ -88,23 +88,25 @@ export default function PropertyGlobe({
       {/* Right Arrow */}
       <button
         onClick={nextSlide}
-        className="absolute right-8 top-[48%] z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
+        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
       >
         →
       </button>
 
       {/* Slider */}
-      <div className="relative h-[550px] flex items-center justify-center z-20">
+      <div className="relative h-[560px] flex items-center justify-center z-20">
         {properties.map((property, index) => {
           let position = index - activeIndex;
 
           if (position < -3) position += properties.length;
           if (position > 3) position -= properties.length;
 
-          const translateX = position * 220;
+          if (Math.abs(position) > 3) return null;
+
+          const translateX = position * 260;
           const rotateY = position * -18;
           const scale = position === 0 ? 1.15 : 0.82;
-          const opacity = Math.abs(position) > 3 ? 0 : 1;
+          const opacity = 1 - Math.abs(position) * 0.18;
           const zIndex = 20 - Math.abs(position);
 
           return (
@@ -127,8 +129,10 @@ export default function PropertyGlobe({
                 className="w-full h-full object-cover"
               />
 
+              {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
+              {/* Content */}
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full font-semibold">
                   Premium
@@ -149,7 +153,7 @@ export default function PropertyGlobe({
           <button
             key={index}
             onClick={() => setActiveIndex(index)}
-            className={`rounded-full transition-all ${
+            className={`rounded-full transition-all duration-300 ${
               activeIndex === index
                 ? "w-8 h-3 bg-amber-400"
                 : "w-3 h-3 bg-zinc-600"
@@ -158,7 +162,7 @@ export default function PropertyGlobe({
         ))}
       </div>
 
-      {/* Bottom Feature Cards */}
+      {/* Feature Cards */}
       <div className="grid md:grid-cols-4 gap-6 px-8 md:px-20 mt-16 relative z-20">
         {[
           {
@@ -192,6 +196,7 @@ export default function PropertyGlobe({
               <h4 className="text-white font-semibold text-lg">
                 {item.title}
               </h4>
+
               <p className="text-zinc-400 text-sm mt-1">
                 {item.desc}
               </p>
