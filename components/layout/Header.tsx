@@ -8,8 +8,16 @@ type MenuItem = {
   uri: string;
 };
 
+const fallbackMenu: MenuItem[] = [
+  { label: "Home", uri: "/" },
+  { label: "Properties", uri: "/properties" },
+  { label: "Projects", uri: "/projects" },
+  { label: "About", uri: "/about" },
+  { label: "Contact", uri: "/contact" },
+];
+
 export default function Header() {
-  const [menu, setMenu] = useState<MenuItem[]>([]);
+  const [menu, setMenu] = useState<MenuItem[]>(fallbackMenu);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -36,8 +44,14 @@ export default function Header() {
           }),
         });
 
+        if (!res.ok) return;
+
         const json = await res.json();
-        setMenu(json?.data?.menu?.menuItems?.nodes || []);
+        const wpMenu = json?.data?.menu?.menuItems?.nodes;
+
+        if (wpMenu?.length) {
+          setMenu(wpMenu);
+        }
       } catch (error) {
         console.error("Menu fetch failed:", error);
       }
@@ -48,6 +62,8 @@ export default function Header() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
     };
+
+    handleScroll(); // fixes refresh issue
 
     window.addEventListener("scroll", handleScroll);
 
@@ -65,7 +81,6 @@ export default function Header() {
       }`}
     >
       <div className="flex items-center justify-between px-8 py-4">
-
         {/* Logo */}
         <Link href="/" className="flex items-center">
           <img
@@ -88,7 +103,7 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* CTA Button */}
+        {/* CTA */}
         <Link
           href="/contact"
           className="rounded-full bg-white px-6 py-3 text-sm font-semibold uppercase tracking-[0.15em] text-black transition duration-300 hover:scale-105 hover:bg-zinc-200"
