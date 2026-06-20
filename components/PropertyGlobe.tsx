@@ -42,45 +42,26 @@ export default function PropertyGlobe({
     if (!properties?.length) return;
 
     const interval = setInterval(() => {
-      setActiveIndex((prev) =>
-        prev === properties.length - 1 ? 0 : prev + 1
-      );
+      nextSlide();
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [properties.length]);
+  }, [activeIndex, properties.length]);
 
   if (!properties?.length) return null;
 
   return (
-    <section className="relative bg-black py-24 overflow-hidden">
+    <section className="relative bg-black overflow-hidden py-12 md:py-20">
       {/* Background Stars */}
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-      {/* Blue Glow */}
-      <div className="absolute left-1/2 top-[42%] -translate-x-1/2 w-[900px] h-[320px] rounded-full bg-blue-500/20 blur-[140px]" />
-
-      {/* Heading */}
-      <div className="relative z-20 text-center mb-16">
-        <h2 className="text-5xl md:text-7xl font-bold text-white">
-          Global Property Network
-        </h2>
-
-        <div className="flex items-center justify-center gap-4 mt-4">
-          <div className="w-14 h-[1px] bg-amber-400" />
-          <Globe className="text-amber-400 w-5 h-5" />
-          <div className="w-14 h-[1px] bg-amber-400" />
-        </div>
-
-        <p className="text-zinc-400 text-lg mt-5">
-          Explore premium real estate opportunities across prime locations
-        </p>
-      </div>
+      {/* Globe Background */}
+      <div className="absolute left-1/2 top-[38%] -translate-x-1/2 w-[900px] h-[300px] rounded-full bg-blue-500/20 blur-[120px]" />
 
       {/* Left Arrow */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
+        className="absolute left-3 md:left-10 top-[42%] -translate-y-1/2 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-3xl flex items-center justify-center bg-black/50 backdrop-blur-md shadow-[0_0_25px_rgba(255,176,0,0.35)] hover:scale-110 transition"
       >
         ←
       </button>
@@ -88,13 +69,13 @@ export default function PropertyGlobe({
       {/* Right Arrow */}
       <button
         onClick={nextSlide}
-        className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
+        className="absolute right-3 md:right-10 top-[42%] -translate-y-1/2 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-3xl flex items-center justify-center bg-black/50 backdrop-blur-md shadow-[0_0_25px_rgba(255,176,0,0.35)] hover:scale-110 transition"
       >
         →
       </button>
 
       {/* Slider */}
-      <div className="relative h-[560px] flex items-center justify-center z-20">
+      <div className="relative h-[500px] md:h-[560px] flex items-center justify-center z-20">
         {properties.map((property, index) => {
           let position = index - activeIndex;
 
@@ -103,9 +84,11 @@ export default function PropertyGlobe({
 
           if (Math.abs(position) > 3) return null;
 
-          const translateX = position * 260;
-          const rotateY = position * -18;
-          const scale = position === 0 ? 1.15 : 0.82;
+          const translateX =
+            window.innerWidth < 768 ? position * 120 : position * 230;
+
+          const rotateY = position * -14;
+          const scale = position === 0 ? 1.12 : 0.82;
           const opacity = 1 - Math.abs(position) * 0.18;
           const zIndex = 20 - Math.abs(position);
 
@@ -113,7 +96,7 @@ export default function PropertyGlobe({
             <a
               key={property.id}
               href={`/property/${property.slug}`}
-              className="absolute w-[320px] h-[470px] rounded-[28px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
+              className="absolute w-[220px] h-[320px] md:w-[320px] md:h-[470px] rounded-[28px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
               style={{
                 transform: `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`,
                 opacity,
@@ -130,15 +113,15 @@ export default function PropertyGlobe({
               />
 
               {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-              {/* Content */}
-              <div className="absolute bottom-6 left-6 right-6">
+              {/* Bottom Content */}
+              <div className="absolute bottom-4 left-4 right-4">
                 <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full font-semibold">
                   Premium
                 </span>
 
-                <h3 className="text-white text-2xl font-bold mt-4 leading-tight line-clamp-3">
+                <h3 className="text-white text-lg md:text-2xl font-bold mt-3 leading-tight line-clamp-3">
                   {property.title}
                 </h3>
               </div>
@@ -148,7 +131,7 @@ export default function PropertyGlobe({
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center gap-3 mt-8">
+      <div className="flex justify-center gap-3 mt-4 relative z-20">
         {properties.map((_, index) => (
           <button
             key={index}
@@ -162,8 +145,8 @@ export default function PropertyGlobe({
         ))}
       </div>
 
-      {/* Feature Cards */}
-      <div className="grid md:grid-cols-4 gap-6 px-8 md:px-20 mt-16 relative z-20">
+      {/* Features */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-6 md:px-20 mt-14 relative z-20">
         {[
           {
             icon: Globe,
@@ -188,9 +171,9 @@ export default function PropertyGlobe({
         ].map((item, i) => (
           <div
             key={i}
-            className="border border-zinc-800 bg-zinc-950 rounded-2xl p-6 flex gap-4"
+            className="border border-zinc-800 bg-zinc-950 rounded-2xl p-6 flex gap-4 hover:border-amber-400 transition"
           >
-            <item.icon className="text-amber-400 w-8 h-8" />
+            <item.icon className="text-amber-400 w-8 h-8 shrink-0" />
 
             <div>
               <h4 className="text-white font-semibold text-lg">
