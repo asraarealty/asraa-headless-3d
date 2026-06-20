@@ -1,6 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import {
+  Globe,
+  ShieldCheck,
+  Star,
+  Headphones,
+} from "lucide-react";
 
 interface Property {
   id: string;
@@ -24,13 +30,11 @@ export default function PropertyGlobe({
     if (!properties?.length) return;
 
     const interval = setInterval(() => {
-      setActiveIndex((prev) =>
-        prev === properties.length - 1 ? 0 : prev + 1
-      );
+      nextSlide();
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [properties]);
+  }, [activeIndex, properties]);
 
   const nextSlide = () => {
     setActiveIndex((prev) =>
@@ -45,23 +49,38 @@ export default function PropertyGlobe({
   };
 
   if (!properties?.length) {
-    return (
-      <div className="w-full h-[700px] flex items-center justify-center text-zinc-500">
-        No properties found
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="relative w-full h-[850px] flex items-center justify-center overflow-hidden bg-black">
-      
-      {/* Background Glow */}
-      <div className="absolute w-[700px] h-[250px] rounded-full bg-blue-600/20 blur-3xl bottom-24" />
+    <section className="relative bg-black py-24 overflow-hidden">
+      {/* Background Stars */}
+      <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] bg-[size:40px_40px]" />
+
+      {/* Blue Globe Glow */}
+      <div className="absolute left-1/2 top-[42%] -translate-x-1/2 w-[900px] h-[300px] rounded-full bg-blue-500/20 blur-[120px]" />
+
+      {/* Heading */}
+      <div className="relative z-20 text-center mb-16">
+        <h2 className="text-5xl md:text-7xl font-bold text-white">
+          Global Property Network
+        </h2>
+
+        <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="w-14 h-[1px] bg-amber-400" />
+          <Globe className="text-amber-400 w-5 h-5" />
+          <div className="w-14 h-[1px] bg-amber-400" />
+        </div>
+
+        <p className="text-zinc-400 text-lg mt-5">
+          Explore premium real estate opportunities across prime locations
+        </p>
+      </div>
 
       {/* Left Arrow */}
       <button
         onClick={prevSlide}
-        className="absolute left-8 z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl hover:bg-amber-400 hover:text-black transition"
+        className="absolute left-8 top-[48%] z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
       >
         ←
       </button>
@@ -69,45 +88,32 @@ export default function PropertyGlobe({
       {/* Right Arrow */}
       <button
         onClick={nextSlide}
-        className="absolute right-8 z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl hover:bg-amber-400 hover:text-black transition"
+        className="absolute right-8 top-[48%] z-50 w-16 h-16 rounded-full border border-amber-400 text-amber-400 text-3xl shadow-[0_0_20px_rgba(255,176,0,0.4)]"
       >
         →
       </button>
 
-      {/* Cards */}
-      <div className="relative w-full max-w-[1400px] h-[600px] flex items-center justify-center">
+      {/* Slider */}
+      <div className="relative h-[550px] flex items-center justify-center z-20">
         {properties.map((property, index) => {
-          const position = index - activeIndex;
+          let position = index - activeIndex;
 
-          let translateX = position * 180;
-          let scale = 0.75;
-          let opacity = 0.4;
-          let zIndex = 1;
+          if (position < -3) position += properties.length;
+          if (position > 3) position -= properties.length;
 
-          if (position === 0) {
-            translateX = 0;
-            scale = 1;
-            opacity = 1;
-            zIndex = 20;
-          }
-
-          if (Math.abs(position) === 1) {
-            scale = 0.85;
-            opacity = 0.75;
-            zIndex = 10;
-          }
-
-          if (Math.abs(position) > 3) {
-            opacity = 0;
-          }
+          const translateX = position * 220;
+          const rotateY = position * -18;
+          const scale = position === 0 ? 1.15 : 0.82;
+          const opacity = Math.abs(position) > 3 ? 0 : 1;
+          const zIndex = 20 - Math.abs(position);
 
           return (
             <a
               key={property.id}
               href={`/property/${property.slug}`}
-              className="absolute w-[300px] h-[430px] rounded-[30px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
+              className="absolute w-[320px] h-[470px] rounded-[28px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
               style={{
-                transform: `translateX(${translateX}px) scale(${scale})`,
+                transform: `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`,
                 opacity,
                 zIndex,
               }}
@@ -121,14 +127,14 @@ export default function PropertyGlobe({
                 className="w-full h-full object-cover"
               />
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
 
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full font-semibold">
                   Premium
                 </span>
 
-                <h3 className="text-white text-xl font-bold mt-4 line-clamp-3">
+                <h3 className="text-white text-2xl font-bold mt-4 leading-tight line-clamp-3">
                   {property.title}
                 </h3>
               </div>
@@ -137,20 +143,62 @@ export default function PropertyGlobe({
         })}
       </div>
 
-      {/* Pagination Dots */}
-      <div className="absolute bottom-14 flex gap-3">
+      {/* Dots */}
+      <div className="flex justify-center gap-3 mt-8">
         {properties.map((_, index) => (
           <button
             key={index}
             onClick={() => setActiveIndex(index)}
-            className={`w-3 h-3 rounded-full transition ${
+            className={`rounded-full transition-all ${
               activeIndex === index
-                ? "bg-amber-400 w-8"
-                : "bg-zinc-600"
+                ? "w-8 h-3 bg-amber-400"
+                : "w-3 h-3 bg-zinc-600"
             }`}
           />
         ))}
       </div>
-    </div>
+
+      {/* Bottom Feature Cards */}
+      <div className="grid md:grid-cols-4 gap-6 px-8 md:px-20 mt-16 relative z-20">
+        {[
+          {
+            icon: Globe,
+            title: "Global Reach",
+            desc: "Properties across prime locations",
+          },
+          {
+            icon: ShieldCheck,
+            title: "Verified Listings",
+            desc: "100% verified premium properties",
+          },
+          {
+            icon: Star,
+            title: "Best Deals",
+            desc: "Exclusive offers and discounts",
+          },
+          {
+            icon: Headphones,
+            title: "Expert Support",
+            desc: "Professional guidance at every step",
+          },
+        ].map((item, i) => (
+          <div
+            key={i}
+            className="border border-zinc-800 bg-zinc-950 rounded-2xl p-6 flex gap-4"
+          >
+            <item.icon className="text-amber-400 w-8 h-8" />
+
+            <div>
+              <h4 className="text-white font-semibold text-lg">
+                {item.title}
+              </h4>
+              <p className="text-zinc-400 text-sm mt-1">
+                {item.desc}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
