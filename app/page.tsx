@@ -1,46 +1,56 @@
-import ThreeScene from "../components/ThreeScene";
 import PropertyGlobe from "../components/PropertyGlobe";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
 async function getProperties() {
-  const res = await fetch("https://asraarealty.com/graphql", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      query: `
-        {
-          properties {
-            nodes {
-              id
-              title
-              slug
-              featuredImage {
-                node {
-                  sourceUrl
+  try {
+    const res = await fetch("https://asraarealty.com/graphql", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+          {
+            properties {
+              nodes {
+                id
+                title
+                slug
+                featuredImage {
+                  node {
+                    sourceUrl
+                  }
                 }
               }
             }
           }
-        }
-      `,
-    }),
-    cache: "no-store",
-  });
+        `,
+      }),
+      next: { revalidate: 60 },
+    });
 
-  const json = await res.json();
-  return json?.data?.properties?.nodes || [];
+    const json = await res.json();
+    return json?.data?.properties?.nodes || [];
+  } catch {
+    return [];
+  }
 }
 
 async function getBrokerProperties() {
-  const res = await fetch(
-    "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
-    {
-      cache: "no-store",
-    }
-  );
+  try {
+    const res = await fetch(
+      "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
+      {
+        next: { revalidate: 60 },
+      }
+    );
 
-  return await res.json();
+    return await res.json();
+  } catch {
+    return [];
+  }
 }
 
 export default async function Home() {
@@ -58,13 +68,9 @@ export default async function Home() {
           className="absolute inset-0 w-full h-full object-cover opacity-40"
         />
 
-        <div className="absolute inset-0 opacity-20">
-          <ThreeScene />
-        </div>
-
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black" />
 
-        <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-20 z-20 max-w-4xl animate-fadeIn">
+        <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-20 z-20 max-w-4xl">
           <span className="text-amber-400 uppercase tracking-[0.3em] text-sm mb-4">
             Premium Real Estate Advisory
           </span>
@@ -95,38 +101,15 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* FEATURED PROPERTIES */}
-      <section className="py-24 px-6 md:px-20">
-        <h2 className="text-4xl font-bold mb-10">Featured Properties</h2>
-
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-          {properties.map((property: any) => (
-            <div
-              key={property.id}
-              className="min-w-[320px] bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:scale-105 transition"
-            >
-              <img
-                src={
-                  property.featuredImage?.node?.sourceUrl ||
-                  "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-                }
-                alt={property.title}
-                className="w-full h-64 object-cover"
-              />
-
-              <div className="p-5">
-                <h3 className="text-xl font-semibold">{property.title}</h3>
-
-                <a
-                  href={`/property/${property.slug}`}
-                  className="text-amber-400 mt-4 inline-block"
-                >
-                  View →
-                </a>
-              </div>
-            </div>
-          ))}
+      {/* PROPERTY GLOBE */}
+      <section className="py-28 px-6 md:px-20">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl md:text-6xl font-bold">
+            Global Property Network
+          </h2>
         </div>
+
+        <PropertyGlobe properties={properties} />
       </section>
 
       {/* BROKER FEED */}
@@ -147,7 +130,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* LOCATION CARDS */}
+      {/* LOCATIONS */}
       <section className="py-24 px-6 md:px-20">
         <h2 className="text-4xl font-bold mb-10">Explore By Location</h2>
 
@@ -167,7 +150,7 @@ export default async function Home() {
       <section className="py-24 px-6 md:px-20 bg-zinc-950">
         <h2 className="text-4xl font-bold mb-10">Top Developers</h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
@@ -179,17 +162,6 @@ export default async function Home() {
             )
           )}
         </div>
-      </section>
-
-      {/* PROPERTY GLOBE */}
-      <section className="py-28 px-6 md:px-20">
-        <div className="text-center mb-20">
-          <h2 className="text-4xl md:text-6xl font-bold">
-            Global Property Network
-          </h2>
-        </div>
-
-        <PropertyGlobe properties={properties} />
       </section>
 
       {/* COMMERCIAL CTA */}
