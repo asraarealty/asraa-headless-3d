@@ -41,7 +41,7 @@ async function getWpProperties(): Promise<Property[]> {
       next: { revalidate: 60 },
     });
 
-    if (!res.ok) throw new Error("Failed WP fetch");
+    if (!res.ok) return [];
 
     const json = await res.json();
 
@@ -51,12 +51,11 @@ async function getWpProperties(): Promise<Property[]> {
       slug: item.slug,
       image:
         item.featuredImage?.node?.sourceUrl ||
-        "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp",
+        "/logo.png",
       location: "Premium",
       source: "wordpress",
     }));
-  } catch (error) {
-    console.error("WP Properties Error:", error);
+  } catch {
     return [];
   }
 }
@@ -70,23 +69,20 @@ async function getBrokerProperties(): Promise<Property[]> {
       }
     );
 
-    if (!res.ok) throw new Error("Failed Broker fetch");
+    if (!res.ok) return [];
 
     const json = await res.json();
 
     return (json || []).map((item: any) => ({
-      id: item.id?.toString(),
+      id: String(item.id),
       title: item.title || "Untitled",
-      slug: item.id?.toString(),
-      image:
-        item.image_url ||
-        "https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp",
+      slug: String(item.id),
+      image: item.image_url || "/logo.png",
       location: item.location || item.city || "Unknown",
       price: item.price,
       source: "broker",
     }));
-  } catch (error) {
-    console.error("Broker Properties Error:", error);
+  } catch {
     return [];
   }
 }
@@ -95,69 +91,48 @@ export default async function PropertiesPage() {
   const wpProperties = await getWpProperties();
   const brokerProperties = await getBrokerProperties();
 
-  const allProperties = [...wpProperties, ...brokerProperties].sort((a, b) =>
-    (a.location || "").localeCompare(b.location || "")
-  );
+  const allProperties = [...wpProperties, ...brokerProperties];
 
   return (
     <main className="min-h-screen bg-black text-white px-8 md:px-20 py-20">
-      {/* Page Header */}
       <div className="mb-16 text-center">
         <h1 className="text-5xl md:text-6xl font-bold mb-4">
-          All Properties
+          Globe Properties
         </h1>
+
         <p className="text-zinc-400 text-lg">
-          Explore verified premium and broker-listed opportunities
+          Explore verified premium listings
         </p>
       </div>
 
-      {/* Property Grid */}
-      {allProperties.length > 0 ? (
+      {wpProperties.length > 0 ? (
         <div className="grid md:grid-cols-3 gap-8">
-          {allProperties.map((property) => (
+          {wpProperties.map((property) => (
             <div
-              key={`${property.source}-${property.id}`}
-              className="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-amber-400 transition duration-500 hover:-translate-y-2"
+              key={property.id}
+              className="group bg-zinc-900 rounded-2xl overflow-hidden border border-zinc-800 hover:border-amber-400 transition"
             >
-              {/* Property Image */}
-              <div className="relative w-full h-64 overflow-hidden">
+              <div className="relative w-full h-64">
                 <Image
                   src={property.image}
                   alt={property.title}
                   fill
-                  className="object-cover group-hover:scale-110 transition duration-700"
+                  className="object-cover group-hover:scale-105 transition"
                 />
               </div>
 
-              {/* Property Content */}
               <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <span className="text-sm text-amber-400 font-medium">
-                    {property.location}
-                  </span>
-
-                  <span className="text-xs bg-zinc-800 px-3 py-1 rounded-full">
-                    {property.source === "broker" ? "Broker" : "Premium"}
-                  </span>
-                </div>
+                <span className="text-sm text-amber-400 mb-2 block">
+                  {property.location}
+                </span>
 
                 <h2 className="text-xl font-semibold mb-4 line-clamp-2">
                   {property.title}
                 </h2>
 
-                {property.price && (
-                  <p className="text-zinc-300 mb-4 text-lg font-medium">
-                    ₹{Number(property.price).toLocaleString()}
-                  </p>
-                )}
-
                 <a
-                  href={
-                    property.source === "wordpress"
-                      ? `/property/${property.slug}`
-                      : `/property/broker/${property.slug}`
-                  }
-                  className="inline-block text-amber-400 font-medium hover:translate-x-2 transition duration-300"
+                  href={`/property/${property.slug}`}
+                  className="text-amber-400 font-medium"
                 >
                   View Property →
                 </a>
@@ -166,7 +141,7 @@ export default async function PropertiesPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center mt-24 text-zinc-500 text-lg">
+        <div className="text-center text-zinc-500 mt-20">
           No properties found.
         </div>
       )}
