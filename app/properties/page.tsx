@@ -1,4 +1,4 @@
-import PropertyGlobe from "../components/PropertyGlobe";
+import PropertyGlobe from "../../components/PropertyGlobe";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
