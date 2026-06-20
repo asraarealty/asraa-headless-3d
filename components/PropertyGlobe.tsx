@@ -21,56 +21,63 @@ export default function PropertyGlobe({
   const [rotation, setRotation] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-  setRotation((prev) => prev + 0.0025);
-}, 100);
+    let frame: number;
 
-    return () => clearInterval(interval);
+    const animate = () => {
+      setRotation((prev) => prev + 0.004);
+      frame = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => cancelAnimationFrame(frame);
   }, []);
 
+  if (!properties?.length) {
+    return (
+      <div className="w-full h-[700px] flex items-center justify-center text-zinc-500">
+        No properties found
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full h-[750px] flex items-center justify-center overflow-hidden bg-black perspective-[1400px]">
-      
-      {/* Center Earth */}
-      <div className="absolute w-44 h-44 rounded-full bg-gradient-to-br from-blue-400 via-blue-500 to-blue-800 shadow-[0_0_120px_rgba(0,150,255,0.6)] animate-pulse" />
+    <div className="relative w-full h-[750px] flex items-center justify-center overflow-hidden bg-black [perspective:1800px]">
+
+      {/* Center Globe */}
+      <div className="absolute w-40 h-40 rounded-full bg-gradient-to-br from-blue-500 via-blue-600 to-blue-900 shadow-[0_0_100px_rgba(0,150,255,0.35)]" />
 
       {properties.map((property, index) => {
-        const activeIndex = Math.floor(
-          (rotation * 10) % properties.length
-        );
-
         const angle =
-          ((index - activeIndex) / properties.length) *
-          Math.PI *
-          2;
+          (index / properties.length) * Math.PI * 2 + rotation;
 
-        const radius = 280;
+        const radius = 320;
 
         const x = Math.sin(angle) * radius;
-        const z = Math.cos(angle) * radius + radius;
+        const z = Math.cos(angle) * radius;
+        const y = Math.sin(angle * 2) * 50;
 
-        const y = Math.sin(angle * 2) * 40;
+        const depth = (z + radius) / (radius * 2);
 
-        const scale = 0.45 + (z / (radius * 2)) * 1.2;
-
-        const opacity = 0.25 + (z / (radius * 2)) * 0.75;
-
-        const zIndex = Math.floor(scale * 100);
+        const scale = 0.55 + depth * 0.7;
+        const opacity = 0.35 + depth * 0.65;
+        const zIndex = Math.floor(depth * 100);
 
         return (
           <a
             key={property.id}
             href={`/property/${property.slug}`}
-            className="absolute w-[190px] h-[260px] rounded-2xl overflow-hidden border border-zinc-800 shadow-xl transition-all duration-500"
+            className="absolute w-[200px] h-[280px] rounded-2xl overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-300 hover:scale-105"
             style={{
-              left: `calc(50% + ${x}px - 95px)`,
-              top: `calc(50% + ${y}px - 130px)`,
+              left: `calc(50% + ${x}px - 100px)`,
+              top: `calc(50% + ${y}px - 140px)`,
               zIndex,
-              transform: `
-                scale(${scale})
-                rotateY(${angle * 25}deg)
-              `,
               opacity,
+              transform: `
+                translateZ(${z}px)
+                scale(${scale})
+                rotateY(${-angle * 25}deg)
+              `,
             }}
           >
             {/* Property Image */}
