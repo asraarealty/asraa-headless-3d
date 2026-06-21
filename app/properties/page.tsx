@@ -1,6 +1,12 @@
+import dynamic from "next/dynamic";
 import PropertyGlobe from "../../components/PropertyGlobe";
 
-export const dynamic = "force-dynamic";
+const MasterPlanViewer = dynamic(
+  () => import("../../components/MasterPlanViewer"),
+  { ssr: false }
+);
+
+export const dynamicMode = "force-dynamic";
 export const revalidate = 60;
 
 interface Property {
@@ -82,49 +88,8 @@ export default async function Home() {
   return (
     <main className="bg-black text-white overflow-hidden">
 
-      {/* HERO */}
-      <section className="relative min-h-screen flex items-center justify-center px-8 md:px-20">
-        <div className="absolute inset-0">
-          <img
-            src="https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-            alt="Luxury Homes"
-            className="w-full h-full object-cover opacity-30"
-          />
-        </div>
-
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/70 to-black" />
-
-        <div className="relative z-20 text-center max-w-4xl">
-          <span className="text-amber-400 uppercase tracking-[0.3em] text-sm">
-            Premium Real Estate Advisory
-          </span>
-
-          <h1 className="text-5xl md:text-7xl font-bold mt-6 leading-tight">
-            Find Luxury Homes <br />
-            With Precision
-          </h1>
-
-          <p className="text-zinc-300 text-lg md:text-xl mt-6">
-            Verified listings, premium property matching, and market intelligence.
-          </p>
-
-          <div className="flex gap-4 justify-center mt-8 flex-wrap">
-            <a
-              href="/properties"
-              className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
-            >
-              Browse Projects
-            </a>
-
-            <a
-              href="https://wa.me/919619973211"
-              className="border border-white px-8 py-4 rounded-xl hover:border-amber-500 transition"
-            >
-              WhatsApp Now
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* MASTERPLAN HERO */}
+      <MasterPlanViewer />
 
       {/* PROPERTY GLOBE */}
       <PropertyGlobe properties={properties} />
@@ -136,7 +101,7 @@ export default async function Home() {
             Broker Feed Listings
           </h2>
 
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+          <div className="flex gap-6 overflow-x-auto pb-4">
             {brokerProperties.map((property) => (
               <div
                 key={property.id}
@@ -183,7 +148,7 @@ export default async function Home() {
           Top Developers
         </h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
