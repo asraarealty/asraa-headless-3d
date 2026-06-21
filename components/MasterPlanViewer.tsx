@@ -7,22 +7,22 @@ const amenities = [
   {
     id: 1,
     title: "Clubhouse",
-    position: [5, 2, 4],
+    position: [5, 2, 4] as [number, number, number],
   },
   {
     id: 2,
     title: "Swimming Pool",
-    position: [-4, 2, 1],
+    position: [-4, 2, 1] as [number, number, number],
   },
   {
     id: 3,
     title: "Gym",
-    position: [2, 2, -3],
+    position: [2, 2, -3] as [number, number, number],
   },
   {
     id: 4,
     title: "Garden",
-    position: [-6, 2, -4],
+    position: [-6, 2, -4] as [number, number, number],
   },
 ];
 
@@ -32,13 +32,12 @@ function BuildingBlock({
   position: [number, number, number];
 }) {
   return (
-    <mesh position={position}>
+    <mesh position={position} castShadow receiveShadow>
       <boxGeometry args={[4, 8, 4]} />
       <meshStandardMaterial color="#cfcfcf" />
     </mesh>
   );
-}o
-
+}
 
 function AmenityPin({
   title,
@@ -49,7 +48,7 @@ function AmenityPin({
 }) {
   return (
     <Html position={position} center>
-      <div className="bg-amber-500 text-black px-3 py-1 rounded-full text-xs font-semibold shadow-xl cursor-pointer">
+      <div className="bg-amber-500 text-black px-3 py-1 rounded-full text-xs font-semibold shadow-xl cursor-pointer whitespace-nowrap">
         {title}
       </div>
     </Html>
@@ -69,7 +68,7 @@ export default function MasterPlanViewer() {
           {amenities.map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-xl bg-white/5 border border-white/10 text-white"
+              className="p-4 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition"
             >
               {item.title}
             </div>
@@ -78,13 +77,26 @@ export default function MasterPlanViewer() {
       </div>
 
       {/* 3D Scene */}
-      <Canvas camera={{ position: [12, 12, 16], fov: 45 }}>
-        <ambientLight intensity={1.5} />
-        <directionalLight position={[10, 20, 10]} intensity={2} />
+      <Canvas
+        shadows
+        camera={{
+          position: [12, 12, 16],
+          fov: 45,
+        }}
+      >
+        {/* Lights */}
+        <ambientLight intensity={1.2} />
+        <directionalLight
+          position={[10, 20, 10]}
+          intensity={2}
+          castShadow
+        />
+
+        {/* Environment */}
         <Environment preset="city" />
 
         {/* Ground */}
-        <mesh rotation={[-Math.PI / 2, 0, 0]}>
+        <mesh rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
           <planeGeometry args={[50, 50]} />
           <meshStandardMaterial color="#1a1a1a" />
         </mesh>
@@ -101,23 +113,26 @@ export default function MasterPlanViewer() {
           <AmenityPin
             key={item.id}
             title={item.title}
-            position={item.position as [number, number, number]}
+            position={item.position}
           />
         ))}
 
+        {/* Controls */}
         <OrbitControls
           enableZoom={true}
           enablePan={true}
           enableRotate={true}
+          minDistance={8}
+          maxDistance={35}
         />
       </Canvas>
 
-      {/* Bottom thumbnails */}
+      {/* Bottom Thumbnails */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-4">
         {[1, 2, 3, 4].map((item) => (
           <div
             key={item}
-            className="w-24 h-16 rounded-xl bg-zinc-800 border border-white/10"
+            className="w-24 h-16 rounded-xl bg-zinc-800 border border-white/10 hover:border-amber-500 transition cursor-pointer"
           />
         ))}
       </div>
