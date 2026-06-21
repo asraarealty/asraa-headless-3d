@@ -1,5 +1,5 @@
-import MasterPlanViewer from "../components/MasterPlanViewer";
-import PropertyGlobe from "../components/PropertyGlobe";
+import MasterPlanViewer from "../../components/MasterPlanViewer";
+import PropertyGlobe from "../../components/PropertyGlobe";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
@@ -76,13 +76,12 @@ async function getBrokerProperties(): Promise<BrokerProperty[]> {
   }
 }
 
-export default async function Home() {
+export default async function PropertiesPage() {
   const properties = await getProperties();
   const brokerProperties = await getBrokerProperties();
 
   return (
     <main className="bg-black text-white overflow-hidden">
-
       {/* MASTERPLAN HERO */}
       <MasterPlanViewer />
 
@@ -96,7 +95,7 @@ export default async function Home() {
             Broker Feed Listings
           </h2>
 
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+          <div className="flex gap-6 overflow-x-auto pb-4">
             {brokerProperties.map((property) => (
               <div
                 key={property.id}
@@ -143,7 +142,7 @@ export default async function Home() {
           Top Developers
         </h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
