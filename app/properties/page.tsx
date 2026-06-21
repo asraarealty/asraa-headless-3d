@@ -1,12 +1,7 @@
-import dynamic from "next/dynamic";
-import PropertyGlobe from "../../components/PropertyGlobe";
+import MasterPlanViewer from "../components/MasterPlanViewer";
+import PropertyGlobe from "../components/PropertyGlobe";
 
-const MasterPlanViewer = dynamic(
-  () => import("../../components/MasterPlanViewer"),
-  { ssr: false }
-);
-
-export const dynamicMode = "force-dynamic";
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 interface Property {
@@ -101,7 +96,7 @@ export default async function Home() {
             Broker Feed Listings
           </h2>
 
-          <div className="flex gap-6 overflow-x-auto pb-4">
+          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
             {brokerProperties.map((property) => (
               <div
                 key={property.id}
@@ -115,7 +110,7 @@ export default async function Home() {
                   {property.location}
                 </p>
 
-                <p className="text-amber-400 mt-2">
+                <p className="text-amber-400 mt-2 font-semibold">
                   ₹{property.price}
                 </p>
               </div>
@@ -148,7 +143,7 @@ export default async function Home() {
           Top Developers
         </h2>
 
-        <div className="flex gap-6 overflow-x-auto">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
@@ -199,7 +194,6 @@ export default async function Home() {
           </a>
         </div>
       </section>
-
     </main>
   );
 }
