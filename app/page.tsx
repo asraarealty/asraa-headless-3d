@@ -23,6 +23,19 @@ interface BrokerProperty {
   price?: string;
 }
 
+interface WPProperty {
+  id: number;
+  slug: string;
+  title?: {
+    rendered?: string;
+  };
+  _embedded?: {
+    ["wp:featuredmedia"]?: Array<{
+      source_url?: string;
+    }>;
+  };
+}
+
 async function getProperties(): Promise<Property[]> {
   try {
     const res = await fetch(
@@ -37,11 +50,11 @@ async function getProperties(): Promise<Property[]> {
       return [];
     }
 
-    const data = await res.json();
+    const data: WPProperty[] = await res.json();
 
-    return data.map((item: any) => ({
+    return data.map((item) => ({
       id: String(item.id),
-      title: item.title?.rendered || "",
+      title: item.title?.rendered || "Untitled Project",
       slug: item.slug || "",
       featuredImage: {
         node: {
@@ -68,7 +81,8 @@ async function getBrokerProperties(): Promise<BrokerProperty[]> {
 
     if (!res.ok) return [];
 
-    return await res.json();
+    const data: BrokerProperty[] = await res.json();
+    return data;
   } catch {
     return [];
   }
@@ -80,16 +94,13 @@ export default async function Home() {
 
   return (
     <main className="bg-black text-white overflow-hidden">
-      {/* HERO */}
       <Hero />
 
-      {/* PROPERTY GLOBE */}
       <section className="px-4 sm:px-6 md:px-12 lg:px-20 py-12 md:py-16">
         <PropertyGlobe properties={properties} />
       </section>
 
-      {/* BROKER FEED */}
-      {brokerProperties?.length > 0 && (
+      {brokerProperties.length > 0 && (
         <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 bg-zinc-950">
           <div className="flex items-center justify-between mb-8 md:mb-10">
             <h2 className="text-2xl md:text-4xl font-bold">
@@ -129,7 +140,6 @@ export default async function Home() {
         </section>
       )}
 
-      {/* LOCATIONS */}
       <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20">
         <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-10">
           Explore By Location
@@ -147,7 +157,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* DEVELOPERS */}
       <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 bg-zinc-950">
         <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-10">
           Top Developers
@@ -169,7 +178,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* COMMERCIAL CTA */}
       <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 border-t border-zinc-800">
         <div className="bg-zinc-900 rounded-3xl p-6 md:p-10 text-center border border-zinc-800">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
@@ -190,7 +198,6 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* PROPERTY VALUATION */}
       <section className="py-12 md:py-16 px-4 sm:px-6 md:px-12 lg:px-20">
         <div className="text-center">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
