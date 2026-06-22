@@ -26,7 +26,6 @@ export default function PropertyGlobe({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   const total = properties?.length || 0;
 
@@ -47,8 +46,6 @@ export default function PropertyGlobe({
   };
 
   useEffect(() => {
-    setMounted(true);
-
     const checkScreen = () => {
       if (typeof window !== "undefined") {
         setIsMobile(window.innerWidth < 768);
@@ -68,13 +65,15 @@ export default function PropertyGlobe({
     if (!total) return;
 
     const interval = setInterval(() => {
-      nextSlide();
+      setActiveIndex((prev) =>
+        prev === total - 1 ? 0 : prev + 1
+      );
     }, 4000);
 
     return () => clearInterval(interval);
   }, [total]);
 
-  if (!mounted || !properties?.length) return null;
+  if (!properties?.length) return null;
 
   return (
     <section className="relative bg-black overflow-hidden py-12 md:py-20">
@@ -139,10 +138,8 @@ export default function PropertyGlobe({
                 className="w-full h-full object-cover"
               />
 
-              {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
 
-              {/* Content */}
               <div className="absolute bottom-4 left-4 right-4">
                 <span className="bg-amber-500 text-black text-[10px] md:text-xs px-3 py-1 rounded-full font-semibold">
                   Premium
