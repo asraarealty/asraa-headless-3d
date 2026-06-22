@@ -2,60 +2,65 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-zinc-950 border-t border-zinc-800 mt-20">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 py-16">
-
-        {/* Top Grid */}
-        <div className="grid md:grid-cols-4 gap-10">
-
+    <footer className="bg-black border-t border-white/10 text-white">
+      <div className="max-w-7xl mx-auto px-6 md:px-10 py-20">
+        <div className="grid md:grid-cols-4 gap-12">
           {/* Brand */}
           <div>
-            <h2 className="text-2xl font-bold text-amber-400 mb-4">
-              Asraa Realty
-            </h2>
+            <img
+              src="/logo.png"
+              alt="Asraa Realty"
+              className="h-14 w-auto mb-6"
+            />
+
             <p className="text-zinc-400 leading-relaxed">
-              Premium real estate advisory for investors, home buyers,
-              and commercial property seekers.
+              Premium real estate advisory focused on wealth creation through
+              strategic property investments, luxury residences, and commercial
+              opportunities.
             </p>
           </div>
 
-          {/* Quick Links */}
+          {/* Navigation */}
           <div>
-            <h3 className="text-white font-semibold mb-4">
-              Quick Links
-            </h3>
+            <h3 className="text-lg font-semibold mb-5">Explore</h3>
+
             <div className="flex flex-col gap-3 text-zinc-400">
               <Link href="/" className="hover:text-amber-400 transition">
                 Home
               </Link>
-              <Link href="/properties" className="hover:text-amber-400 transition">
-                Properties
+
+              <Link href="/projects" className="hover:text-amber-400 transition">
+                Projects
               </Link>
-              <Link href="/about" className="hover:text-amber-400 transition">
-                About
+
+              <Link href="/commercial" className="hover:text-amber-400 transition">
+                Commercial
               </Link>
-              <Link href="/contact" className="hover:text-amber-400 transition">
-                Contact
+
+              <Link href="/valuation" className="hover:text-amber-400 transition">
+                Property Valuation
               </Link>
             </div>
           </div>
 
           {/* Locations */}
           <div>
-            <h3 className="text-white font-semibold mb-4">
-              Top Locations
-            </h3>
+            <h3 className="text-lg font-semibold mb-5">Top Locations</h3>
+
             <div className="flex flex-col gap-3 text-zinc-400">
-              <Link href="/properties?location=mira-road" className="hover:text-amber-400 transition">
+              <Link href="/location/mira-road" className="hover:text-amber-400 transition">
                 Mira Road
               </Link>
-              <Link href="/properties?location=thane" className="hover:text-amber-400 transition">
+
+              <Link href="/location/thane" className="hover:text-amber-400 transition">
                 Thane
               </Link>
-              <Link href="/properties?location=kandivali" className="hover:text-amber-400 transition">
+
+              <Link href="/location/kandivali" className="hover:text-amber-400 transition">
                 Kandivali
               </Link>
-              <Link href="/properties?location=dubai" className="hover:text-amber-400 transition">
+
+              <Link href="/location/dubai" className="hover:text-amber-400 transition">
                 Dubai
               </Link>
             </div>
@@ -63,30 +68,51 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-white font-semibold mb-4">
-              Contact
-            </h3>
+            <h3 className="text-lg font-semibold mb-5">Connect</h3>
+
             <div className="flex flex-col gap-3 text-zinc-400">
-              <p>📍 Mira Road, Mumbai</p>
-              <p>📞 +91 9619973211</p>
-              <p>✉ info@asraarealty.com</p>
+              <a
+                href="tel:+919619973211"
+                className="hover:text-amber-400 transition"
+              >
+                +91 96199 73211
+              </a>
+
+              <a
+                href="mailto:info@asraarealty.com"
+                className="hover:text-amber-400 transition"
+              >
+                info@asraarealty.com
+              </a>
+
+              <a
+                href="https://wa.me/919619973211"
+                target="_blank"
+                className="hover:text-amber-400 transition"
+              >
+                WhatsApp
+              </a>
+
+              <Link href="/contact" className="hover:text-amber-400 transition">
+                Contact Form
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Bottom */}
-        <div className="border-t border-zinc-800 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center text-sm text-zinc-500">
-          <p>© {new Date().getFullYear()} Asraa Realty. All rights reserved.</p>
+        <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-zinc-500 text-sm">
+            © {new Date().getFullYear()} Asraa Realty. All rights reserved.
+          </p>
 
-          <div className="flex gap-6 mt-4 md:mt-0">
-            <Link href="#" className="hover:text-amber-400 transition">
-              Instagram
+          <div className="flex items-center gap-6 text-sm text-zinc-500">
+            <Link href="/privacy-policy" className="hover:text-white transition">
+              Privacy Policy
             </Link>
-            <Link href="#" className="hover:text-amber-400 transition">
-              Facebook
-            </Link>
-            <Link href="#" className="hover:text-amber-400 transition">
-              LinkedIn
+
+            <Link href="/terms" className="hover:text-white transition">
+              Terms
             </Link>
           </div>
         </div>
