@@ -26,6 +26,7 @@ export default function PropertyGlobe({
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const nextSlide = () => {
     setActiveIndex((prev) =>
@@ -39,8 +40,10 @@ export default function PropertyGlobe({
     );
   };
 
-  // Detect mobile safely (SSR-safe)
+  // Safe client mount
   useEffect(() => {
+    setMounted(true);
+
     const checkScreen = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -58,13 +61,15 @@ export default function PropertyGlobe({
     if (!properties?.length) return;
 
     const interval = setInterval(() => {
-      nextSlide();
+      setActiveIndex((prev) =>
+        prev === properties.length - 1 ? 0 : prev + 1
+      );
     }, 4000);
 
     return () => clearInterval(interval);
-  }, [activeIndex, properties.length]);
+  }, [properties.length]);
 
-  if (!properties?.length) return null;
+  if (!properties?.length || !mounted) return null;
 
   return (
     <section className="relative bg-black overflow-hidden py-12 md:py-20">
@@ -112,7 +117,7 @@ export default function PropertyGlobe({
           return (
             <a
               key={property.id}
-              href={`/property/${property.slug}`}
+              href={`/projects/${property.slug}`}
               className="absolute w-[220px] h-[320px] md:w-[320px] md:h-[470px] rounded-[28px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
               style={{
                 transform: `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`,
@@ -132,7 +137,7 @@ export default function PropertyGlobe({
               {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-              {/* Card Content */}
+              {/* Content */}
               <div className="absolute bottom-4 left-4 right-4">
                 <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full font-semibold">
                   Premium
@@ -147,7 +152,7 @@ export default function PropertyGlobe({
         })}
       </div>
 
-      {/* Navigation Dots */}
+      {/* Dots */}
       <div className="flex justify-center gap-3 mt-4 relative z-20">
         {properties.map((_, index) => (
           <button
