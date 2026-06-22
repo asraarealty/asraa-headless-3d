@@ -25,6 +25,7 @@ export default function PropertyGlobe({
   properties: Property[];
 }) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
 
   const nextSlide = () => {
     setActiveIndex((prev) =>
@@ -38,6 +39,21 @@ export default function PropertyGlobe({
     );
   };
 
+  // Detect mobile safely (SSR-safe)
+  useEffect(() => {
+    const checkScreen = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkScreen();
+    window.addEventListener("resize", checkScreen);
+
+    return () => {
+      window.removeEventListener("resize", checkScreen);
+    };
+  }, []);
+
+  // Auto slider
   useEffect(() => {
     if (!properties?.length) return;
 
@@ -52,10 +68,10 @@ export default function PropertyGlobe({
 
   return (
     <section className="relative bg-black overflow-hidden py-12 md:py-20">
-      {/* Background Stars */}
+      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-      {/* Globe Background */}
+      {/* Ambient Glow */}
       <div className="absolute left-1/2 top-[38%] -translate-x-1/2 w-[900px] h-[300px] rounded-full bg-blue-500/20 blur-[120px]" />
 
       {/* Left Arrow */}
@@ -74,7 +90,7 @@ export default function PropertyGlobe({
         →
       </button>
 
-      {/* Slider */}
+      {/* Cards */}
       <div className="relative h-[500px] md:h-[560px] flex items-center justify-center z-20">
         {properties.map((property, index) => {
           let position = index - activeIndex;
@@ -84,8 +100,9 @@ export default function PropertyGlobe({
 
           if (Math.abs(position) > 3) return null;
 
-          const translateX =
-            window.innerWidth < 768 ? position * 120 : position * 230;
+          const translateX = isMobile
+            ? position * 120
+            : position * 230;
 
           const rotateY = position * -14;
           const scale = position === 0 ? 1.12 : 0.82;
@@ -115,7 +132,7 @@ export default function PropertyGlobe({
               {/* Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
-              {/* Bottom Content */}
+              {/* Card Content */}
               <div className="absolute bottom-4 left-4 right-4">
                 <span className="bg-amber-500 text-black text-xs px-3 py-1 rounded-full font-semibold">
                   Premium
@@ -130,7 +147,7 @@ export default function PropertyGlobe({
         })}
       </div>
 
-      {/* Dots */}
+      {/* Navigation Dots */}
       <div className="flex justify-center gap-3 mt-4 relative z-20">
         {properties.map((_, index) => (
           <button
