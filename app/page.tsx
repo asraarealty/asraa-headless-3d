@@ -83,44 +83,46 @@ export default async function Home() {
 
   return (
     <main className="bg-black text-white overflow-hidden">
-      {/* Premium Hero */}
+      {/* HERO */}
       <Hero />
 
-      {/* Property Globe */}
-      <section className="px-6 md:px-20 py-20">
+      {/* PROPERTY GLOBE */}
+      <section className="px-4 sm:px-6 md:px-12 lg:px-20 py-12 md:py-16">
         <PropertyGlobe properties={properties} />
       </section>
 
-      {/* Broker Feed */}
+      {/* BROKER FEED */}
       {brokerProperties?.length > 0 && (
-        <section className="py-24 px-6 md:px-20 bg-zinc-950">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="text-4xl font-bold">Broker Feed Listings</h2>
+        <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 bg-zinc-950">
+          <div className="flex items-center justify-between mb-8 md:mb-10">
+            <h2 className="text-2xl md:text-4xl font-bold">
+              Broker Feed Listings
+            </h2>
 
             <Link
               href="/projects"
-              className="text-amber-400 border border-amber-500 px-5 py-2 rounded-xl"
+              className="text-sm md:text-base text-amber-400 border border-amber-500 px-4 py-2 rounded-xl"
             >
               View All
             </Link>
           </div>
 
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+          <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4">
             {brokerProperties.map((property) => (
               <div
                 key={property.id}
-                className="min-w-[320px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800 hover:border-amber-500 transition"
+                className="min-w-[260px] md:min-w-[320px] bg-zinc-900 rounded-2xl p-5 md:p-6 border border-zinc-800 hover:border-amber-500 transition"
               >
-                <h3 className="text-xl font-semibold mb-2">
+                <h3 className="text-lg md:text-xl font-semibold mb-2">
                   {property.title}
                 </h3>
 
-                <p className="text-zinc-400">
+                <p className="text-zinc-400 text-sm md:text-base">
                   {property.location || "Mumbai"}
                 </p>
 
                 {property.price && (
-                  <p className="text-amber-400 mt-3 text-lg font-semibold">
+                  <p className="text-amber-400 mt-3 text-base md:text-lg font-semibold">
                     ₹{property.price}
                   </p>
                 )}
@@ -130,71 +132,79 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Locations */}
-      <section className="py-24 px-6 md:px-20">
-        <h2 className="text-4xl font-bold mb-10">Explore By Location</h2>
+      {/* LOCATIONS */}
+      <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20">
+        <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-10">
+          Explore By Location
+        </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {["Mira Road", "Thane", "Kandivali", "Panvel"].map((location) => (
             <div
               key={location}
-              className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition cursor-pointer"
+              className="bg-zinc-900 rounded-2xl p-6 md:p-8 text-center border border-zinc-800 hover:border-amber-500 transition cursor-pointer"
             >
-              <h3 className="text-xl md:text-2xl font-bold">{location}</h3>
+              <h3 className="text-lg md:text-2xl font-bold">
+                {location}
+              </h3>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Top Developers */}
-      <section className="py-24 px-6 md:px-20 bg-zinc-950">
-        <h2 className="text-4xl font-bold mb-10">Top Developers</h2>
+      {/* DEVELOPERS */}
+      <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 bg-zinc-950">
+        <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-10">
+          Top Developers
+        </h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
+        <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
                 key={developer}
-                className="min-w-[260px] bg-zinc-900 rounded-2xl p-8 border border-zinc-800 hover:border-amber-500 transition"
+                className="min-w-[200px] md:min-w-[260px] bg-zinc-900 rounded-2xl p-6 md:p-8 border border-zinc-800 hover:border-amber-500 transition"
               >
-                <h3 className="text-2xl font-semibold">{developer}</h3>
+                <h3 className="text-lg md:text-2xl font-semibold">
+                  {developer}
+                </h3>
               </div>
             )
           )}
         </div>
       </section>
 
-      {/* Commercial CTA */}
-      <section className="py-24 px-8 md:px-20 border-t border-zinc-800">
-        <div className="bg-zinc-900 rounded-3xl p-10 text-center border border-zinc-800">
-          <h2 className="text-4xl font-bold mb-6">
+      {/* COMMERCIAL CTA */}
+      <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 border-t border-zinc-800">
+        <div className="bg-zinc-900 rounded-3xl p-6 md:p-10 text-center border border-zinc-800">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
             Looking for Commercial Spaces?
           </h2>
 
-          <p className="text-zinc-400 mb-8">
+          <p className="text-zinc-400 text-sm md:text-base mb-6 md:mb-8 max-w-2xl mx-auto">
             Offices, Retail, Warehouses, Shops — connect directly with verified
             commercial opportunities.
           </p>
 
           <Link
             href="/commercial"
-            className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
+            className="inline-block bg-amber-500 text-black px-6 md:px-8 py-3 md:py-4 rounded-xl font-semibold"
           >
             Explore Commercial
           </Link>
         </div>
       </section>
 
-      {/* Property Valuation */}
-      <section className="py-20 px-8 md:px-20">
+      {/* PROPERTY VALUATION */}
+      <section className="py-12 md:py-16 px-4 sm:px-6 md:px-12 lg:px-20">
         <div className="text-center">
-          <h2 className="text-4xl font-bold mb-6">
+          <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
             Know Your Property Value
           </h2>
 
           <Link
             href="/valuation"
-            className="border border-amber-500 px-8 py-4 rounded-xl text-amber-400"
+            className="inline-block border border-amber-500 px-6 md:px-8 py-3 md:py-4 rounded-xl text-amber-400 hover:bg-amber-500 hover:text-black transition"
           >
             Get Instant Valuation
           </Link>
