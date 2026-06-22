@@ -8,9 +8,19 @@ type MenuItem = {
   uri: string;
 };
 
+interface GraphQLMenuResponse {
+  data?: {
+    menu?: {
+      menuItems?: {
+        nodes?: MenuItem[];
+      };
+    };
+  };
+}
+
 const fallbackMenu: MenuItem[] = [
   { label: "Home", uri: "/" },
-  { label: "Projects", uri: "/projects" },
+  { label: "/projects", uri: "/projects" },
   { label: "Commercial", uri: "/commercial" },
   { label: "Valuation", uri: "/valuation" },
   { label: "About", uri: "/about" },
@@ -30,9 +40,10 @@ export default function Navbar() {
           headers: {
             "Content-Type": "application/json",
           },
+          cache: "no-store",
           body: JSON.stringify({
             query: `
-              {
+              query GetMenu {
                 menu(id: "Group Home 1", idType: NAME) {
                   menuItems {
                     nodes {
@@ -46,15 +57,25 @@ export default function Navbar() {
           }),
         });
 
-        if (!res.ok) return;
-
-        const json = await res.json();
-        const wpMenu = json?.data?.menu?.menuItems?.nodes;
-
-        if (wpMenu?.length) {
-          setMenu(wpMenu);
+        if (!res.ok) {
+          console.log("GraphQL menu fetch failed");
+          return;
         }
-      } catch (error) {
+
+        const json: GraphQLMenuResponse = await res.json();
+        const wpMenu = json?.data?.menu?.menuItems?.nodes || [];
+
+        if (wpMenu.length > 0) {
+          const normalizedMenu = wpMenu.map((item) => ({
+            label: item.label,
+            uri: item.uri.startsWith("http")
+              ? new URL(item.uri).pathname
+              : item.uri,
+          }));
+
+          setMenu(normalizedMenu);
+        }
+      } catch {
         console.log("Using fallback menu");
       }
     }
@@ -62,9 +83,7 @@ export default function Navbar() {
     fetchMenu();
 
     const handleScroll = () => {
-      if (typeof window !== "undefined") {
-        setScrolled(window.scrollY > 30);
-      }
+      setScrolled(window.scrollY > 30);
     };
 
     handleScroll();
@@ -77,11 +96,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    if (mobileOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
+    document.body.style.overflow = mobileOpen ? "hidden" : "auto";
 
     return () => {
       document.body.style.overflow = "auto";
@@ -98,7 +113,6 @@ export default function Navbar() {
         }`}
       >
         <div className="flex items-center justify-between px-4 md:px-8 py-3 md:py-4">
-          {/* Logo */}
           <Link href="/" className="flex items-center shrink-0">
             <img
               src="/logo.png"
@@ -107,7 +121,6 @@ export default function Navbar() {
             />
           </Link>
 
-          {/* Desktop Menu */}
           <nav className="hidden md:flex items-center gap-8">
             {menu.map((item, index) => (
               <Link
@@ -120,7 +133,6 @@ export default function Navbar() {
             ))}
           </nav>
 
-          {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-4">
             <Link
               href="https://wa.me/919619973211"
@@ -137,7 +149,6 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Mobile Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden text-white text-2xl"
@@ -147,7 +158,6 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Mobile Menu */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 px-6">
           {menu.map((item, index) => (
