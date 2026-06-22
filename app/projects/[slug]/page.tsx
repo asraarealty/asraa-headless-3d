@@ -11,9 +11,9 @@ interface Project {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getProject(slug: string): Promise<Project | null> {
@@ -35,18 +35,29 @@ async function getProject(slug: string): Promise<Project | null> {
 
     return {
       title: property.title?.rendered || "Untitled Project",
-      location: "Mumbai",
-      price: "Price on Request",
+      location:
+        property.acf?.location ||
+        property.meta?.location ||
+        "Mumbai",
+      price:
+        property.acf?.price ||
+        property.meta?.price ||
+        "Price on Request",
       description:
         property.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
-        "Premium real estate development.",
+        "Premium real estate development with strong appreciation potential and curated luxury living.",
       image:
         property._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-        "/hero-building.jpg",
-      possession: "Coming Soon",
-      developer: "Asraa Realty",
+        "/masterplans/project-map.jpg",
+      possession:
+        property.acf?.possession ||
+        "Coming Soon",
+      developer:
+        property.acf?.developer ||
+        "Asraa Realty",
     };
-  } catch {
+  } catch (error) {
+    console.error("Project fetch failed:", error);
     return null;
   }
 }
@@ -54,12 +65,24 @@ async function getProject(slug: string): Promise<Project | null> {
 export default async function ProjectDetailPage({
   params,
 }: PageProps) {
-  const project = await getProject(params.slug);
+  const { slug } = await params;
+  const project = await getProject(slug);
 
   if (!project) {
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        <h1 className="text-4xl font-bold">Project Not Found</h1>
+      <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+        <div className="text-center">
+          <h1 className="text-3xl md:text-5xl font-bold mb-4">
+            Project Not Found
+          </h1>
+
+          <Link
+            href="/projects"
+            className="inline-block mt-4 px-6 py-3 bg-orange-500 text-black rounded-xl font-semibold"
+          >
+            Back to Projects
+          </Link>
+        </div>
       </main>
     );
   }
@@ -71,14 +94,14 @@ export default async function ProjectDetailPage({
         <img
           src={project.image}
           alt={project.title}
-          className="w-full h-full object-cover absolute inset-0"
+          className="absolute inset-0 w-full h-full object-cover"
         />
 
-        <div className="absolute inset-0 bg-black/65" />
+        <div className="absolute inset-0 bg-black/70" />
 
-        <div className="relative z-10 flex items-end min-h-screen px-6 md:px-10 pb-16 md:pb-20 max-w-4xl">
+        <div className="relative z-10 flex items-end min-h-screen px-6 md:px-10 pb-16 md:pb-20 max-w-5xl">
           <div>
-            <p className="uppercase tracking-[0.3em] text-orange-400 mb-4 text-sm">
+            <p className="uppercase tracking-[0.3em] text-orange-400 mb-4 text-xs md:text-sm">
               Premium Project
             </p>
 
@@ -137,19 +160,19 @@ export default async function ProjectDetailPage({
       <section className="max-w-7xl mx-auto px-6 pb-16 md:pb-24">
         <div className="flex flex-wrap gap-4">
           <Link
-            href={`/projects/${params.slug}/masterplan`}
-            className="px-8 py-4 bg-orange-500 text-black rounded-xl font-semibold"
+            href={`/projects/${slug}/masterplan`}
+            className="px-6 md:px-8 py-3 md:py-4 bg-orange-500 text-black rounded-xl font-semibold"
           >
             View Masterplan
           </Link>
 
-          <button className="px-8 py-4 border border-white/20 rounded-xl">
+          <button className="px-6 md:px-8 py-3 md:py-4 border border-white/20 rounded-xl hover:bg-white/10 transition">
             Download Brochure
           </button>
 
           <Link
             href="https://wa.me/919619973211"
-            className="px-8 py-4 border border-white/20 rounded-xl"
+            className="px-6 md:px-8 py-3 md:py-4 border border-white/20 rounded-xl hover:bg-white/10 transition"
           >
             WhatsApp Now
           </Link>
