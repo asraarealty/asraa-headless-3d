@@ -55,14 +55,16 @@ export default function Navbar() {
           setMenu(wpMenu);
         }
       } catch (error) {
-        console.error("Menu fetch failed:", error);
+        console.log("Using fallback menu");
       }
     }
 
     fetchMenu();
 
     const handleScroll = () => {
-      setScrolled(window.scrollY > 30);
+      if (typeof window !== "undefined") {
+        setScrolled(window.scrollY > 30);
+      }
     };
 
     handleScroll();
@@ -74,22 +76,34 @@ export default function Navbar() {
     };
   }, []);
 
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [mobileOpen]);
+
   return (
     <>
       <header
-        className={`fixed top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-7xl rounded-full border transition-all duration-500 ${
+        className={`fixed top-4 md:top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-7xl rounded-full border transition-all duration-500 ${
           scrolled
             ? "bg-black/90 border-white/10 backdrop-blur-2xl shadow-2xl"
             : "bg-white/5 border-white/5 backdrop-blur-xl"
         }`}
       >
-        <div className="flex items-center justify-between px-6 md:px-8 py-4">
+        <div className="flex items-center justify-between px-4 md:px-8 py-3 md:py-4">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center shrink-0">
             <img
               src="/logo.png"
               alt="Asraa Realty"
-              className="h-12 w-auto object-contain"
+              className="h-9 md:h-12 w-auto object-contain"
             />
           </Link>
 
@@ -110,7 +124,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             <Link
               href="https://wa.me/919619973211"
-              className="text-sm text-white border border-white/20 px-5 py-2 rounded-full"
+              className="text-sm text-white border border-white/20 px-5 py-2 rounded-full hover:border-amber-400 transition"
             >
               WhatsApp
             </Link>
@@ -128,29 +142,37 @@ export default function Navbar() {
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden text-white text-2xl"
           >
-            ☰
+            {mobileOpen ? "✕" : "☰"}
           </button>
         </div>
       </header>
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/95 flex flex-col items-center justify-center gap-8">
+        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 px-6">
           {menu.map((item, index) => (
             <Link
               key={index}
               href={item.uri}
               onClick={() => setMobileOpen(false)}
-              className="text-2xl font-semibold"
+              className="text-xl font-semibold text-white hover:text-amber-400 transition"
             >
               {item.label}
             </Link>
           ))}
 
           <Link
+            href="https://wa.me/919619973211"
+            onClick={() => setMobileOpen(false)}
+            className="mt-4 px-8 py-3 border border-white/20 rounded-xl text-white"
+          >
+            WhatsApp
+          </Link>
+
+          <Link
             href="/contact"
             onClick={() => setMobileOpen(false)}
-            className="mt-6 px-8 py-4 bg-amber-500 text-black rounded-xl font-semibold"
+            className="px-8 py-4 bg-amber-500 text-black rounded-xl font-semibold"
           >
             Contact Us
           </Link>
