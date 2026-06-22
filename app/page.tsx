@@ -1,9 +1,29 @@
 import PropertyGlobe from "../components/PropertyGlobe";
+import Hero from "../components/home/Hero";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
-async function getProperties() {
+interface Property {
+  id: string;
+  title: string;
+  slug: string;
+  featuredImage?: {
+    node?: {
+      sourceUrl?: string;
+    };
+  };
+}
+
+interface BrokerProperty {
+  id: string;
+  title: string;
+  location?: string;
+  price?: string;
+}
+
+async function getProperties(): Promise<Property[]> {
   try {
     const res = await fetch("https://asraarealty.com/graphql", {
       method: "POST",
@@ -40,7 +60,7 @@ async function getProperties() {
   }
 }
 
-async function getBrokerProperties() {
+async function getBrokerProperties(): Promise<BrokerProperty[]> {
   try {
     const res = await fetch(
       "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
@@ -63,64 +83,33 @@ export default async function Home() {
 
   return (
     <main className="bg-black text-white overflow-hidden">
-      {/* HERO */}
-      <section className="relative h-screen overflow-hidden">
-        <img
-          src="https://asraarealty.com/wp-content/uploads/2026/06/asraa_optimized_1.webp"
-          alt="Luxury Property"
-          className="absolute inset-0 w-full h-full object-cover opacity-40"
-        />
+      {/* Premium Hero */}
+      <Hero />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black" />
-
-        <div className="absolute inset-0 flex flex-col justify-center px-8 md:px-20 z-20 max-w-4xl">
-          <span className="text-amber-400 uppercase tracking-[0.3em] text-sm mb-4">
-            Premium Real Estate Advisory
-          </span>
-
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
-            Find Luxury Homes <br /> With Precision
-          </h1>
-
-          <p className="text-zinc-300 text-lg md:text-xl mb-8">
-            Verified listings, premium property matching, and market intelligence.
-          </p>
-
-          <div className="flex gap-4 flex-wrap">
-            <a
-              href="/properties"
-              className="bg-amber-500 text-black px-7 py-3 rounded-xl font-semibold"
-            >
-              Browse Projects
-            </a>
-
-            <a
-              href="https://wa.me/919619973211"
-              className="border border-white px-7 py-3 rounded-xl"
-            >
-              WhatsApp Now
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* PROPERTY GLOBE */}
-      <section className="px-6 md:px-20">
+      {/* Property Globe */}
+      <section className="px-6 md:px-20 py-20">
         <PropertyGlobe properties={properties} />
       </section>
 
-      {/* BROKER FEED */}
+      {/* Broker Feed */}
       {brokerProperties?.length > 0 && (
         <section className="py-24 px-6 md:px-20 bg-zinc-950">
-          <h2 className="text-4xl font-bold mb-10">
-            Broker Feed Listings
-          </h2>
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-4xl font-bold">Broker Feed Listings</h2>
+
+            <Link
+              href="/projects"
+              className="text-amber-400 border border-amber-500 px-5 py-2 rounded-xl"
+            >
+              View All
+            </Link>
+          </div>
 
           <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
-            {brokerProperties.map((property: any) => (
+            {brokerProperties.map((property) => (
               <div
                 key={property.id}
-                className="min-w-[300px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800"
+                className="min-w-[320px] bg-zinc-900 rounded-2xl p-6 border border-zinc-800 hover:border-amber-500 transition"
               >
                 <h3 className="text-xl font-semibold mb-2">
                   {property.title}
@@ -131,7 +120,7 @@ export default async function Home() {
                 </p>
 
                 {property.price && (
-                  <p className="text-amber-400 mt-2">
+                  <p className="text-amber-400 mt-3 text-lg font-semibold">
                     ₹{property.price}
                   </p>
                 )}
@@ -141,49 +130,41 @@ export default async function Home() {
         </section>
       )}
 
-      {/* LOCATIONS */}
+      {/* Locations */}
       <section className="py-24 px-6 md:px-20">
-        <h2 className="text-4xl font-bold mb-10">
-          Explore By Location
-        </h2>
+        <h2 className="text-4xl font-bold mb-10">Explore By Location</h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {["Mira Road", "Thane", "Kandivali", "Dubai"].map((location) => (
+          {["Mira Road", "Thane", "Kandivali", "Panvel"].map((location) => (
             <div
               key={location}
-              className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition"
+              className="bg-zinc-900 rounded-2xl p-8 text-center border border-zinc-800 hover:border-amber-500 transition cursor-pointer"
             >
-              <h3 className="text-xl md:text-2xl font-bold">
-                {location}
-              </h3>
+              <h3 className="text-xl md:text-2xl font-bold">{location}</h3>
             </div>
           ))}
         </div>
       </section>
 
-      {/* DEVELOPERS */}
+      {/* Top Developers */}
       <section className="py-24 px-6 md:px-20 bg-zinc-950">
-        <h2 className="text-4xl font-bold mb-10">
-          Top Developers
-        </h2>
+        <h2 className="text-4xl font-bold mb-10">Top Developers</h2>
 
-        <div className="flex gap-6 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-6 overflow-x-auto scrollbar-hide pb-4">
           {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
             (developer) => (
               <div
                 key={developer}
-                className="min-w-[260px] bg-zinc-900 rounded-2xl p-8 border border-zinc-800"
+                className="min-w-[260px] bg-zinc-900 rounded-2xl p-8 border border-zinc-800 hover:border-amber-500 transition"
               >
-                <h3 className="text-2xl font-semibold">
-                  {developer}
-                </h3>
+                <h3 className="text-2xl font-semibold">{developer}</h3>
               </div>
             )
           )}
         </div>
       </section>
 
-      {/* COMMERCIAL CTA */}
+      {/* Commercial CTA */}
       <section className="py-24 px-8 md:px-20 border-t border-zinc-800">
         <div className="bg-zinc-900 rounded-3xl p-10 text-center border border-zinc-800">
           <h2 className="text-4xl font-bold mb-6">
@@ -191,31 +172,32 @@ export default async function Home() {
           </h2>
 
           <p className="text-zinc-400 mb-8">
-            Offices, Retail, Warehouses, Shops — connect directly.
+            Offices, Retail, Warehouses, Shops — connect directly with verified
+            commercial opportunities.
           </p>
 
-          <a
+          <Link
             href="/commercial"
             className="bg-amber-500 text-black px-8 py-4 rounded-xl font-semibold"
           >
             Explore Commercial
-          </a>
+          </Link>
         </div>
       </section>
 
-      {/* PROPERTY VALUATION */}
+      {/* Property Valuation */}
       <section className="py-20 px-8 md:px-20">
         <div className="text-center">
           <h2 className="text-4xl font-bold mb-6">
             Know Your Property Value
           </h2>
 
-          <a
+          <Link
             href="/valuation"
             className="border border-amber-500 px-8 py-4 rounded-xl text-amber-400"
           >
             Get Instant Valuation
-          </a>
+          </Link>
         </div>
       </section>
     </main>
