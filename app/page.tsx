@@ -25,37 +25,34 @@ interface BrokerProperty {
 
 async function getProperties(): Promise<Property[]> {
   try {
-    const res = await fetch("https://asraarealty.com/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      "https://asraarealty.com/wp-json/wp/v2/property?_embed",
+      {
+        next: { revalidate: 60 },
+      }
+    );
+
+    if (!res.ok) {
+      console.log("REST API failed:", res.status);
+      return [];
+    }
+
+    const data = await res.json();
+
+    return data.map((item: any) => ({
+      id: String(item.id),
+      title: item.title?.rendered || "",
+      slug: item.slug || "",
+      featuredImage: {
+        node: {
+          sourceUrl:
+            item._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+            "/masterplans/project-map.jpg",
+        },
       },
-      body: JSON.stringify({
-        query: `
-          {
-            properties {
-              nodes {
-                id
-                title
-                slug
-                featuredImage {
-                  node {
-                    sourceUrl
-                  }
-                }
-              }
-            }
-          }
-        `,
-      }),
-      next: { revalidate: 60 },
-    });
-
-    if (!res.ok) return [];
-
-    const json = await res.json();
-    return json?.data?.properties?.nodes || [];
-  } catch {
+    }));
+  } catch (error) {
+    console.error("Property fetch error:", error);
     return [];
   }
 }
@@ -144,9 +141,7 @@ export default async function Home() {
               key={location}
               className="bg-zinc-900 rounded-2xl p-6 md:p-8 text-center border border-zinc-800 hover:border-amber-500 transition cursor-pointer"
             >
-              <h3 className="text-lg md:text-2xl font-bold">
-                {location}
-              </h3>
+              <h3 className="text-lg md:text-2xl font-bold">{location}</h3>
             </div>
           ))}
         </div>
