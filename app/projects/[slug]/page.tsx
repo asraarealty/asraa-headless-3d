@@ -1,51 +1,60 @@
 import Link from "next/link";
 
-interface ProjectDetailPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+interface Project {
+  title: string;
+  location: string;
+  price: string;
+  description: string;
+  image: string;
+  possession: string;
+  developer: string;
 }
 
-const projectData: Record<
-  string,
-  {
-    title: string;
-    location: string;
-    price: string;
-    description: string;
-    image: string;
-    possession: string;
-    developer: string;
+interface PageProps {
+  params: {
+    slug: string;
+  };
+}
+
+async function getProject(slug: string): Promise<Project | null> {
+  try {
+    const res = await fetch(
+      `https://asraarealty.com/wp-json/wp/v2/property?slug=${slug}&_embed`,
+      {
+        next: { revalidate: 60 },
+      }
+    );
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+
+    if (!data?.length) return null;
+
+    const property = data[0];
+
+    return {
+      title: property.title?.rendered || "Untitled Project",
+      location: "Mumbai",
+      price: "Price on Request",
+      description:
+        property.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
+        "Premium real estate development.",
+      image:
+        property._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
+        "/hero-building.jpg",
+      possession: "Coming Soon",
+      developer: "Asraa Realty",
+    };
+  } catch {
+    return null;
   }
-> = {
-  "godrej-reserve": {
-    title: "Godrej Reserve",
-    location: "Kandivali East, Mumbai",
-    price: "₹1.25 Cr onwards",
-    description:
-      "A premium residential development designed for modern luxury living with world-class amenities, expansive green spaces, and strategic connectivity.",
-    image: "/hero-building.jpg",
-    possession: "Dec 2028",
-    developer: "Godrej Properties",
-  },
-  "asraa-heights": {
-    title: "Asraa Heights",
-    location: "Mira Road, Mumbai",
-    price: "₹89 L onwards",
-    description:
-      "A curated residential destination offering high ROI potential, premium lifestyle amenities, and seamless city connectivity.",
-    image: "/hero-building.jpg",
-    possession: "Ready Possession",
-    developer: "Asraa Realty",
-  },
-};
+}
 
 export default async function ProjectDetailPage({
   params,
-}: ProjectDetailPageProps) {
-  const { slug } = await params;
-
-  const project = projectData[slug];
+}: PageProps) {
+  const project = await getProject(params.slug);
 
   if (!project) {
     return (
@@ -57,66 +66,78 @@ export default async function ProjectDetailPage({
 
   return (
     <main className="min-h-screen bg-black text-white">
-      {/* Hero Section */}
-      <section className="relative h-screen">
+      {/* Hero */}
+      <section className="relative min-h-screen">
         <img
           src={project.image}
           alt={project.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover absolute inset-0"
         />
 
-        <div className="absolute inset-0 bg-black/60" />
+        <div className="absolute inset-0 bg-black/65" />
 
-        <div className="absolute bottom-20 left-10 max-w-3xl">
-          <p className="uppercase tracking-[0.3em] text-orange-400 mb-4">
-            Premium Project
-          </p>
+        <div className="relative z-10 flex items-end min-h-screen px-6 md:px-10 pb-16 md:pb-20 max-w-4xl">
+          <div>
+            <p className="uppercase tracking-[0.3em] text-orange-400 mb-4 text-sm">
+              Premium Project
+            </p>
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight">
-            {project.title}
-          </h1>
+            <h1 className="text-4xl md:text-7xl font-bold leading-tight">
+              {project.title}
+            </h1>
 
-          <p className="text-xl text-gray-300 mt-4">{project.location}</p>
+            <p className="text-lg md:text-xl text-gray-300 mt-4">
+              {project.location}
+            </p>
 
-          <p className="text-2xl text-orange-400 font-semibold mt-6">
-            {project.price}
-          </p>
+            <p className="text-2xl md:text-3xl text-orange-400 font-semibold mt-6">
+              {project.price}
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Overview */}
-      <section className="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-16">
+      <section className="max-w-7xl mx-auto px-6 py-14 md:py-20 grid md:grid-cols-2 gap-10 md:gap-16">
         <div>
-          <h2 className="text-4xl font-bold mb-6">Project Overview</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Project Overview
+          </h2>
 
-          <p className="text-gray-400 leading-relaxed text-lg">
+          <p className="text-gray-400 leading-relaxed text-base md:text-lg">
             {project.description}
           </p>
         </div>
 
-        <div className="space-y-6 bg-white/5 border border-white/10 rounded-2xl p-8">
+        <div className="space-y-6 bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8">
           <div>
             <p className="text-gray-500">Developer</p>
-            <h3 className="text-2xl font-semibold">{project.developer}</h3>
+            <h3 className="text-xl md:text-2xl font-semibold">
+              {project.developer}
+            </h3>
           </div>
 
           <div>
             <p className="text-gray-500">Possession</p>
-            <h3 className="text-2xl font-semibold">{project.possession}</h3>
+            <h3 className="text-xl md:text-2xl font-semibold">
+              {project.possession}
+            </h3>
           </div>
 
           <div>
             <p className="text-gray-500">Starting Price</p>
-            <h3 className="text-2xl font-semibold">{project.price}</h3>
+            <h3 className="text-xl md:text-2xl font-semibold">
+              {project.price}
+            </h3>
           </div>
         </div>
       </section>
 
       {/* CTA */}
-      <section className="max-w-7xl mx-auto px-6 pb-24">
+      <section className="max-w-7xl mx-auto px-6 pb-16 md:pb-24">
         <div className="flex flex-wrap gap-4">
           <Link
-            href={`/projects/${slug}/masterplan`}
+            href={`/projects/${params.slug}/masterplan`}
             className="px-8 py-4 bg-orange-500 text-black rounded-xl font-semibold"
           >
             View Masterplan
@@ -126,9 +147,12 @@ export default async function ProjectDetailPage({
             Download Brochure
           </button>
 
-          <button className="px-8 py-4 border border-white/20 rounded-xl">
+          <Link
+            href="https://wa.me/919619973211"
+            className="px-8 py-4 border border-white/20 rounded-xl"
+          >
             WhatsApp Now
-          </button>
+          </Link>
         </div>
       </section>
     </main>
