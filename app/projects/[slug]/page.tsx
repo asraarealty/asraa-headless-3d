@@ -9,6 +9,7 @@ interface Project {
   image: string;
   possession: string;
   developer: string;
+  brochure?: string;
   gallery: string[];
 }
 
@@ -17,6 +18,9 @@ interface PageProps {
     slug: string;
   };
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 async function getProject(slug: string): Promise<Project | null> {
   try {
@@ -32,20 +36,17 @@ async function getProject(slug: string): Promise<Project | null> {
               title
               content
               excerpt
+              address
+              price
+              possession
+              developerName
+              brochure
               featuredImage {
                 node {
                   sourceUrl
                 }
               }
-              properties {
-                location
-                price
-                possession
-                developer
-                gallery {
-                  sourceUrl
-                }
-              }
+              gallery
             }
           }
         `,
@@ -65,24 +66,23 @@ async function getProject(slug: string): Promise<Project | null> {
       property.featuredImage?.node?.sourceUrl || "/hero-building.jpg";
 
     const galleryImages =
-      property.properties?.gallery?.map(
-        (img: { sourceUrl: string }) => img.sourceUrl
-      ) || [featuredImage];
+      Array.isArray(property.gallery) && property.gallery.length > 0
+        ? property.gallery
+        : [featuredImage];
 
     return {
       title: property.title || "Untitled Project",
-      location: property.properties?.location || "Mumbai",
-      price: property.properties?.price || "Price on Request",
+      location: property.address || "Mumbai",
+      price: property.price || "Price on Request",
       description:
         property.excerpt?.replace(/<[^>]*>/g, "") ||
         "Premium luxury development",
       content:
         property.content || "<p>No project details available.</p>",
       image: featuredImage,
-      possession:
-        property.properties?.possession || "Coming Soon",
-      developer:
-        property.properties?.developer || "Asraa Realty",
+      possession: property.possession || "Coming Soon",
+      developer: property.developerName || "Asraa Realty",
+      brochure: property.brochure || "",
       gallery: galleryImages,
     };
   } catch (error) {
@@ -100,9 +100,7 @@ export default async function ProjectDetailPage({
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">
-            Project Not Found
-          </h1>
+          <h1 className="text-4xl font-bold mb-4">Project Not Found</h1>
 
           <Link
             href="/projects"
@@ -149,26 +147,27 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* GALLERY */}
-      <section className="py-16 px-6 md:px-16">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8">
-          Project Gallery
-        </h2>
+      {project.gallery.length > 0 && (
+        <section className="py-16 px-6 md:px-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8">
+            Project Gallery
+          </h2>
 
-        <div className="flex gap-5 overflow-x-auto scrollbar-hide">
-          {project.gallery.map((img, index) => (
-            <img
-              key={index}
-              src={img}
-              alt={`${project.title}-${index}`}
-              className="min-w-[280px] md:min-w-[520px] h-[220px] md:h-[340px] object-cover rounded-3xl"
-            />
-          ))}
-        </div>
-      </section>
+          <div className="flex gap-5 overflow-x-auto scrollbar-hide">
+            {project.gallery.map((img, index) => (
+              <img
+                key={index}
+                src={img}
+                alt={`${project.title}-${index}`}
+                className="min-w-[280px] md:min-w-[520px] h-[220px] md:h-[340px] object-cover rounded-3xl"
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* DETAILS */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-20 grid md:grid-cols-[2fr_1fr] gap-12">
-        {/* LEFT */}
         <div>
           <h2 className="text-3xl md:text-4xl font-bold mb-8">
             Project Overview
@@ -182,7 +181,6 @@ export default async function ProjectDetailPage({
           />
         </div>
 
-        {/* RIGHT CARD */}
         <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 sticky top-28 h-fit">
           <div className="space-y-8">
             <div>
@@ -209,33 +207,6 @@ export default async function ProjectDetailPage({
         </div>
       </section>
 
-      {/* AMENITIES */}
-      <section className="px-6 md:px-16 pb-20">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8">
-          Amenities
-        </h2>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {[
-            "Swimming Pool",
-            "Gymnasium",
-            "Clubhouse",
-            "Kids Play Area",
-            "Garden",
-            "Parking",
-            "Security",
-            "Sky Deck",
-          ].map((item) => (
-            <div
-              key={item}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 text-center"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="px-6 md:px-16 pb-24">
         <div className="flex flex-wrap gap-4">
@@ -246,9 +217,16 @@ export default async function ProjectDetailPage({
             View Masterplan
           </Link>
 
-          <button className="px-8 py-4 border border-white/20 rounded-xl hover:bg-white/10 transition">
-            Download Brochure
-          </button>
+          {project.brochure && (
+            <a
+              href={project.brochure}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 border border-white/20 rounded-xl hover:bg-white/10 transition"
+            >
+              Download Brochure
+            </a>
+          )}
 
           <Link
             href="https://wa.me/919619973211"
