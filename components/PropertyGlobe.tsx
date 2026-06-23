@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Globe,
   ShieldCheck,
@@ -27,33 +28,24 @@ export default function PropertyGlobe({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  const total = properties?.length || 0;
+  const total = properties.length;
 
   const nextSlide = () => {
     if (!total) return;
-
-    setActiveIndex((prev) =>
-      prev === total - 1 ? 0 : prev + 1
-    );
+    setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
     if (!total) return;
-
-    setActiveIndex((prev) =>
-      prev === 0 ? total - 1 : prev - 1
-    );
+    setActiveIndex((prev) => (prev === 0 ? total - 1 : prev - 1));
   };
 
   useEffect(() => {
     const checkScreen = () => {
-      if (typeof window !== "undefined") {
-        setIsMobile(window.innerWidth < 768);
-      }
+      setIsMobile(window.innerWidth < 768);
     };
 
     checkScreen();
-
     window.addEventListener("resize", checkScreen);
 
     return () => {
@@ -65,25 +57,23 @@ export default function PropertyGlobe({
     if (!total) return;
 
     const interval = setInterval(() => {
-      setActiveIndex((prev) =>
-        prev === total - 1 ? 0 : prev + 1
-      );
+      setActiveIndex((prev) => (prev === total - 1 ? 0 : prev + 1));
     }, 4000);
 
     return () => clearInterval(interval);
   }, [total]);
 
-  if (!properties?.length) return null;
+  if (!properties.length) return null;
 
   return (
-    <section className="relative bg-black overflow-hidden py-12 md:py-20">
-      {/* Background grid */}
+    <section className="relative bg-black overflow-hidden py-14 md:py-24">
+      {/* Grid Background */}
       <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle,#ffffff_1px,transparent_1px)] bg-[size:38px_38px]" />
 
-      {/* Globe glow */}
+      {/* Glow */}
       <div className="absolute left-1/2 top-[40%] -translate-x-1/2 w-[700px] md:w-[1000px] h-[250px] md:h-[350px] rounded-full bg-blue-500/20 blur-[140px]" />
 
-      {/* Left Arrow */}
+      {/* Left */}
       <button
         onClick={prevSlide}
         className="absolute left-2 md:left-8 top-[40%] -translate-y-1/2 z-50 w-12 h-12 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-2xl md:text-3xl flex items-center justify-center bg-black/50 backdrop-blur-md hover:scale-110 transition"
@@ -91,7 +81,7 @@ export default function PropertyGlobe({
         ←
       </button>
 
-      {/* Right Arrow */}
+      {/* Right */}
       <button
         onClick={nextSlide}
         className="absolute right-2 md:right-8 top-[40%] -translate-y-1/2 z-50 w-12 h-12 md:w-16 md:h-16 rounded-full border border-amber-400 text-amber-400 text-2xl md:text-3xl flex items-center justify-center bg-black/50 backdrop-blur-md hover:scale-110 transition"
@@ -100,29 +90,26 @@ export default function PropertyGlobe({
       </button>
 
       {/* Cards */}
-      <div className="relative h-[420px] md:h-[580px] flex items-center justify-center z-20">
+      <div className="relative h-[420px] md:h-[600px] flex items-center justify-center z-20">
         {properties.map((property, index) => {
           let position = index - activeIndex;
 
-          if (position < -3) position += total;
-          if (position > 3) position -= total;
+          if (position < -2) position += total;
+          if (position > 2) position -= total;
 
-          if (Math.abs(position) > 3) return null;
+          if (Math.abs(position) > 2) return null;
 
-          const translateX = isMobile
-            ? position * 110
-            : position * 230;
-
+          const translateX = isMobile ? position * 95 : position * 260;
           const rotateY = position * -12;
-          const scale = position === 0 ? 1.08 : 0.82;
-          const opacity = position === 0 ? 1 : 0.6;
-          const zIndex = 20 - Math.abs(position);
+          const scale = position === 0 ? 1.12 : 0.82;
+          const opacity = position === 0 ? 1 : 0.55;
+          const zIndex = 30 - Math.abs(position);
 
           return (
-            <a
+            <Link
               key={property.id}
               href={`/projects/${property.slug}`}
-              className="absolute w-[190px] h-[280px] md:w-[320px] md:h-[460px] rounded-[24px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700 hover:scale-[1.02]"
+              className="absolute w-[190px] h-[280px] md:w-[340px] md:h-[480px] rounded-[24px] overflow-hidden border border-zinc-800 shadow-2xl transition-all duration-700"
               style={{
                 transform: `translateX(${translateX}px) rotateY(${rotateY}deg) scale(${scale})`,
                 opacity,
@@ -149,13 +136,13 @@ export default function PropertyGlobe({
                   {property.title}
                 </h3>
               </div>
-            </a>
+            </Link>
           );
         })}
       </div>
 
       {/* Dots */}
-      <div className="flex justify-center gap-2 md:gap-3 mt-4 relative z-20">
+      <div className="flex justify-center gap-2 md:gap-3 mt-6 relative z-20">
         {properties.map((_, index) => (
           <button
             key={index}
@@ -170,7 +157,7 @@ export default function PropertyGlobe({
       </div>
 
       {/* Features */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 px-4 md:px-20 mt-12 md:mt-16 relative z-20">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 px-4 md:px-20 mt-14 md:mt-20 relative z-20">
         {[
           {
             icon: Globe,
