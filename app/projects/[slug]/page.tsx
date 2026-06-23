@@ -13,9 +13,9 @@ interface Project {
 }
 
 interface PageProps {
-  params: Promise<{
+  params: {
     slug: string;
-  }>;
+  };
 }
 
 async function getProject(slug: string): Promise<Project | null> {
@@ -49,9 +49,7 @@ async function getProject(slug: string): Promise<Project | null> {
             }
           }
         `,
-        variables: {
-          slug,
-        },
+        variables: { slug },
       }),
       next: { revalidate: 60 },
     });
@@ -63,6 +61,14 @@ async function getProject(slug: string): Promise<Project | null> {
 
     if (!property) return null;
 
+    const featuredImage =
+      property.featuredImage?.node?.sourceUrl || "/hero-building.jpg";
+
+    const galleryImages =
+      property.properties?.gallery?.map(
+        (img: { sourceUrl: string }) => img.sourceUrl
+      ) || [featuredImage];
+
     return {
       title: property.title || "Untitled Project",
       location: property.properties?.location || "Mumbai",
@@ -70,20 +76,17 @@ async function getProject(slug: string): Promise<Project | null> {
       description:
         property.excerpt?.replace(/<[^>]*>/g, "") ||
         "Premium luxury development",
-      content: property.content || "",
-      image:
-        property.featuredImage?.node?.sourceUrl ||
-        "/hero-building.jpg",
+      content:
+        property.content || "<p>No project details available.</p>",
+      image: featuredImage,
       possession:
         property.properties?.possession || "Coming Soon",
       developer:
         property.properties?.developer || "Asraa Realty",
-      gallery:
-        property.properties?.gallery?.map(
-          (img: { sourceUrl: string }) => img.sourceUrl
-        ) || [],
+      gallery: galleryImages,
     };
-  } catch {
+  } catch (error) {
+    console.error("Project fetch failed:", error);
     return null;
   }
 }
@@ -91,13 +94,23 @@ async function getProject(slug: string): Promise<Project | null> {
 export default async function ProjectDetailPage({
   params,
 }: PageProps) {
-  const { slug } = await params;
-  const project = await getProject(slug);
+  const project = await getProject(params.slug);
 
   if (!project) {
     return (
-      <main className="min-h-screen bg-black text-white flex items-center justify-center">
-        Project Not Found
+      <main className="min-h-screen bg-black text-white flex items-center justify-center px-6">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">
+            Project Not Found
+          </h1>
+
+          <Link
+            href="/projects"
+            className="px-6 py-3 bg-orange-500 text-black rounded-xl font-semibold"
+          >
+            Back to Projects
+          </Link>
+        </div>
       </main>
     );
   }
@@ -105,7 +118,7 @@ export default async function ProjectDetailPage({
   return (
     <main className="bg-black text-white">
       {/* HERO */}
-      <section className="relative h-screen overflow-hidden">
+      <section className="relative min-h-screen overflow-hidden">
         <img
           src={project.image}
           alt={project.title}
@@ -114,9 +127,9 @@ export default async function ProjectDetailPage({
 
         <div className="absolute inset-0 bg-black/70" />
 
-        <div className="relative z-10 flex items-end h-full px-6 md:px-16 pb-20 max-w-6xl">
+        <div className="relative z-10 flex items-end min-h-screen px-6 md:px-16 pb-20 max-w-6xl">
           <div>
-            <p className="uppercase tracking-[0.35em] text-orange-400 text-sm mb-4">
+            <p className="uppercase tracking-[0.35em] text-orange-400 text-xs md:text-sm mb-4">
               Premium Project
             </p>
 
@@ -124,11 +137,11 @@ export default async function ProjectDetailPage({
               {project.title}
             </h1>
 
-            <p className="mt-4 text-xl text-gray-300">
+            <p className="mt-4 text-lg md:text-xl text-gray-300">
               {project.location}
             </p>
 
-            <p className="mt-6 text-3xl text-orange-400 font-semibold">
+            <p className="mt-6 text-2xl md:text-3xl text-orange-400 font-semibold">
               {project.price}
             </p>
           </div>
@@ -136,61 +149,59 @@ export default async function ProjectDetailPage({
       </section>
 
       {/* GALLERY */}
-      {project.gallery.length > 0 && (
-        <section className="py-16 px-6 md:px-16">
-          <h2 className="text-4xl font-bold mb-8">
-            Project Gallery
-          </h2>
+      <section className="py-16 px-6 md:px-16">
+        <h2 className="text-3xl md:text-4xl font-bold mb-8">
+          Project Gallery
+        </h2>
 
-          <div className="flex gap-6 overflow-x-auto scrollbar-hide">
-            {project.gallery.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`${project.title}-${index}`}
-                className="min-w-[320px] md:min-w-[520px] h-[220px] md:h-[340px] object-cover rounded-3xl"
-              />
-            ))}
-          </div>
-        </section>
-      )}
+        <div className="flex gap-5 overflow-x-auto scrollbar-hide">
+          {project.gallery.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`${project.title}-${index}`}
+              className="min-w-[280px] md:min-w-[520px] h-[220px] md:h-[340px] object-cover rounded-3xl"
+            />
+          ))}
+        </div>
+      </section>
 
       {/* DETAILS */}
       <section className="max-w-7xl mx-auto px-6 md:px-16 py-20 grid md:grid-cols-[2fr_1fr] gap-12">
-        {/* LEFT CONTENT */}
+        {/* LEFT */}
         <div>
-          <h2 className="text-4xl font-bold mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold mb-8">
             Project Overview
           </h2>
 
           <div
-            className="text-gray-400 leading-relaxed text-lg space-y-6"
+            className="prose prose-invert max-w-none text-gray-300"
             dangerouslySetInnerHTML={{
               __html: project.content,
             }}
           />
         </div>
 
-        {/* RIGHT INFO CARD */}
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 sticky top-24 h-fit">
+        {/* RIGHT CARD */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 sticky top-28 h-fit">
           <div className="space-y-8">
             <div>
               <p className="text-zinc-500">Developer</p>
-              <h3 className="text-2xl font-semibold">
+              <h3 className="text-xl md:text-2xl font-semibold">
                 {project.developer}
               </h3>
             </div>
 
             <div>
               <p className="text-zinc-500">Possession</p>
-              <h3 className="text-2xl font-semibold">
+              <h3 className="text-xl md:text-2xl font-semibold">
                 {project.possession}
               </h3>
             </div>
 
             <div>
               <p className="text-zinc-500">Starting Price</p>
-              <h3 className="text-2xl font-semibold text-orange-400">
+              <h3 className="text-xl md:text-2xl font-semibold text-orange-400">
                 {project.price}
               </h3>
             </div>
@@ -200,11 +211,11 @@ export default async function ProjectDetailPage({
 
       {/* AMENITIES */}
       <section className="px-6 md:px-16 pb-20">
-        <h2 className="text-4xl font-bold mb-8">
+        <h2 className="text-3xl md:text-4xl font-bold mb-8">
           Amenities
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {[
             "Swimming Pool",
             "Gymnasium",
@@ -217,7 +228,7 @@ export default async function ProjectDetailPage({
           ].map((item) => (
             <div
               key={item}
-              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-center"
+              className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 text-center"
             >
               {item}
             </div>
@@ -229,19 +240,19 @@ export default async function ProjectDetailPage({
       <section className="px-6 md:px-16 pb-24">
         <div className="flex flex-wrap gap-4">
           <Link
-            href={`/projects/${slug}/masterplan`}
+            href={`/projects/${params.slug}/masterplan`}
             className="px-8 py-4 bg-orange-500 text-black rounded-xl font-semibold"
           >
             View Masterplan
           </Link>
 
-          <button className="px-8 py-4 border border-white/20 rounded-xl">
+          <button className="px-8 py-4 border border-white/20 rounded-xl hover:bg-white/10 transition">
             Download Brochure
           </button>
 
           <Link
             href="https://wa.me/919619973211"
-            className="px-8 py-4 border border-white/20 rounded-xl"
+            className="px-8 py-4 border border-white/20 rounded-xl hover:bg-white/10 transition"
           >
             WhatsApp Now
           </Link>
