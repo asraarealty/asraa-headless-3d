@@ -20,12 +20,34 @@ interface GraphQLMenuResponse {
 
 const fallbackMenu: MenuItem[] = [
   { label: "Home", uri: "/" },
-  { label: "/projects", uri: "/projects" },
+  { label: "Projects", uri: "/projects" },
   { label: "Commercial", uri: "/commercial" },
   { label: "Valuation", uri: "/valuation" },
   { label: "About", uri: "/about" },
   { label: "Contact", uri: "/contact" },
 ];
+
+function normalizeUri(uri: string) {
+  if (!uri) return "/";
+
+  if (uri.startsWith("http")) {
+    const pathname = new URL(uri).pathname;
+
+    if (pathname.startsWith("/property/")) {
+      const slug = pathname.replace("/property/", "").replace(/\/$/, "");
+      return `/projects/${slug}`;
+    }
+
+    return pathname;
+  }
+
+  if (uri.startsWith("/property/")) {
+    const slug = uri.replace("/property/", "").replace(/\/$/, "");
+    return `/projects/${slug}`;
+  }
+
+  return uri;
+}
 
 export default function Navbar() {
   const [menu, setMenu] = useState<MenuItem[]>(fallbackMenu);
@@ -68,15 +90,13 @@ export default function Navbar() {
         if (wpMenu.length > 0) {
           const normalizedMenu = wpMenu.map((item) => ({
             label: item.label,
-            uri: item.uri.startsWith("http")
-              ? new URL(item.uri).pathname
-              : item.uri,
+            uri: normalizeUri(item.uri),
           }));
 
           setMenu(normalizedMenu);
         }
-      } catch {
-        console.log("Using fallback menu");
+      } catch (error) {
+        console.log("Using fallback menu", error);
       }
     }
 
@@ -136,6 +156,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-4">
             <Link
               href="https://wa.me/919619973211"
+              target="_blank"
               className="text-sm text-white border border-white/20 px-5 py-2 rounded-full hover:border-amber-400 transition"
             >
               WhatsApp
@@ -152,6 +173,7 @@ export default function Navbar() {
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="md:hidden text-white text-2xl"
+            aria-label="Toggle Menu"
           >
             {mobileOpen ? "✕" : "☰"}
           </button>
@@ -173,6 +195,7 @@ export default function Navbar() {
 
           <Link
             href="https://wa.me/919619973211"
+            target="_blank"
             onClick={() => setMobileOpen(false)}
             className="mt-4 px-8 py-3 border border-white/20 rounded-xl text-white"
           >
