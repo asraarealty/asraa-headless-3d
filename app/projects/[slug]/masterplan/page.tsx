@@ -1,67 +1,138 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-const towers = [
-  {
-    id: "tower-a",
-    name: "Tower A",
-    floors: 22,
-    status: "Available",
-  },
-  {
-    id: "tower-b",
-    name: "Tower B",
-    floors: 18,
-    status: "Limited",
-  },
-  {
-    id: "tower-c",
-    name: "Tower C",
-    floors: 25,
-    status: "Available",
-  },
-];
+interface Tower {
+  id: string;
+  name: string;
+  floors: number;
+  status: string;
+  image?: string;
+}
 
-const units = {
-  "tower-a": [
-    {
-      unit: "A-1201",
-      type: "2 BHK",
-      area: "725 sqft",
-      price: "₹1.45 Cr",
-      status: "Available",
-    },
-    {
-      unit: "A-1202",
-      type: "3 BHK",
-      area: "1100 sqft",
-      price: "₹2.10 Cr",
-      status: "Reserved",
-    },
-  ],
-  "tower-b": [
-    {
-      unit: "B-903",
-      type: "2 BHK",
-      area: "680 sqft",
-      price: "₹1.25 Cr",
-      status: "Available",
-    },
-  ],
-  "tower-c": [
-    {
-      unit: "C-1501",
-      type: "4 BHK",
-      area: "1600 sqft",
-      price: "₹3.25 Cr",
-      status: "Available",
-    },
-  ],
-};
+interface Unit {
+  unit: string;
+  type: string;
+  area: string;
+  price: string;
+  status: string;
+}
 
 export default function MasterplanPage() {
-  const [selectedTower, setSelectedTower] = useState("tower-a");
+  const params = useParams();
+  const slug = params.slug as string;
+
+  const [towers, setTowers] = useState<Tower[]>([]);
+  const [units, setUnits] = useState<Record<string, Unit[]>>({});
+  const [selectedTower, setSelectedTower] = useState<string>("");
+  const [projectImage, setProjectImage] = useState("/hero-building.jpg");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchMasterplan() {
+      try {
+        const res = await fetch("https://asraarealty.com/graphql", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: `
+              query GetProject($slug: ID!) {
+                property(id: $slug, idType: SLUG) {
+                  title
+                  featuredImage {
+                    node {
+                      sourceUrl
+                    }
+                  }
+                  towers {
+                    nodes {
+                      id
+                      title
+                      towerMeta {
+                        floors
+                        status
+                      }
+                      units {
+                        nodes {
+                          title
+                          unitMeta {
+                            type
+                            area
+                            price
+                            status
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: {
+              slug,
+            },
+          }),
+        });
+
+        const json = await res.json();
+        const property = json?.data?.property;
+
+        if (!property) return;
+
+        setProjectImage(
+          property.featuredImage?.node?.sourceUrl || "/hero-building.jpg"
+        );
+
+        const towerData =
+          property.towers?.nodes?.map((tower: any) => ({
+            id: tower.id,
+            name: tower.title,
+            floors: tower.towerMeta?.floors || 0,
+            status: tower.towerMeta?.status || "Available",
+          })) || [];
+
+        setTowers(towerData);
+
+        if (towerData.length > 0) {
+          setSelectedTower(towerData[0].id);
+        }
+
+        const unitMap: Record<string, Unit[]> = {};
+
+        property.towers?.nodes?.forEach((tower: any) => {
+          unitMap[tower.id] =
+            tower.units?.nodes?.map((unit: any) => ({
+              unit: unit.title,
+              type: unit.unitMeta?.type || "N/A",
+              area: unit.unitMeta?.area || "N/A",
+              price: unit.unitMeta?.price || "Price on Request",
+              status: unit.unitMeta?.status || "Available",
+            })) || [];
+        });
+
+        setUnits(unitMap);
+      } catch (error) {
+        console.error("Masterplan fetch failed:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (slug) {
+      fetchMasterplan();
+    }
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black text-white flex items-center justify-center">
+        Loading Masterplan...
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-20">
@@ -77,36 +148,30 @@ export default function MasterplanPage() {
           </h1>
 
           <p className="text-gray-400 mt-4 max-w-2xl">
-            Select a tower, explore floors, and check unit inventory in real
-            time.
+            Select a tower and explore live inventory.
           </p>
         </div>
 
-        {/* Masterplan Section */}
         <div className="grid lg:grid-cols-3 gap-10">
-          {/* Left - Masterplan Image */}
+          {/* Left Masterplan */}
           <div className="lg:col-span-2 relative rounded-2xl overflow-hidden border border-white/10">
             <img
-              src="/hero-building.jpg"
+              src={projectImage}
               alt="Masterplan"
               className="w-full h-[700px] object-cover"
             />
 
-            {/* Hotspots */}
-            <button
-              onClick={() => setSelectedTower("tower-a")}
-              className="absolute top-[35%] left-[25%] w-6 h-6 rounded-full bg-orange-500 border-2 border-white"
-            />
-
-            <button
-              onClick={() => setSelectedTower("tower-b")}
-              className="absolute top-[48%] left-[55%] w-6 h-6 rounded-full bg-orange-500 border-2 border-white"
-            />
-
-            <button
-              onClick={() => setSelectedTower("tower-c")}
-              className="absolute top-[65%] left-[72%] w-6 h-6 rounded-full bg-orange-500 border-2 border-white"
-            />
+            {towers.map((tower, index) => (
+              <button
+                key={tower.id}
+                onClick={() => setSelectedTower(tower.id)}
+                className="absolute w-6 h-6 rounded-full bg-orange-500 border-2 border-white animate-pulse"
+                style={{
+                  top: `${30 + index * 18}%`,
+                  left: `${25 + index * 20}%`,
+                }}
+              />
+            ))}
           </div>
 
           {/* Right Panel */}
@@ -140,7 +205,7 @@ export default function MasterplanPage() {
               <h2 className="text-2xl font-bold mb-6">Available Units</h2>
 
               <div className="space-y-4">
-                {units[selectedTower as keyof typeof units].map((unit, index) => (
+                {(units[selectedTower] || []).map((unit, index) => (
                   <div
                     key={index}
                     className="border border-white/10 rounded-xl p-4"
