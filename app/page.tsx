@@ -3,7 +3,7 @@ import Hero from "../components/home/Hero";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 60;
+export const revalidate = 120;
 
 interface Property {
   id: string;
@@ -39,14 +39,14 @@ interface WPProperty {
 async function getProperties(): Promise<Property[]> {
   try {
     const res = await fetch(
-      "https://asraarealty.com/wp-json/wp/v2/property?_embed",
+      "https://asraarealty.com/wp-json/wp/v2/property?_embed&per_page=12",
       {
-        next: { revalidate: 60 },
+        next: { revalidate: 120 },
       }
     );
 
     if (!res.ok) {
-      console.log("REST API failed:", res.status);
+      console.error("Property fetch failed:", res.status);
       return [];
     }
 
@@ -60,7 +60,7 @@ async function getProperties(): Promise<Property[]> {
         node: {
           sourceUrl:
             item._embedded?.["wp:featuredmedia"]?.[0]?.source_url ||
-            "/masterplans/project-map.jpg",
+            "/fallback-property.jpg",
         },
       },
     }));
@@ -75,31 +75,44 @@ async function getBrokerProperties(): Promise<BrokerProperty[]> {
     const res = await fetch(
       "https://asraarealty.com/wp-json/asraa/v1/broker-properties",
       {
-        next: { revalidate: 60 },
+        next: { revalidate: 120 },
       }
     );
 
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error("Broker feed failed");
+      return [];
+    }
 
-    const data: BrokerProperty[] = await res.json();
-    return data;
-  } catch {
+    return await res.json();
+  } catch (error) {
+    console.error("Broker feed error:", error);
     return [];
   }
 }
 
+const locations = ["Mira Road", "Thane", "Kandivali", "Panvel"];
+const developers = ["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"];
+
 export default async function Home() {
-  const properties = await getProperties();
-  const brokerProperties = await getBrokerProperties();
+  const [properties, brokerProperties] = await Promise.all([
+    getProperties(),
+    getBrokerProperties(),
+  ]);
 
   return (
     <main className="bg-black text-white overflow-hidden">
+      {/* Hero */}
       <Hero />
 
-      <section className="px-4 sm:px-6 md:px-12 lg:px-20 py-12 md:py-16">
-        <PropertyGlobe properties={properties} />
-      </section>
+      {/* Property Globe */}
+      {properties.length > 0 && (
+        <section className="px-4 sm:px-6 md:px-12 lg:px-20 py-12 md:py-16">
+          <PropertyGlobe properties={properties} />
+        </section>
+      )}
 
+      {/* Broker Feed */}
       {brokerProperties.length > 0 && (
         <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 bg-zinc-950">
           <div className="flex items-center justify-between mb-8 md:mb-10">
@@ -140,44 +153,46 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Explore by Location */}
       <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20">
         <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-10">
           Explore By Location
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-          {["Mira Road", "Thane", "Kandivali", "Panvel"].map((location) => (
-            <div
+          {locations.map((location) => (
+            <Link
               key={location}
-              className="bg-zinc-900 rounded-2xl p-6 md:p-8 text-center border border-zinc-800 hover:border-amber-500 transition cursor-pointer"
+              href={`/location/${location.toLowerCase().replace(/\s+/g, "-")}`}
+              className="bg-zinc-900 rounded-2xl p-6 md:p-8 text-center border border-zinc-800 hover:border-amber-500 transition"
             >
               <h3 className="text-lg md:text-2xl font-bold">{location}</h3>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
 
+      {/* Developers */}
       <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 bg-zinc-950">
         <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-10">
           Top Developers
         </h2>
 
         <div className="flex gap-4 md:gap-6 overflow-x-auto scrollbar-hide pb-4">
-          {["Godrej", "Lodha", "Runwal", "Shapoorji", "Danube"].map(
-            (developer) => (
-              <div
-                key={developer}
-                className="min-w-[200px] md:min-w-[260px] bg-zinc-900 rounded-2xl p-6 md:p-8 border border-zinc-800 hover:border-amber-500 transition"
-              >
-                <h3 className="text-lg md:text-2xl font-semibold">
-                  {developer}
-                </h3>
-              </div>
-            )
-          )}
+          {developers.map((developer) => (
+            <div
+              key={developer}
+              className="min-w-[200px] md:min-w-[260px] bg-zinc-900 rounded-2xl p-6 md:p-8 border border-zinc-800 hover:border-amber-500 transition"
+            >
+              <h3 className="text-lg md:text-2xl font-semibold">
+                {developer}
+              </h3>
+            </div>
+          ))}
         </div>
       </section>
 
+      {/* Commercial CTA */}
       <section className="py-14 md:py-18 px-4 sm:px-6 md:px-12 lg:px-20 border-t border-zinc-800">
         <div className="bg-zinc-900 rounded-3xl p-6 md:p-10 text-center border border-zinc-800">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
@@ -198,6 +213,7 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* Valuation CTA */}
       <section className="py-12 md:py-16 px-4 sm:px-6 md:px-12 lg:px-20">
         <div className="text-center">
           <h2 className="text-2xl md:text-4xl font-bold mb-4 md:mb-6">
