@@ -49,6 +49,18 @@ async function getProject(slug: string): Promise<Project | null> {
         ? property.gallery
         : [featuredImage];
 
+    // Strip the "Easy Table of Contents" plugin block WordPress injects at
+    // the top of post content - it's styled by the WP theme's own CSS,
+    // which this headless site doesn't load, so it renders as an ugly,
+    // unstyled nested list here instead of a real table of contents.
+    const rawContent: string =
+      property.content?.rendered || "<p>No project details available.</p>";
+
+    const content = rawContent.replace(
+      /<div id="ez-toc-container"[\s\S]*?<\/nav>\s*<\/div>/i,
+      ""
+    );
+
     return {
       title: property.title?.rendered || "Untitled Project",
       location: property.address || "Mumbai",
@@ -56,8 +68,7 @@ async function getProject(slug: string): Promise<Project | null> {
       description:
         property.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
         "Premium luxury development",
-      content:
-        property.content?.rendered || "<p>No project details available.</p>",
+      content,
       image: featuredImage,
       possession: property.possession || "Coming Soon",
       developer: property.developerName || "Asraa Realty",
@@ -117,7 +128,16 @@ export default async function ProjectDetailPage({
           </h2>
 
           <div
-            className="prose prose-invert prose-lg max-w-none text-gray-300"
+            className="text-gray-300 text-base md:text-lg leading-relaxed
+              [&_h2]:text-white [&_h2]:text-2xl [&_h2]:md:text-3xl [&_h2]:font-semibold [&_h2]:mt-12 [&_h2]:mb-5 [&_h2]:first:mt-0
+              [&_h3]:text-white [&_h3]:text-xl [&_h3]:md:text-2xl [&_h3]:font-semibold [&_h3]:mt-10 [&_h3]:mb-4
+              [&_h4]:text-white [&_h4]:text-lg [&_h4]:md:text-xl [&_h4]:font-semibold [&_h4]:mt-8 [&_h4]:mb-3
+              [&_h5]:text-white [&_h5]:text-base [&_h5]:md:text-lg [&_h5]:font-semibold [&_h5]:mt-6 [&_h5]:mb-2
+              [&_p]:mb-5
+              [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-5 [&_ul]:space-y-2
+              [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-5 [&_ol]:space-y-2
+              [&_a]:text-amber-400 [&_a]:underline [&_a]:underline-offset-2 [&_a:hover]:text-amber-300
+              [&_strong]:text-white [&_strong]:font-semibold"
             dangerouslySetInnerHTML={{
               __html: project.content,
             }}

@@ -13,32 +13,42 @@ type MenuItem = {
 const fallbackMenu: MenuItem[] = [
   { label: "Home", uri: "/" },
   { label: "Projects", uri: "/projects" },
-  { label: "Commercial", uri: "/commercial" },
-  { label: "Valuation", uri: "/valuation" },
-  { label: "About", uri: "/about" },
-  { label: "Contact", uri: "/contact" },
+  { label: "Commercial", uri: "https://asraarealty.com/property-type/commercial/" },
+  { label: "Valuation", uri: "https://asraarealty.com/property-valuation/" },
+  { label: "About", uri: "https://asraarealty.com/real-estate-agents-mira-road/" },
+  { label: "Contact", uri: "https://asraarealty.com/contact/" },
 ];
 
-function normalizeUri(uri: string) {
+// Only /property/{slug} has a real page on this headless site (the
+// property detail route). Everything else in the WordPress menu -
+// listing/archive pages, blog, contact, valuation, etc. - doesn't exist
+// here yet, so it's left as the full live WordPress URL rather than
+// rewritten into a path that would 404 on this app.
+function normalizeUri(uri: string): string {
   if (!uri) return "/";
 
-  if (uri.startsWith("http")) {
-    const pathname = new URL(uri).pathname;
+  const isAbsolute = uri.startsWith("http");
 
-    if (pathname.startsWith("/property/")) {
-      const slug = pathname.replace("/property/", "").replace(/\/$/, "");
-      return `/projects/${slug}`;
+  let pathname = uri;
+
+  if (isAbsolute) {
+    try {
+      pathname = new URL(uri).pathname;
+    } catch {
+      return uri;
     }
-
-    return pathname;
   }
 
-  if (uri.startsWith("/property/")) {
-    const slug = uri.replace("/property/", "").replace(/\/$/, "");
+  if (pathname === "/" || pathname === "") {
+    return "/";
+  }
+
+  if (pathname.startsWith("/property/")) {
+    const slug = pathname.replace("/property/", "").replace(/\/$/, "");
     return `/projects/${slug}`;
   }
 
-  return uri;
+  return isAbsolute ? uri : `https://asraarealty.com${pathname}`;
 }
 
 function normalizeMenu(items: MenuItem[]): MenuItem[] {
@@ -101,21 +111,23 @@ export default function Navbar() {
     };
   }, [mobileOpen]);
 
+  const linkColor = scrolled
+    ? "text-neutral-700 hover:text-amber-600"
+    : "text-white hover:text-amber-300";
+
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 border-b transition-all duration-500 ${
-          scrolled
-            ? "bg-black/95 border-white/10 backdrop-blur-2xl shadow-lg"
-            : "bg-black/20 border-white/0 backdrop-blur-md"
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+          scrolled ? "bg-white shadow-md" : "bg-transparent"
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 py-4 md:py-5">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 py-2.5 md:py-3">
           <Link href="/" className="flex items-center shrink-0">
             <img
               src="/logo.png"
               alt="Asraa Realty"
-              className="h-8 md:h-10 w-auto object-contain"
+              className="h-8 md:h-9 w-auto object-contain"
             />
           </Link>
 
@@ -123,24 +135,24 @@ export default function Navbar() {
             {menu.map((item, index) =>
               item.children?.length ? (
                 <div key={index} className="relative group">
-                  <button
-                    className="flex items-center gap-1 px-4 py-2 text-sm uppercase tracking-[0.15em] text-white/90 hover:text-amber-400 transition duration-300"
-                    type="button"
+                  <Link
+                    href={item.uri}
+                    className={`flex items-center gap-1 px-3 py-2 text-sm uppercase tracking-[0.1em] transition duration-300 ${linkColor}`}
                   >
                     {item.label}
                     <ChevronDown
                       size={14}
                       className="transition-transform duration-300 group-hover:rotate-180"
                     />
-                  </button>
+                  </Link>
 
                   <div className="absolute left-1/2 -translate-x-1/2 pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-300 ease-out">
-                    <div className="min-w-[220px] rounded-2xl border border-white/10 bg-black/95 backdrop-blur-2xl shadow-2xl overflow-hidden py-2">
+                    <div className="min-w-[220px] rounded-xl border border-black/5 bg-white shadow-xl overflow-hidden py-2">
                       {item.children.map((child, childIndex) => (
                         <Link
                           key={childIndex}
                           href={child.uri}
-                          className="block px-5 py-2.5 text-sm text-white/80 hover:text-amber-400 hover:bg-white/5 transition duration-200"
+                          className="block px-5 py-2.5 text-sm text-neutral-700 hover:text-amber-600 hover:bg-neutral-50 transition duration-200"
                         >
                           {child.label}
                         </Link>
@@ -152,7 +164,7 @@ export default function Navbar() {
                 <Link
                   key={index}
                   href={item.uri}
-                  className="relative px-4 py-2 text-sm uppercase tracking-[0.15em] text-white/90 hover:text-amber-400 transition duration-300 after:content-[''] after:absolute after:left-4 after:right-4 after:-bottom-0.5 after:h-px after:bg-amber-400 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300"
+                  className={`px-3 py-2 text-sm uppercase tracking-[0.1em] transition duration-300 ${linkColor}`}
                 >
                   {item.label}
                 </Link>
@@ -164,14 +176,18 @@ export default function Navbar() {
             <Link
               href="https://wa.me/919619973211"
               target="_blank"
-              className="text-sm text-white border border-white/20 px-5 py-2 rounded-full hover:border-amber-400 hover:text-amber-400 transition duration-300"
+              className={`text-sm px-5 py-2 rounded-full border transition duration-300 ${
+                scrolled
+                  ? "border-neutral-300 text-neutral-700 hover:border-amber-500 hover:text-amber-600"
+                  : "border-white/40 text-white hover:border-amber-300 hover:text-amber-300"
+              }`}
             >
               WhatsApp
             </Link>
 
             <Link
-              href="/contact"
-              className="rounded-full bg-amber-500 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.15em] text-black transition duration-300 hover:bg-amber-400 hover:scale-105"
+              href="https://asraarealty.com/contact/"
+              className="rounded-full bg-amber-500 px-6 py-2.5 text-sm font-semibold uppercase tracking-[0.1em] text-black transition duration-300 hover:bg-amber-400"
             >
               Contact
             </Link>
@@ -179,7 +195,7 @@ export default function Navbar() {
 
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-white text-2xl"
+            className={`md:hidden text-2xl ${scrolled ? "text-neutral-800" : "text-white"}`}
             aria-label="Toggle Menu"
           >
             {mobileOpen ? "✕" : "☰"}
@@ -188,7 +204,7 @@ export default function Navbar() {
       </header>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-2 px-6 overflow-y-auto py-24">
+        <div className="fixed inset-0 z-40 bg-white flex flex-col items-center justify-center gap-2 px-6 overflow-y-auto py-24">
           {menu.map((item, index) =>
             item.children?.length ? (
               <div key={index} className="w-full max-w-xs text-center">
@@ -199,7 +215,7 @@ export default function Navbar() {
                       mobileExpanded === item.label ? null : item.label
                     )
                   }
-                  className="flex items-center justify-center gap-2 w-full py-3 text-xl font-semibold text-white hover:text-amber-400 transition"
+                  className="flex items-center justify-center gap-2 w-full py-3 text-xl font-semibold text-neutral-900 hover:text-amber-600 transition"
                 >
                   {item.label}
                   <ChevronDown
@@ -210,6 +226,14 @@ export default function Navbar() {
                   />
                 </button>
 
+                <Link
+                  href={item.uri}
+                  onClick={() => setMobileOpen(false)}
+                  className="block text-sm text-amber-600 pb-2"
+                >
+                  Go to {item.label}
+                </Link>
+
                 {mobileExpanded === item.label && (
                   <div className="flex flex-col items-center gap-1 pb-2">
                     {item.children.map((child, childIndex) => (
@@ -217,7 +241,7 @@ export default function Navbar() {
                         key={childIndex}
                         href={child.uri}
                         onClick={() => setMobileOpen(false)}
-                        className="py-2 text-base text-white/70 hover:text-amber-400 transition"
+                        className="py-2 text-base text-neutral-600 hover:text-amber-600 transition"
                       >
                         {child.label}
                       </Link>
@@ -230,7 +254,7 @@ export default function Navbar() {
                 key={index}
                 href={item.uri}
                 onClick={() => setMobileOpen(false)}
-                className="py-3 text-xl font-semibold text-white hover:text-amber-400 transition"
+                className="py-3 text-xl font-semibold text-neutral-900 hover:text-amber-600 transition"
               >
                 {item.label}
               </Link>
@@ -241,13 +265,13 @@ export default function Navbar() {
             href="https://wa.me/919619973211"
             target="_blank"
             onClick={() => setMobileOpen(false)}
-            className="mt-4 px-8 py-3 border border-white/20 rounded-xl text-white"
+            className="mt-4 px-8 py-3 border border-neutral-300 rounded-xl text-neutral-800"
           >
             WhatsApp
           </Link>
 
           <Link
-            href="/contact"
+            href="https://asraarealty.com/contact/"
             onClick={() => setMobileOpen(false)}
             className="px-8 py-4 bg-amber-500 text-black rounded-xl font-semibold"
           >
