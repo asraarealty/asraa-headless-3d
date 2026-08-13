@@ -1,4 +1,8 @@
 import Link from "next/link";
+import ProjectHero from "../../../components/project/ProjectHero";
+import ProjectStats from "../../../components/project/ProjectStats";
+import ProjectGallery from "../../../components/project/ProjectGallery";
+import FadeIn from "../../../components/animations/FadeIn";
 
 interface Project {
   title: string;
@@ -91,126 +95,66 @@ export default async function ProjectDetailPage({
 
   return (
     <main className="bg-black text-white">
-      {/* HERO */}
-      <section className="relative min-h-screen overflow-hidden">
-        <img
-          src={project.image}
-          alt={project.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+      <ProjectHero
+        title={project.title}
+        location={project.location}
+        price={project.price}
+        image={project.image}
+      />
 
-        <div className="absolute inset-0 bg-black/70" />
+      <ProjectStats
+        price={project.price}
+        possession={project.possession}
+        developer={project.developer}
+      />
 
-        <div className="relative z-10 flex items-end min-h-screen px-6 md:px-16 pb-20 max-w-6xl">
-          <div>
-            <p className="uppercase tracking-[0.35em] text-orange-400 text-xs md:text-sm mb-4">
-              Premium Project
-            </p>
+      <ProjectGallery images={project.gallery} title={project.title} />
 
-            <h1 className="text-4xl md:text-7xl font-bold leading-tight">
-              {project.title}
-            </h1>
-
-            <p className="mt-4 text-lg md:text-xl text-gray-300">
-              {project.location}
-            </p>
-
-            <p className="mt-6 text-2xl md:text-3xl text-orange-400 font-semibold">
-              {project.price}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* GALLERY */}
-      {project.gallery.length > 0 && (
-        <section className="py-16 px-6 md:px-16">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8">
-            Project Gallery
-          </h2>
-
-          <div className="flex gap-5 overflow-x-auto scrollbar-hide">
-            {project.gallery.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt={`${project.title}-${index}`}
-                className="min-w-[280px] md:min-w-[520px] h-[220px] md:h-[340px] object-cover rounded-3xl"
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* DETAILS */}
-      <section className="max-w-7xl mx-auto px-6 md:px-16 py-20 grid md:grid-cols-[2fr_1fr] gap-12">
-        <div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-8">
-            Project Overview
+      <section className="max-w-4xl mx-auto px-6 md:px-16 py-20 md:py-28">
+        <FadeIn>
+          <h2 className="text-3xl md:text-5xl font-light mb-10 tracking-tight">
+            Overview
           </h2>
 
           <div
-            className="prose prose-invert max-w-none text-gray-300"
+            className="prose prose-invert prose-lg max-w-none text-gray-300"
             dangerouslySetInnerHTML={{
               __html: project.content,
             }}
           />
-        </div>
-
-        <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 sticky top-28 h-fit">
-          <div className="space-y-8">
-            <div>
-              <p className="text-zinc-500">Developer</p>
-              <h3 className="text-xl md:text-2xl font-semibold">
-                {project.developer}
-              </h3>
-            </div>
-
-            <div>
-              <p className="text-zinc-500">Possession</p>
-              <h3 className="text-xl md:text-2xl font-semibold">
-                {project.possession}
-              </h3>
-            </div>
-
-            <div>
-              <p className="text-zinc-500">Starting Price</p>
-              <h3 className="text-xl md:text-2xl font-semibold text-orange-400">
-                {project.price}
-              </h3>
-            </div>
-          </div>
-        </div>
+        </FadeIn>
       </section>
 
       {/* CTA */}
-      <section className="px-6 md:px-16 pb-24">
-        <div className="flex flex-wrap gap-4">
-          <Link
-            href={`/projects/${slug}/masterplan`}
-            className="px-8 py-4 bg-orange-500 text-black rounded-xl font-semibold"
-          >
-            View Masterplan
-          </Link>
-
-          {project.brochure && (
-            <a
-              href={project.brochure}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-8 py-4 border border-white/20 rounded-xl hover:bg-white/10 transition"
+      <section className="px-6 md:px-16 pb-28">
+        <FadeIn>
+          <div className="max-w-4xl mx-auto flex flex-wrap gap-4 justify-center border-t border-white/10 pt-16">
+            <Link
+              href={`/projects/${slug}/masterplan`}
+              className="px-8 py-4 bg-amber-500 text-black rounded-full font-medium hover:bg-amber-400 transition"
             >
-              Download Brochure
-            </a>
-          )}
+              View Masterplan
+            </Link>
 
-          <Link
-            href="https://wa.me/919619973211"
-            className="px-8 py-4 border border-white/20 rounded-xl hover:bg-white/10 transition"
-          >
-            WhatsApp Now
-          </Link>
-        </div>
+            {project.brochure && (
+              <a
+                href={project.brochure}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-8 py-4 border border-white/20 rounded-full hover:border-amber-400 hover:text-amber-400 transition"
+              >
+                Download Brochure
+              </a>
+            )}
+
+            <Link
+              href="https://wa.me/919619973211"
+              className="px-8 py-4 border border-white/20 rounded-full hover:border-amber-400 hover:text-amber-400 transition"
+            >
+              WhatsApp Now
+            </Link>
+          </div>
+        </FadeIn>
       </section>
     </main>
   );
