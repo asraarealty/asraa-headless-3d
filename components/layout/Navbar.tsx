@@ -104,18 +104,18 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed top-4 md:top-5 left-1/2 -translate-x-1/2 z-50 w-[94%] max-w-7xl rounded-full border transition-all duration-500 ${
+        className={`fixed top-0 left-0 w-full z-50 border-b transition-all duration-500 ${
           scrolled
-            ? "bg-black/90 border-white/10 backdrop-blur-2xl shadow-2xl"
-            : "bg-white/5 border-white/5 backdrop-blur-xl"
+            ? "bg-black/95 border-white/10 backdrop-blur-2xl shadow-lg"
+            : "bg-black/20 border-white/0 backdrop-blur-md"
         }`}
       >
-        <div className="flex items-center justify-between px-4 md:px-8 py-2.5 md:py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 md:px-10 py-4 md:py-5">
           <Link href="/" className="flex items-center shrink-0">
             <img
               src="/logo.png"
               alt="Asraa Realty"
-              className="h-7 md:h-9 w-auto object-contain"
+              className="h-8 md:h-10 w-auto object-contain"
             />
           </Link>
 
