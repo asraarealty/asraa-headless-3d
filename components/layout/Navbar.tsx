@@ -8,16 +8,6 @@ type MenuItem = {
   uri: string;
 };
 
-interface GraphQLMenuResponse {
-  data?: {
-    menu?: {
-      menuItems?: {
-        nodes?: MenuItem[];
-      };
-    };
-  };
-}
-
 const fallbackMenu: MenuItem[] = [
   { label: "Home", uri: "/" },
   { label: "Projects", uri: "/projects" },
@@ -57,35 +47,17 @@ export default function Navbar() {
   useEffect(() => {
     async function fetchMenu() {
       try {
-        const res = await fetch("https://asraarealty.com/graphql", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          cache: "no-store",
-          body: JSON.stringify({
-            query: `
-              query GetMenu {
-                menu(id: "Group Home 1", idType: NAME) {
-                  menuItems {
-                    nodes {
-                      label
-                      uri
-                    }
-                  }
-                }
-              }
-            `,
-          }),
-        });
+        const res = await fetch(
+          "https://asraarealty.com/wp-json/asraa/v1/menu/group-home-1",
+          { cache: "no-store" }
+        );
 
         if (!res.ok) {
-          console.log("GraphQL menu fetch failed");
+          console.log("Menu fetch failed");
           return;
         }
 
-        const json: GraphQLMenuResponse = await res.json();
-        const wpMenu = json?.data?.menu?.menuItems?.nodes || [];
+        const wpMenu: MenuItem[] = await res.json();
 
         if (wpMenu.length > 0) {
           const normalizedMenu = wpMenu.map((item) => ({

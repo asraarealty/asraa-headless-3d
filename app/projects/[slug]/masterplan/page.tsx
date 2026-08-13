@@ -32,88 +32,26 @@ export default function MasterplanPage() {
   useEffect(() => {
     async function fetchMasterplan() {
       try {
-        const res = await fetch("https://asraarealty.com/graphql", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: `
-              query GetProject($slug: ID!) {
-                property(id: $slug, idType: SLUG) {
-                  title
-                  featuredImage {
-                    node {
-                      sourceUrl
-                    }
-                  }
-                  towers {
-                    nodes {
-                      id
-                      title
-                      towerMeta {
-                        floors
-                        status
-                      }
-                      units {
-                        nodes {
-                          title
-                          unitMeta {
-                            type
-                            area
-                            price
-                            status
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `,
-            variables: {
-              slug,
-            },
-          }),
-        });
+        const res = await fetch(
+          `https://asraarealty.com/wp-json/wp/v2/property?slug=${encodeURIComponent(
+            slug
+          )}`
+        );
 
-        const json = await res.json();
-        const property = json?.data?.property;
+        if (!res.ok) return;
+
+        const posts = await res.json();
+        const property = Array.isArray(posts) ? posts[0] : null;
 
         if (!property) return;
 
-        setProjectImage(
-          property.featuredImage?.node?.sourceUrl || "/hero-building.jpg"
-        );
+        setProjectImage(property.featuredImageUrl || "/hero-building.jpg");
 
-        const towerData =
-          property.towers?.nodes?.map((tower: any) => ({
-            id: tower.id,
-            name: tower.title,
-            floors: tower.towerMeta?.floors || 0,
-            status: tower.towerMeta?.status || "Available",
-          })) || [];
-
-        setTowers(towerData);
-
-        if (towerData.length > 0) {
-          setSelectedTower(towerData[0].id);
-        }
-
-        const unitMap: Record<string, Unit[]> = {};
-
-        property.towers?.nodes?.forEach((tower: any) => {
-          unitMap[tower.id] =
-            tower.units?.nodes?.map((unit: any) => ({
-              unit: unit.title,
-              type: unit.unitMeta?.type || "N/A",
-              area: unit.unitMeta?.area || "N/A",
-              price: unit.unitMeta?.price || "Price on Request",
-              status: unit.unitMeta?.status || "Available",
-            })) || [];
-        });
-
-        setUnits(unitMap);
+        // Towers/units aren't modeled in WordPress yet (no CPT or REST
+        // endpoint for them) - left empty until that backend data exists,
+        // rather than pointed at a fetch that can't return real data.
+        setTowers([]);
+        setUnits({});
       } catch (error) {
         console.error("Masterplan fetch failed:", error);
       } finally {

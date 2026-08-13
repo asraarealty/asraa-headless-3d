@@ -24,46 +24,21 @@ export const revalidate = 60;
 
 async function getProject(slug: string): Promise<Project | null> {
   try {
-    const res = await fetch("https://asraarealty.com/graphql", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
-          query GetProperty($slug: ID!) {
-            property(id: $slug, idType: SLUG) {
-              title
-              content
-              excerpt
-              address
-              price
-              possession
-              developerName
-              brochure
-              featuredImage {
-                node {
-                  sourceUrl
-                }
-              }
-              gallery
-            }
-          }
-        `,
-        variables: { slug },
-      }),
-      next: { revalidate: 60 },
-    });
+    const res = await fetch(
+      `https://asraarealty.com/wp-json/wp/v2/property?slug=${encodeURIComponent(
+        slug
+      )}`,
+      { next: { revalidate: 60 } }
+    );
 
     if (!res.ok) return null;
 
-    const json = await res.json();
-    const property = json?.data?.property;
+    const posts = await res.json();
+    const property = Array.isArray(posts) ? posts[0] : null;
 
     if (!property) return null;
 
-    const featuredImage =
-      property.featuredImage?.node?.sourceUrl || "/hero-building.jpg";
+    const featuredImage = property.featuredImageUrl || "/hero-building.jpg";
 
     const galleryImages =
       Array.isArray(property.gallery) && property.gallery.length > 0
@@ -71,14 +46,14 @@ async function getProject(slug: string): Promise<Project | null> {
         : [featuredImage];
 
     return {
-      title: property.title || "Untitled Project",
+      title: property.title?.rendered || "Untitled Project",
       location: property.address || "Mumbai",
       price: property.price || "Price on Request",
       description:
-        property.excerpt?.replace(/<[^>]*>/g, "") ||
+        property.excerpt?.rendered?.replace(/<[^>]*>/g, "") ||
         "Premium luxury development",
       content:
-        property.content || "<p>No project details available.</p>",
+        property.content?.rendered || "<p>No project details available.</p>",
       image: featuredImage,
       possession: property.possession || "Coming Soon",
       developer: property.developerName || "Asraa Realty",
