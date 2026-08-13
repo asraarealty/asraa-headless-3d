@@ -14,9 +14,9 @@ interface Project {
 }
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 export const dynamic = "force-dynamic";
@@ -69,7 +69,8 @@ async function getProject(slug: string): Promise<Project | null> {
 export default async function ProjectDetailPage({
   params,
 }: PageProps) {
-  const project = await getProject(params.slug);
+  const { slug } = await params;
+  const project = await getProject(slug);
 
   if (!project) {
     return (
@@ -186,7 +187,7 @@ export default async function ProjectDetailPage({
       <section className="px-6 md:px-16 pb-24">
         <div className="flex flex-wrap gap-4">
           <Link
-            href={`/projects/${params.slug}/masterplan`}
+            href={`/projects/${slug}/masterplan`}
             className="px-8 py-4 bg-orange-500 text-black rounded-xl font-semibold"
           >
             View Masterplan
