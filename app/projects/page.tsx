@@ -10,6 +10,23 @@ interface Project {
   status: string;
 }
 
+interface WPProperty {
+  id: number;
+  slug: string;
+  title?: {
+    rendered?: string;
+  };
+  address?: string;
+  price?: string;
+  possession?: string;
+  featuredImageUrl?: string;
+  _embedded?: {
+    ["wp:featuredmedia"]?: Array<{
+      source_url?: string;
+    }>;
+  };
+}
+
 export const dynamic = "force-dynamic";
 export const revalidate = 120;
 
@@ -22,11 +39,11 @@ async function getProjects(): Promise<Project[]> {
 
     if (!res.ok) return [];
 
-    const data = await res.json();
+    const data: WPProperty[] = await res.json();
 
     if (!Array.isArray(data)) return [];
 
-    return data.map((item: any) => ({
+    return data.map((item) => ({
       id: String(item.id),
       slug: item.slug || "",
       title: item.title?.rendered || "Untitled Project",
